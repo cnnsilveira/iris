@@ -70,10 +70,12 @@ class Plugin {
 	 * @return void
 	 */
 	private static function boot_subsystems() {
+		// Admin screens, settings, and script enqueuing.
+		Admin::init();
+
 		/*
-		 * Subsystem classes are wired here as they are created:
+		 * Remaining subsystems wired as they are created:
 		 *
-		 * - Admin::init()          → settings screens, script enqueuing.
 		 * - ModelManager::init()   → WP-Cron model sync callbacks.
 		 * - RestController::init() → REST API endpoint registration.
 		 */
