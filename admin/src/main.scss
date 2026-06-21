@@ -1,0 +1,11 @@
+// ---------------------------------------------------------------------------
+// Iris – Main Stylesheet
+// Imports the design system foundation (tokens + reset) and all
+// component-level styles.
+// ---------------------------------------------------------------------------
+
+// Foundation — @use rules must come first per Sass spec.
+@use 'styles/reset';
+
+// Google Fonts
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
