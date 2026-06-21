@@ -73,10 +73,12 @@ class Plugin {
 		// Admin screens, settings, and script enqueuing.
 		Admin::init();
 
+		// WP-Cron model sync callbacks.
+		ModelManager::init();
+
 		/*
 		 * Remaining subsystems wired as they are created:
 		 *
-		 * - ModelManager::init()   → WP-Cron model sync callbacks.
 		 * - RestController::init() → REST API endpoint registration.
 		 */
 	}
