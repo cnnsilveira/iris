@@ -12,12 +12,15 @@ namespace Iris;
 
 /**
  * Manages the cached model list and its background sync schedule.
+ *
+ * @since v0.1.0
  */
 class ModelManager {
 
 	/**
 	 * OpenRouter models endpoint.
 	 *
+	 * @since v0.1.0
 	 * @var string
 	 */
 	const API_URL = 'https://openrouter.ai/api/v1/models';
@@ -25,6 +28,7 @@ class ModelManager {
 	/**
 	 * Register the WP-Cron callback.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function init() {
@@ -38,6 +42,7 @@ class ModelManager {
 	 * empty. Respects a 15-minute lockout transient to avoid
 	 * hammering the API after a failure.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function sync_models() {
@@ -94,6 +99,7 @@ class ModelManager {
 	 * Prefers the compile-time constant defined in wp-config.php
 	 * and falls back to the database option.
 	 *
+	 * @since v0.1.0
 	 * @return string The API key, or an empty string if unset.
 	 */
 	private static function get_api_key() {

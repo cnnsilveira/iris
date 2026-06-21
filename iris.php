@@ -3,7 +3,7 @@
  * Plugin Name: Iris
  * Plugin URI:  https://github.com/cnnsilveira/iris/
  * Description: The best AI Assistant for WordPress, powered by OpenRouter.
- * Version:     1.0.0
+ * Version:     0.1.0-alpha
  * Requires PHP: 7.4
  * Author:      Caio Nunes da Silveira
  * Author URI:  https://caionunes.dev/
@@ -22,6 +22,8 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Display an admin notice when the Composer autoloader is missing.
+ *
+ * @since v0.1.0
  *
  * @return void
  */
@@ -57,6 +59,8 @@ require_once __DIR__ . '/vendor/autoload.php';
  * Blocks network-wide activation on Multisite and schedules an
  * initial model list hydration sync via WP-Cron.
  *
+ * @since v0.1.0
+ *
  * @param bool $network_wide Whether the plugin is being activated network-wide.
  * @return void
  */
@@ -80,6 +84,8 @@ register_activation_hook( __FILE__, 'iris_activate' );
  * Handle plugin deactivation.
  *
  * Cleans up all scheduled WP-Cron events registered by the plugin.
+ *
+ * @since v0.1.0
  *
  * @return void
  */

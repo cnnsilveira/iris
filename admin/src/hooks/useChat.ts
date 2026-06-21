@@ -1,11 +1,26 @@
 import { useState, useEffect } from 'react';
 
+/**
+ * Chat conversation message interface.
+ *
+ * @since v0.1.0
+ */
 export interface Message {
+	/** Message sender role. */
 	role: 'user' | 'assistant';
+	/** Text message content. */
 	content: string;
+	/** Unique message ID. */
 	id: string;
 }
 
+/**
+ * Custom hook to manage chat conversation state, history sync, and API streaming.
+ *
+ * @since v0.1.0
+ *
+ * @returns State variables, loading flags, and message handlers.
+ */
 export function useChat() {
 	const [messages, setMessages] = useState<Message[]>([]);
 	const [isTyping, setIsTyping] = useState(false);

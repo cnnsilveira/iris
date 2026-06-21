@@ -13,6 +13,8 @@ namespace Iris;
 
 /**
  * Handles all WordPress admin integration for Iris.
+ *
+ * @since v0.1.0
  */
 class Admin {
 
@@ -20,6 +22,7 @@ class Admin {
 	 * Hook suffix returned by add_menu_page, used to target
 	 * page-specific enqueues.
 	 *
+	 * @since v0.1.0
 	 * @var string
 	 */
 	private static $settings_hook = '';
@@ -27,6 +30,7 @@ class Admin {
 	/**
 	 * Initialize admin hooks.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function init() {
@@ -42,6 +46,7 @@ class Admin {
 	/**
 	 * Register the top-level Iris menu page.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function register_menu() {
@@ -62,6 +67,7 @@ class Admin {
 	 * Outputs a single container that the React settings
 	 * application mounts onto.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function render_settings_page() {
@@ -73,6 +79,7 @@ class Admin {
 	 *
 	 * Restricted to users with the manage_options capability.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function render_chat_root() {
@@ -89,6 +96,8 @@ class Admin {
 	 * Scripts and styles are loaded globally on every admin page for
 	 * users with the manage_options capability so the floating chat
 	 * drawer is always available.
+	 *
+	 * @since v0.1.0
 	 *
 	 * @param string $hook_suffix The current admin page hook suffix.
 	 * @return void
@@ -146,6 +155,7 @@ class Admin {
 	 * iris_api_key option so the model catalogue refreshes
 	 * automatically whenever the key changes.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function schedule_model_sync() {

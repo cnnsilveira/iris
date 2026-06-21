@@ -3,6 +3,16 @@ import { marked } from 'marked';
 import DOMPurify from 'dompurify';
 import { useChat } from '../hooks/useChat';
 
+/**
+ * ChatDrawer Component.
+ *
+ * Renders the sliding drawer panel and fab trigger in the admin footer
+ * to provide the user interface for conversation with the AI.
+ *
+ * @since v0.1.0
+ *
+ * @returns {React.ReactElement} The rendered React component layout.
+ */
 export const ChatDrawer: React.FC = () => {
 	const [isOpen, setIsOpen] = useState(false);
 	const [input, setInput] = useState('');

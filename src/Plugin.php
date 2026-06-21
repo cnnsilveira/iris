@@ -14,12 +14,15 @@ namespace Iris;
  *
  * Provides a single static entry point that wires up all plugin
  * subsystems via WordPress hooks.
+ *
+ * @since v0.1.0
  */
 class Plugin {
 
 	/**
 	 * Guard flag to prevent double initialization.
 	 *
+	 * @since v0.1.0
 	 * @var bool
 	 */
 	private static $initialized = false;
@@ -30,6 +33,7 @@ class Plugin {
 	 * Registers constants and boots all subsystems. Safe to call
 	 * multiple times — subsequent calls are silently ignored.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function init() {
@@ -45,11 +49,12 @@ class Plugin {
 	/**
 	 * Define plugin-wide constants.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	private static function define_constants() {
 		if ( ! defined( 'IRIS_VERSION' ) ) {
-			define( 'IRIS_VERSION', '1.0.0' );
+			define( 'IRIS_VERSION', '0.1.0-alpha' );
 		}
 
 		if ( ! defined( 'IRIS_PLUGIN_FILE' ) ) {
@@ -67,6 +72,7 @@ class Plugin {
 	 * Each subsystem class registers its own WordPress hooks
 	 * internally when initialized.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	private static function boot_subsystems() {

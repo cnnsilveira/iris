@@ -6,6 +6,7 @@
  * when the plugin is deleted through the WordPress admin.
  *
  * @package Iris
+ * @since   v0.1.0
  */
 
 // Exit if not called by WordPress.

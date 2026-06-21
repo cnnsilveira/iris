@@ -17,12 +17,15 @@ use WP_Error;
 
 /**
  * Registers and handles all Iris REST API routes.
+ *
+ * @since v0.1.0
  */
 class RestController {
 
 	/**
 	 * REST namespace for all Iris endpoints.
 	 *
+	 * @since v0.1.0
 	 * @var string
 	 */
 	const ROUTE_NAMESPACE = 'iris/v1';
@@ -30,6 +33,7 @@ class RestController {
 	/**
 	 * Register the rest_api_init hook.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function init() {
@@ -39,6 +43,7 @@ class RestController {
 	/**
 	 * Register all plugin REST routes.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function register_routes() {
@@ -117,6 +122,7 @@ class RestController {
 	/**
 	 * Shared permission callback for all Iris endpoints.
 	 *
+	 * @since v0.1.0
 	 * @return bool|WP_Error True when the user has manage_options.
 	 */
 	public static function check_permissions() {
@@ -138,6 +144,8 @@ class RestController {
 	 * parameters and saved settings, then delegates to
 	 * OpenRouterClient for the SSE stream. Terminates with exit
 	 * to prevent the REST server from appending a response wrapper.
+	 *
+	 * @since v0.1.0
 	 *
 	 * @param WP_REST_Request $request The incoming request.
 	 * @return void
@@ -190,6 +198,7 @@ class RestController {
 	/**
 	 * Return the cached model list.
 	 *
+	 * @since v0.1.0
 	 * @return WP_REST_Response The model catalogue.
 	 */
 	public static function handle_get_models() {
@@ -201,6 +210,7 @@ class RestController {
 	/**
 	 * Trigger a manual model list sync.
 	 *
+	 * @since v0.1.0
 	 * @return WP_REST_Response Confirmation message.
 	 */
 	public static function handle_sync_models() {
@@ -220,6 +230,7 @@ class RestController {
 	 * Exposes a has_api_key flag instead of the raw key, and
 	 * indicates whether the key is locked via a wp-config constant.
 	 *
+	 * @since v0.1.0
 	 * @return WP_REST_Response The settings payload.
 	 */
 	public static function handle_get_settings() {
@@ -247,6 +258,8 @@ class RestController {
 	 * Sanitizes every field before persisting. When the API key is
 	 * provided and no compile-time constant overrides it, the key
 	 * is saved to its own option to trigger the model sync hooks.
+	 *
+	 * @since v0.1.0
 	 *
 	 * @param WP_REST_Request $request The incoming request.
 	 * @return WP_REST_Response Confirmation payload.
@@ -282,6 +295,7 @@ class RestController {
 	/**
 	 * Argument schema for the chat endpoint.
 	 *
+	 * @since v0.1.0
 	 * @return array Validated argument definitions.
 	 */
 	private static function get_chat_args() {
@@ -319,6 +333,7 @@ class RestController {
 	/**
 	 * Argument schema for the settings save endpoint.
 	 *
+	 * @since v0.1.0
 	 * @return array Validated argument definitions.
 	 */
 	private static function get_settings_args() {
@@ -353,6 +368,7 @@ class RestController {
 	 * Checks the compile-time constant first, then falls back to
 	 * the database option.
 	 *
+	 * @since v0.1.0
 	 * @return string The API key, or an empty string.
 	 */
 	private static function get_api_key() {
@@ -366,6 +382,7 @@ class RestController {
 	/**
 	 * Build a site context string for telemetry injection.
 	 *
+	 * @since v0.1.0
 	 * @return string Human-readable environment summary.
 	 */
 	private static function build_site_context() {
@@ -395,6 +412,8 @@ class RestController {
 	 * Appends the context to an existing system message or prepends
 	 * a new one if none exists.
 	 *
+	 * @since v0.1.0
+	 *
 	 * @param array  $messages Conversation messages.
 	 * @param string $context  The site context string.
 	 * @return array Messages with context injected.
@@ -418,6 +437,8 @@ class RestController {
 	/**
 	 * Clamp a float value between a minimum and maximum.
 	 *
+	 * @since v0.1.0
+	 *
 	 * @param float $value The value to clamp.
 	 * @param float $min   Minimum allowed value.
 	 * @param float $max   Maximum allowed value.
@@ -438,6 +459,7 @@ class RestController {
 	 * delays to mimic real-time AI generation. Allows the frontend
 	 * to develop and test the stream parser without an API key.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function handle_mock_chat() {
@@ -540,6 +562,7 @@ class RestController {
 	 * Includes both paid and free models so the "Free models only"
 	 * filter can be tested without a live API connection.
 	 *
+	 * @since v0.1.0
 	 * @return WP_REST_Response The mock model catalogue.
 	 */
 	public static function handle_mock_models() {

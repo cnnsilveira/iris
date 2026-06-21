@@ -14,12 +14,15 @@ namespace Iris;
 
 /**
  * Handles all HTTP communication with the OpenRouter API.
+ *
+ * @since v0.1.0
  */
 class OpenRouterClient {
 
 	/**
 	 * OpenRouter chat completions endpoint.
 	 *
+	 * @since v0.1.0
 	 * @var string
 	 */
 	const CHAT_URL = 'https://openrouter.ai/api/v1/chat/completions';
@@ -31,6 +34,8 @@ class OpenRouterClient {
 	 * buffers, and proxies chunks from OpenRouter in real time.
 	 * Falls back to a blocking wp_remote_post request when the
 	 * cURL extension is not loaded.
+	 *
+	 * @since v0.1.0
 	 *
 	 * @param string $api_key The OpenRouter API key.
 	 * @param array  $body    Request body (model, messages, temperature, max_tokens).
@@ -56,6 +61,8 @@ class OpenRouterClient {
 
 	/**
 	 * Execute the streaming request via native cURL.
+	 *
+	 * @since v0.1.0
 	 *
 	 * @param string $api_key The OpenRouter API key.
 	 * @param array  $body    Prepared request body with stream flag.
@@ -139,6 +146,8 @@ class OpenRouterClient {
 	 * the complete response in SSE format so the frontend stream
 	 * parser remains compatible.
 	 *
+	 * @since v0.1.0
+	 *
 	 * @param string $api_key The OpenRouter API key.
 	 * @param array  $body    Request body (stream flag is stripped).
 	 * @return void
@@ -187,6 +196,7 @@ class OpenRouterClient {
 	 * Disables PHP zlib compression, Apache mod_deflate gzip, and
 	 * Nginx proxy buffering so chunks reach the browser immediately.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	private static function prepare_stream_headers() {
@@ -209,6 +219,7 @@ class OpenRouterClient {
 	 * Prevents WordPress, plugins, or server-level buffers from
 	 * capturing SSE chunks instead of flushing them immediately.
 	 *
+	 * @since v0.1.0
 	 * @return void
 	 */
 	private static function clean_output_buffers() {

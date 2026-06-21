@@ -1,27 +1,65 @@
 import React, { useState, useEffect, useRef } from 'react';
 
+/**
+ * Representation of prompt and completion token costs.
+ *
+ * @since v0.1.0
+ */
 interface ModelPricing {
+	/** Cost per token for prompts. */
 	prompt: string | number;
+	/** Cost per token for completions. */
 	completion: string | number;
 }
 
+/**
+ * Representation of an AI Model fetched from OpenRouter.
+ *
+ * @since v0.1.0
+ */
 interface Model {
+	/** Unique model identifier. */
 	id: string;
+	/** Display name. */
 	name: string;
+	/** Maximum token context length. */
 	context_length: number;
+	/** Pricing information structure. */
 	pricing: ModelPricing;
 }
 
+/**
+ * Representation of the plugin options/settings interface.
+ *
+ * @since v0.1.0
+ */
 interface Settings {
+	/** Active model ID. */
 	model: string;
+	/** Query temperature. */
 	temperature: number;
+	/** Maximum generation token limit. */
 	max_tokens: number;
+	/** Default system instruction prompt. */
 	system_prompt: string;
+	/** Toggle flag to share telemetry context. */
 	context_sharing: boolean;
+	/** Flag showing if api key is configured. */
 	has_api_key: boolean;
+	/** Flag showing if api key is forced by constant definition. */
 	has_constant_key: boolean;
 }
 
+/**
+ * SettingsDashboard Component.
+ *
+ * Renders the main administration settings layout for configuring
+ * the Iris Assistant, API keys, behavior, and parameters.
+ *
+ * @since v0.1.0
+ *
+ * @returns {React.ReactElement} The settings dashboard markup.
+ */
 export const SettingsDashboard: React.FC = () => {
 	// Loading & saving states
 	const [loading, setLoading] = useState(true);
