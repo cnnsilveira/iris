@@ -1,0 +1,27 @@
+{
+	"name": "iris",
+	"version": "1.0.0",
+	"private": true,
+	"description": "Iris – WordPress AI Assistant frontend.",
+	"scripts": {
+		"dev": "vite --config vite.config.ts",
+		"build": "tsc -b && vite build --config vite.config.ts",
+		"lint": "eslint 'admin/src/**/*.{ts,tsx}'",
+		"format": "prettier --write 'admin/src/**/*.{ts,tsx,scss}'"
+	},
+	"dependencies": {
+		"react": "^19.1.0",
+		"react-dom": "^19.1.0"
+	},
+	"devDependencies": {
+		"@types/react": "^19.1.0",
+		"@types/react-dom": "^19.1.0",
+		"@vitejs/plugin-react": "^4.4.0",
+		"eslint": "^9.28.0",
+		"eslint-config-prettier": "^10.1.0",
+		"prettier": "^3.5.0",
+		"sass": "^1.89.0",
+		"typescript": "^5.8.0",
+		"vite": "^6.3.0"
+	}
+}

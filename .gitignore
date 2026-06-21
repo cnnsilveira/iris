@@ -1,0 +1,16 @@
+# PHP dependencies
+vendor/
+
+# Node dependencies
+node_modules/
+
+# Build output
+assets/dist/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+Thumbs.db

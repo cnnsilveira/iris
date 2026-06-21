@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<ruleset name="Iris">
+	<description>WordPress Coding Standards configuration for the Iris plugin.</description>
+
+	<!-- Scan these paths -->
+	<file>./src</file>
+	<file>./iris.php</file>
+	<!-- <file>./uninstall.php</file> : Uncomment when file is created in Phase 3 -->
+
+	<!-- Show progress and use colors -->
+	<arg value="ps"/>
+	<arg name="colors"/>
+
+	<!-- Only check PHP files -->
+	<arg name="extensions" value="php"/>
+
+	<!-- WordPress rulesets -->
+	<rule ref="WordPress-Core"/>
+	<rule ref="WordPress-Docs"/>
+	<rule ref="WordPress-Extra"/>
+
+	<!--
+		Exclude WordPress.Files.FileName for src/ because PSR-4 autoloading
+		requires PascalCase filenames that don't match WP snake_case conventions.
+	-->
+	<rule ref="WordPress.Files.FileName">
+		<exclude-pattern>./src/*</exclude-pattern>
+	</rule>
+
+	<!-- Minimum supported WordPress version for deprecated function checks -->
+	<config name="minimum_wp_version" value="6.0"/>
+
+	<!-- Text domain for i18n checks -->
+	<config name="text_domain" value="iris"/>
+</ruleset>
