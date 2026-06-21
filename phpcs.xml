@@ -5,7 +5,7 @@
 	<!-- Scan these paths -->
 	<file>./src</file>
 	<file>./iris.php</file>
-	<!-- <file>./uninstall.php</file> : Uncomment when file is created in Phase 3 -->
+	<file>./uninstall.php</file>
 
 	<!-- Show progress and use colors -->
 	<arg value="ps"/>
