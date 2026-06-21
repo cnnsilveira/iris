@@ -1,54 +1,31 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { marked } from 'marked';
 import DOMPurify from 'dompurify';
-
-interface Message {
-	role: 'user' | 'assistant';
-	content: string;
-	id: string;
-}
+import { useChat } from '../hooks/useChat';
 
 export const ChatDrawer: React.FC = () => {
 	const [isOpen, setIsOpen] = useState(false);
-	const [messages, setMessages] = useState<Message[]>([]);
 	const [input, setInput] = useState('');
-	const [isTyping, setIsTyping] = useState(false);
 	const [activeModel, setActiveModel] = useState('Select a model...');
+
+	const { messages, isTyping, sendMessage, clearHistory } = useChat();
 
 	const chatBodyRef = useRef<HTMLDivElement>(null);
 	const textareaRef = useRef<HTMLTextAreaElement>(null);
 
 	const restUrl = window.irisSettings?.restUrl || '/wp-json/iris/v1/';
 	const nonce = window.irisSettings?.nonce || '';
-	const siteHash = window.irisSettings?.siteHash || 'default';
-	const storageKey = `iris_chat_history_${siteHash}`;
 
-	// Load chat history & active settings
+	// Fetch active model from settings to show in header
 	useEffect(() => {
-		const storedHistory = localStorage.getItem(storageKey);
-		if (storedHistory) {
-			try {
-				setMessages(JSON.parse(storedHistory));
-			} catch (e) {
-				console.error('Failed to parse chat history', e);
-			}
-		}
-
-		// Fetch active model from settings to show in header
 		fetchSettings();
 	}, []);
 
-	// Save history whenever messages list changes
+	// Auto scroll to bottom whenever messages update
 	useEffect(() => {
-		if (messages.length > 0) {
-			localStorage.setItem(storageKey, JSON.stringify(messages));
-		} else {
-			localStorage.removeItem(storageKey);
-		}
 		scrollToBottom();
 	}, [messages]);
 
-	// Auto scroll to bottom
 	const scrollToBottom = () => {
 		if (chatBodyRef.current) {
 			chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
@@ -71,16 +48,6 @@ export const ChatDrawer: React.FC = () => {
 		}
 	};
 
-	const getHeaders = () => {
-		const headers: Record<string, string> = {
-			'Content-Type': 'application/json',
-		};
-		if (nonce) {
-			headers['X-WP-Nonce'] = nonce;
-		}
-		return headers;
-	};
-
 	const handleSend = async (textToSend?: string) => {
 		const query = (textToSend || input).trim();
 		if (!query || isTyping) return;
@@ -89,105 +56,7 @@ export const ChatDrawer: React.FC = () => {
 			setInput('');
 		}
 
-		const userMsg: Message = {
-			role: 'user',
-			content: query,
-			id: `user-${Date.now()}`,
-		};
-
-		setMessages((prev) => [...prev, userMsg]);
-		setIsTyping(true);
-
-		const assistantMsgId = `assistant-${Date.now()}`;
-		const placeholderMsg: Message = {
-			role: 'assistant',
-			content: '',
-			id: assistantMsgId,
-		};
-
-		setMessages((prev) => [...prev, placeholderMsg]);
-
-		// Build conversation payload
-		const contextMessages = [...messages, userMsg].map((m) => ({
-			role: m.role,
-			content: m.content,
-		}));
-
-		try {
-			// Trigger SSE stream from either the real chat endpoint or the mock chat endpoint
-			const chatEndpoint = `${restUrl}chat/mock`; // Temporary mock stream as requested
-			const response = await fetch(chatEndpoint, {
-				method: 'POST',
-				headers: getHeaders(),
-				body: JSON.stringify({
-					messages: contextMessages,
-				}),
-			});
-
-			if (!response.ok) {
-				const errData = await response.json().catch(() => ({}));
-				throw new Error(errData.message || 'Stream connection failed.');
-			}
-
-			const reader = response.body?.getReader();
-			const decoder = new TextDecoder();
-			if (!reader) {
-				throw new Error('Readable stream not supported.');
-			}
-
-			let responseText = '';
-			let done = false;
-
-			while (!done) {
-				const { value, done: doneReading } = await reader.read();
-				done = doneReading;
-				if (value) {
-					const chunk = decoder.decode(value, { stream: true });
-					const lines = chunk.split('\n');
-
-					for (const line of lines) {
-						const cleanedLine = line.trim();
-						if (cleanedLine === 'data: [DONE]') {
-							done = true;
-							break;
-						}
-						if (cleanedLine.startsWith('data: ')) {
-							try {
-								const dataJson = JSON.parse(cleanedLine.substring(6));
-								const token = dataJson.choices?.[0]?.delta?.content;
-								if (token) {
-									responseText += token;
-									// Update the assistant message in real-time
-									setMessages((prev) =>
-										prev.map((msg) =>
-											msg.id === assistantMsgId
-												? { ...msg, content: responseText }
-												: msg
-										)
-									);
-								}
-							} catch (e) {
-								// Ignore JSON parse errors for non-complete packets
-							}
-						}
-					}
-				}
-			}
-		} catch (error: any) {
-			console.error('Chat error:', error);
-			setMessages((prev) =>
-				prev.map((msg) =>
-					msg.id === assistantMsgId
-						? {
-								...msg,
-								content: `⚠️ **Error connecting to AI backend:** ${error.message || 'An unknown network error occurred.'}`,
-							}
-						: msg
-				)
-			);
-		} finally {
-			setIsTyping(false);
-		}
+		await sendMessage(query);
 	};
 
 	const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -205,9 +74,9 @@ export const ChatDrawer: React.FC = () => {
 		}
 	};
 
-	const clearHistory = () => {
+	const handleClearHistory = () => {
 		if (window.confirm('Are you sure you want to clear your conversation history?')) {
-			setMessages([]);
+			clearHistory();
 		}
 	};
 
@@ -259,7 +128,7 @@ export const ChatDrawer: React.FC = () => {
 						{messages.length > 0 && (
 							<button
 								className="iris-drawer__clear-btn"
-								onClick={clearHistory}
+								onClick={handleClearHistory}
 								title="Clear conversation"
 							>
 								<svg viewBox="0 0 24 24" fill="none" width="16" height="16" xmlns="http://www.w3.org/2000/svg">
