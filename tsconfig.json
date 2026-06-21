@@ -13,9 +13,8 @@
 		"isolatedModules": true,
 		"noEmit": true,
 		"allowImportingTsExtensions": true,
-		"baseUrl": ".",
 		"paths": {
-			"@/*": ["admin/src/*"]
+			"@/*": ["./admin/src/*"]
 		}
 	},
 	"include": ["admin/src"]
