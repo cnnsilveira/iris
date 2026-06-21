@@ -1,0 +1,418 @@
+@use '../tokens' as *;
+
+#iris-chat-root {
+	.iris-drawer-container {
+		font-family: $iris-font-family;
+		color: $iris-text-primary;
+	}
+
+	// Floating Action Button (FAB)
+	.iris-fab {
+		position: fixed;
+		bottom: $iris-space-lg;
+		right: $iris-space-lg;
+		width: 56px;
+		height: 56px;
+		border-radius: $iris-radius-full;
+		background: linear-gradient(135deg, $iris-accent 0%, #6366f1 100%);
+		color: #ffffff;
+		box-shadow: $iris-shadow-md, $iris-shadow-glow;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: all $iris-transition-base;
+		z-index: $iris-z-fab;
+		cursor: pointer;
+		border: 1px solid rgba(255, 255, 255, 0.1);
+
+		&:hover {
+			transform: scale(1.08) translateY(-2px);
+			box-shadow: $iris-shadow-lg, 0 0 25px rgba(130, 143, 255, 0.35);
+			background: linear-gradient(135deg, $iris-accent-hover 0%, #4f46e5 100%);
+		}
+
+		&:active {
+			transform: scale(0.95);
+		}
+
+		&--active {
+			background: $iris-bg-surface;
+			color: $iris-text-primary;
+			border-color: $iris-border;
+			box-shadow: $iris-shadow-md;
+
+			&:hover {
+				background: $iris-bg-surface-hover;
+				color: $iris-text-primary;
+				box-shadow: $iris-shadow-lg;
+			}
+		}
+	}
+
+	// Slide-out Drawer Panel
+	.iris-drawer {
+		position: fixed;
+		right: $iris-space-lg;
+		bottom: calc(#{$iris-space-lg} + 72px);
+		width: $iris-drawer-width;
+		max-width: calc(100vw - (#{$iris-space-lg} * 2));
+		height: 600px;
+		max-height: $iris-drawer-max-height;
+		background: $iris-bg-glass;
+		backdrop-filter: blur(20px);
+		-webkit-backdrop-filter: blur(20px);
+		border: 1px solid $iris-border;
+		border-radius: $iris-radius-lg;
+		box-shadow: $iris-shadow-lg;
+		z-index: $iris-z-drawer;
+		display: flex;
+		flex-direction: column;
+		overflow: hidden;
+		transition:
+			transform $iris-transition-drawer,
+			opacity $iris-transition-drawer,
+			visibility $iris-transition-drawer;
+		transform: translateY(20px) scale(0.95);
+		opacity: 0;
+		visibility: hidden;
+
+		&--open {
+			transform: translateY(0) scale(1);
+			opacity: 1;
+			visibility: visible;
+		}
+
+		// Header
+		&__header {
+			padding: $iris-space-base;
+			border-bottom: 1px solid $iris-border;
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			background: rgba(26, 29, 39, 0.4);
+		}
+
+		&__title-group {
+			display: flex;
+			flex-direction: column;
+		}
+
+		&__title {
+			font-size: $iris-font-base;
+			font-weight: $iris-weight-semibold;
+			letter-spacing: -0.01em;
+		}
+
+		&__subtitle {
+			font-size: $iris-font-xs;
+			color: $iris-text-secondary;
+			margin-top: 2px;
+		}
+
+		&__actions {
+			display: flex;
+			align-items: center;
+			gap: $iris-space-sm;
+		}
+
+		&__clear-btn,
+		&__close-btn {
+			width: 28px;
+			height: 28px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			border-radius: $iris-radius-sm;
+			color: $iris-text-secondary;
+			transition: all $iris-transition-fast;
+
+			&:hover {
+				background: rgba(255, 255, 255, 0.05);
+				color: $iris-text-primary;
+			}
+		}
+
+		&__close-btn {
+			font-size: $iris-font-lg;
+			line-height: 1;
+		}
+
+		// Body Content
+		&__body {
+			flex: 1;
+			overflow-y: auto;
+			padding: $iris-space-base;
+			display: flex;
+			flex-direction: column;
+		}
+
+		// Empty state
+		&__empty-state {
+			display: flex;
+			flex-direction: column;
+			align-items: center;
+			justify-content: center;
+			flex: 1;
+			text-align: center;
+			padding: $iris-space-lg;
+		}
+
+		&__empty-icon {
+			color: $iris-text-muted;
+			margin-bottom: $iris-space-md;
+			opacity: 0.6;
+		}
+
+		&__welcome-title {
+			font-size: $iris-font-md;
+			font-weight: $iris-weight-semibold;
+			margin-bottom: $iris-space-sm;
+		}
+
+		&__welcome-text {
+			font-size: $iris-font-sm;
+			color: $iris-text-secondary;
+			line-height: $iris-line-height;
+			margin-bottom: $iris-space-lg;
+		}
+
+		&__suggestions {
+			display: flex;
+			flex-direction: column;
+			gap: $iris-space-sm;
+			width: 100%;
+		}
+
+		&__suggestion-chip {
+			background: rgba(255, 255, 255, 0.03);
+			border: 1px solid $iris-border;
+			border-radius: $iris-radius-md;
+			padding: $iris-space-sm $iris-space-md;
+			font-size: $iris-font-sm;
+			color: $iris-text-secondary;
+			text-align: left;
+			transition: all $iris-transition-fast;
+
+			&:hover {
+				background: $iris-accent-subtle;
+				color: $iris-accent;
+				border-color: rgba(130, 143, 255, 0.2);
+			}
+		}
+
+		// Message history lists
+		&__messages {
+			display: flex;
+			flex-direction: column;
+			gap: $iris-space-lg;
+		}
+
+		&__message {
+			display: flex;
+			gap: $iris-space-sm;
+			max-width: 85%;
+			animation: iris-message-slide $iris-transition-base;
+
+			&--user {
+				flex-direction: row-reverse;
+				align-self: flex-end;
+			}
+
+			&--assistant {
+				align-self: flex-start;
+			}
+		}
+
+		&__message-avatar {
+			width: 28px;
+			height: 28px;
+			border-radius: $iris-radius-full;
+			background: $iris-bg-surface;
+			border: 1px solid $iris-border;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			font-size: $iris-font-xs;
+			font-weight: $iris-weight-semibold;
+			flex-shrink: 0;
+
+			.iris-drawer__message--user & {
+				background: $iris-accent;
+				color: $iris-bg-primary;
+				border: none;
+			}
+		}
+
+		&__message-bubble {
+			background: $iris-bg-secondary;
+			border: 1px solid $iris-border;
+			border-radius: $iris-radius-md;
+			padding: $iris-space-sm $iris-space-md;
+			box-shadow: $iris-shadow-sm;
+
+			.iris-drawer__message--user & {
+				background: rgba(130, 143, 255, 0.15);
+				border-color: rgba(130, 143, 255, 0.25);
+			}
+		}
+
+		&__message-text {
+			font-size: $iris-font-base;
+			line-height: $iris-line-height;
+			word-break: break-word;
+
+			// Handle Markdown items inside message bubble
+			p {
+				margin-bottom: $iris-space-sm;
+				&:last-child {
+					margin-bottom: 0;
+				}
+			}
+
+			ol,
+			ul {
+				margin: $iris-space-sm 0;
+				padding-left: $iris-space-lg;
+			}
+
+			ul {
+				list-style-type: disc;
+			}
+
+			ol {
+				list-style-type: decimal;
+			}
+
+			li {
+				margin-bottom: 4px;
+				&:last-child {
+					margin-bottom: 0;
+				}
+			}
+
+			pre {
+				background-color: #0c0e14;
+				border: 1px solid rgba(255, 255, 255, 0.04);
+				margin: $iris-space-sm 0;
+			}
+		}
+
+		// Loading typing dots
+		&__typing-indicator {
+			display: flex;
+			align-items: center;
+			gap: 4px;
+			padding: 4px 8px;
+
+			span {
+				width: 6px;
+				height: 6px;
+				background-color: $iris-text-secondary;
+				border-radius: 50%;
+				display: inline-block;
+				animation: iris-bounce 1.4s infinite ease-in-out both;
+
+				&:nth-child(1) {
+					animation-delay: -0.32s;
+				}
+				&:nth-child(2) {
+					animation-delay: -0.16s;
+				}
+			}
+		}
+
+		// Input form footer
+		&__footer {
+			padding: $iris-space-base;
+			border-top: 1px solid $iris-border;
+			background: rgba(26, 29, 39, 0.4);
+		}
+
+		&__input-group {
+			display: flex;
+			align-items: flex-end;
+			background: $iris-bg-surface;
+			border: 1px solid $iris-border;
+			border-radius: $iris-radius-md;
+			padding: 6px;
+			gap: $iris-space-xs;
+			transition: border-color $iris-transition-fast;
+
+			&:focus-within {
+				border-color: $iris-border-focus;
+				box-shadow: 0 0 0 3px $iris-accent-subtle;
+			}
+		}
+
+		&__textarea {
+			flex: 1;
+			background: transparent;
+			border: none;
+			padding: 6px;
+			resize: none;
+			max-height: $iris-chat-input-max-height;
+			overflow-y: auto;
+			color: $iris-text-primary;
+			font-size: $iris-font-base;
+			line-height: 1.4;
+
+			&:focus {
+				border: none;
+				outline: none;
+				box-shadow: none;
+			}
+		}
+
+		&__send-btn {
+			width: 32px;
+			height: 32px;
+			border-radius: $iris-radius-sm;
+			background: transparent;
+			color: $iris-accent;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			transition: all $iris-transition-fast;
+			flex-shrink: 0;
+
+			&:hover:not(:disabled) {
+				background: $iris-accent;
+				color: $iris-bg-primary;
+			}
+
+			&:disabled {
+				color: $iris-text-muted;
+				cursor: not-allowed;
+			}
+		}
+
+		&__footer-note {
+			font-size: $iris-font-xs;
+			color: $iris-text-muted;
+			text-align: center;
+			margin-top: $iris-space-sm;
+		}
+	}
+}
+
+@keyframes iris-bounce {
+	0%,
+	80%,
+	100% {
+		transform: scale(0);
+	}
+	40% {
+		transform: scale(1);
+	}
+}
+
+@keyframes iris-message-slide {
+	from {
+		opacity: 0;
+		transform: translateY(10px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
