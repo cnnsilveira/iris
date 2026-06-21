@@ -76,10 +76,7 @@ class Plugin {
 		// WP-Cron model sync callbacks.
 		ModelManager::init();
 
-		/*
-		 * Remaining subsystems wired as they are created:
-		 *
-		 * - RestController::init() → REST API endpoint registration.
-		 */
+		// REST API endpoint registration.
+		RestController::init();
 	}
 }
