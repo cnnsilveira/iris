@@ -90,6 +90,28 @@ class RestController {
 				),
 			)
 		);
+
+		// -- Mock endpoints for frontend testing (remove in production). --
+
+		register_rest_route(
+			self::ROUTE_NAMESPACE,
+			'/chat/mock',
+			array(
+				'methods'             => 'POST',
+				'callback'            => array( __CLASS__, 'handle_mock_chat' ),
+				'permission_callback' => array( __CLASS__, 'check_permissions' ),
+			)
+		);
+
+		register_rest_route(
+			self::ROUTE_NAMESPACE,
+			'/models/mock',
+			array(
+				'methods'             => 'GET',
+				'callback'            => array( __CLASS__, 'handle_mock_models' ),
+				'permission_callback' => array( __CLASS__, 'check_permissions' ),
+			)
+		);
 	}
 
 	/**
@@ -403,5 +425,172 @@ class RestController {
 	 */
 	private static function clamp_float( $value, $min, $max ) {
 		return max( $min, min( $max, $value ) );
+	}
+
+	// ------------------------------------------------------------------
+	// Mock endpoints (temporary — remove before production release)
+	// ------------------------------------------------------------------
+
+	/**
+	 * Simulate a streaming chat response in SSE format.
+	 *
+	 * Outputs a predefined markdown reply word-by-word with small
+	 * delays to mimic real-time AI generation. Allows the frontend
+	 * to develop and test the stream parser without an API key.
+	 *
+	 * @return void
+	 */
+	public static function handle_mock_chat() {
+		header( 'Content-Type: text/event-stream' );
+		header( 'Cache-Control: no-cache' );
+		header( 'X-Accel-Buffering: no' );
+
+		// phpcs:ignore WordPress.PHP.IniSet.Risky
+		ini_set( 'zlib.output_compression', 'Off' );
+
+		// phpcs:ignore WordPress.PHP.DiscouragedPHPFunctions.obstart_ob_end_clean
+		while ( ob_get_level() > 0 ) {
+			ob_end_clean();
+		}
+
+		ignore_user_abort( false );
+
+		$mock_id = 'mock-' . wp_rand( 1000, 9999 );
+
+		$text = "Hello! I'm **Iris**, your AI assistant for WordPress. "
+			. "I'm currently running in _mock mode_ because no real API "
+			. "connection is active.\n\n"
+			. "Here's what I can help you with:\n\n"
+			. "- \xF0\x9F\x93\x9D Content writing and editing\n"
+			. "- \xF0\x9F\x94\xA7 Site management guidance\n"
+			. "- \xF0\x9F\x9B\xA0 Troubleshooting WordPress issues\n"
+			. "- \xF0\x9F\x92\xBB Code snippets and explanations\n\n"
+			. "```php\n"
+			. "// Example: Get the current theme name\n"
+			. "\$theme = wp_get_theme();\n"
+			. "echo \$theme->get( 'Name' );\n"
+			. "```\n\n"
+			. 'Configure your **OpenRouter API key** in the Iris settings '
+			. 'to start using real AI responses!';
+
+		// Split into small tokens for realistic streaming.
+		$tokens = preg_split( '/(\s+)/', $text, -1, PREG_SPLIT_DELIM_CAPTURE | PREG_SPLIT_NO_EMPTY );
+
+		foreach ( $tokens as $token ) {
+			if ( connection_aborted() ) {
+				break;
+			}
+
+			$chunk = wp_json_encode(
+				array(
+					'id'      => $mock_id,
+					'object'  => 'chat.completion.chunk',
+					'choices' => array(
+						array(
+							'index'         => 0,
+							'delta'         => array( 'content' => $token ),
+							'finish_reason' => null,
+						),
+					),
+				)
+			);
+
+			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- raw SSE proxy data.
+			echo 'data: ' . $chunk . "\n\n";
+
+			if ( ob_get_level() > 0 ) {
+				ob_flush();
+			}
+			flush();
+
+			// Small delay to simulate generation speed.
+			usleep( 30000 );
+		}
+
+		// Final chunk with finish_reason and DONE sentinel.
+		$done_chunk = wp_json_encode(
+			array(
+				'id'      => $mock_id,
+				'object'  => 'chat.completion.chunk',
+				'choices' => array(
+					array(
+						'index'         => 0,
+						'delta'         => array(),
+						'finish_reason' => 'stop',
+					),
+				),
+			)
+		);
+
+		// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+		echo 'data: ' . $done_chunk . "\n\n";
+		echo "data: [DONE]\n\n";
+
+		if ( ob_get_level() > 0 ) {
+			ob_flush();
+		}
+		flush();
+
+		exit;
+	}
+
+	/**
+	 * Return a static model list for frontend development.
+	 *
+	 * Includes both paid and free models so the "Free models only"
+	 * filter can be tested without a live API connection.
+	 *
+	 * @return WP_REST_Response The mock model catalogue.
+	 */
+	public static function handle_mock_models() {
+		$models = array(
+			array(
+				'id'             => 'openai/gpt-4o',
+				'name'           => 'GPT-4o',
+				'context_length' => 128000,
+				'pricing'        => array(
+					'prompt'     => '0.000005',
+					'completion' => '0.000015',
+				),
+			),
+			array(
+				'id'             => 'anthropic/claude-sonnet-4',
+				'name'           => 'Claude Sonnet 4',
+				'context_length' => 200000,
+				'pricing'        => array(
+					'prompt'     => '0.000003',
+					'completion' => '0.000015',
+				),
+			),
+			array(
+				'id'             => 'google/gemini-2.5-pro',
+				'name'           => 'Gemini 2.5 Pro',
+				'context_length' => 1000000,
+				'pricing'        => array(
+					'prompt'     => '0.0000025',
+					'completion' => '0.000015',
+				),
+			),
+			array(
+				'id'             => 'meta-llama/llama-4-maverick',
+				'name'           => 'Llama 4 Maverick',
+				'context_length' => 1000000,
+				'pricing'        => array(
+					'prompt'     => '0',
+					'completion' => '0',
+				),
+			),
+			array(
+				'id'             => 'deepseek/deepseek-r1-0528',
+				'name'           => 'DeepSeek R1 0528',
+				'context_length' => 163840,
+				'pricing'        => array(
+					'prompt'     => '0',
+					'completion' => '0',
+				),
+			),
+		);
+
+		return new WP_REST_Response( $models, 200 );
 	}
 }
