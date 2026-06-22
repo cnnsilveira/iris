@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
-import { useChat } from "../hooks/useChat";
+import { useChat } from "@/hooks/useChat";
 
 /**
  * ChatDrawer Component.

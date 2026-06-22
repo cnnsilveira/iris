@@ -7,8 +7,8 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
-import { SettingsDashboard } from "./components/SettingsDashboard";
-import { ChatDrawer } from "./components/ChatDrawer";
+import { SettingsDashboard } from "./components/settings/SettingsDashboard";
+import { ChatDrawer } from "./components/chat/ChatDrawer";
 import "../scss/main.scss";
 
 /**

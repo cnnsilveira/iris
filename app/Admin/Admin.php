@@ -9,7 +9,12 @@
  * @package Iris
  */
 
-namespace Iris;
+namespace Iris\Admin;
+
+// Prevent direct file access.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Handles all WordPress admin integration for Iris.

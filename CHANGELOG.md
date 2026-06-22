@@ -2,6 +2,16 @@
 
 All notable changes to the Iris WordPress plugin will be documented in this file.
 
+## [Unreleased]
+
+### Changed
+- **Folder and Namespace Restructuring:** Reorganized directory layout and namespacing to match the plugin standards specified in `AGENTS.md`.
+  - Moved PHP classes into feature-specific namespace directories: `Admin/`, `Api/`, `Chat/`, and `Models/`.
+  - Split unified `RestController` into domain-specific controllers (`ChatController`, `ModelsController`, `SettingsController`) under the `Iris\Api` namespace.
+  - Reorganized frontend React components into feature folders: `components/chat/` and `components/settings/`.
+  - Nested component SCSS stylesheets in subfolders (`components/chat/` and `components/settings/`) and updated Sass imports.
+  - Added direct file access check guards (`ABSPATH` checks) to all PHP source files.
+
 ## [0.1.0-alpha] - 2026-06-21
 
 ### Added

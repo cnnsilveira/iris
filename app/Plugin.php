@@ -9,6 +9,11 @@
 
 namespace Iris;
 
+// Prevent direct file access.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
+
 /**
  * Main plugin bootstrapper class.
  *
@@ -77,12 +82,14 @@ class Plugin {
 	 */
 	private static function boot_subsystems() {
 		// Admin screens, settings, and script enqueuing.
-		Admin::init();
+		Admin\Admin::init();
 
 		// WP-Cron model sync callbacks.
-		ModelManager::init();
+		Models\ModelManager::init();
 
 		// REST API endpoint registration.
-		RestController::init();
+		Api\ChatController::init();
+		Api\ModelsController::init();
+		Api\SettingsController::init();
 	}
 }

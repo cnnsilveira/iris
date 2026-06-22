@@ -10,7 +10,12 @@
  * @package Iris
  */
 
-namespace Iris;
+namespace Iris\Chat;
+
+// Prevent direct file access.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Handles all HTTP communication with the OpenRouter API.

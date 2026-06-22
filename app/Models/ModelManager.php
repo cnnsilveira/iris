@@ -8,7 +8,12 @@
  * @package Iris
  */
 
-namespace Iris;
+namespace Iris\Models;
+
+// Prevent direct file access.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Manages the cached model list and its background sync schedule.
