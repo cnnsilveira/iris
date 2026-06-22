@@ -6,8 +6,8 @@
 	"scripts": {
 		"dev": "vite --config vite.config.ts",
 		"build": "tsc -b && vite build --config vite.config.ts",
-		"lint": "eslint 'admin/src/**/*.{ts,tsx}'",
-		"format": "prettier --write 'admin/src/**/*.{ts,tsx,scss}'",
+		"lint": "eslint 'resources/ts/**/*.{ts,tsx}'",
+		"format": "prettier --write 'resources/ts/**/*.{ts,tsx}' 'resources/scss/**/*.scss'",
 		"zip": "python3 bin/release.py"
 	},
 	"dependencies": {

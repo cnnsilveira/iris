@@ -3,7 +3,7 @@
 	<description>WordPress Coding Standards configuration for the Iris plugin.</description>
 
 	<!-- Scan these paths -->
-	<file>./src</file>
+	<file>./app</file>
 	<file>./iris.php</file>
 	<file>./uninstall.php</file>
 
@@ -20,11 +20,11 @@
 	<rule ref="WordPress-Extra"/>
 
 	<!--
-		Exclude WordPress.Files.FileName for src/ because PSR-4 autoloading
+		Exclude WordPress.Files.FileName for app/ because PSR-4 autoloading
 		requires PascalCase filenames that don't match WP snake_case conventions.
 	-->
 	<rule ref="WordPress.Files.FileName">
-		<exclude-pattern>./src/*</exclude-pattern>
+		<exclude-pattern>./app/*</exclude-pattern>
 	</rule>
 
 	<!-- Minimum supported WordPress version for deprecated function checks -->

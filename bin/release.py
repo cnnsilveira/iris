@@ -44,7 +44,7 @@ def main():
         # 5. Copy files
         print("📂 Copying production files...")
         files_to_copy = ["iris.php", "uninstall.php", "README.md", "CHANGELOG.md"]
-        dirs_to_copy = ["src", "assets", "vendor"]
+        dirs_to_copy = ["app", "assets", "vendor"]
 
         for f in files_to_copy:
             if os.path.exists(f):

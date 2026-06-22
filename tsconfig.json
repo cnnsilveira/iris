@@ -14,8 +14,8 @@
 		"noEmit": true,
 		"allowImportingTsExtensions": true,
 		"paths": {
-			"@/*": ["./admin/src/*"]
+			"@/*": ["./resources/ts/*"]
 		}
 	},
-	"include": ["admin/src"]
+	"include": ["resources/ts"]
 }

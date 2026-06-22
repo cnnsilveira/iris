@@ -76,14 +76,15 @@ The plugin maintains strict adherence to WordPress Coding Standards (WPCS) for P
 
 ```
 iris/
-├── src/                         # PHP Source Files (PSR-4 Namespaced under Iris\)
+├── app/                         # PHP Source Files (PSR-4 Namespaced under Iris\)
 │   ├── Plugin.php               # Bootstrapper Orchestrator
 │   ├── Admin.php                # Sidebar screens, option settings hooks, asset enqueuing
 │   ├── RestController.php       # API route registration, schema validation checks, access gates
 │   ├── OpenRouterClient.php     # cURL SSE connection stream controller
 │   └── ModelManager.php         # Model caching option hydrators & Cron sync registers
-├── admin/                       # React Frontend Project
-│   └── src/                     # React + TSX + SASS development source code
+├── resources/                   # Frontend source files
+│   ├── ts/                      # React + TSX development source code
+│   └── scss/                    # SASS styling stylesheets
 ├── assets/
 │   └── dist/                    # Transpiled and minified build targets (JS/CSS)
 ├── iris.php                     # Global bootstrap file

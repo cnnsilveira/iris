@@ -10,14 +10,15 @@ The project enforces a strict separation of concerns between backend PHP busines
 
 ```
 iris/
-├── src/                         # Backend PSR-4 PHP source files (Namespace: Iris)
+├── app/                         # Backend PSR-4 PHP source files (Namespace: Iris)
 │   ├── Plugin.php               # Bootstrapper Orchestrator
 │   ├── Admin.php                # Admin hooks & asset enqueuing
 │   ├── RestController.php       # API endpoints & schema checks
 │   ├── OpenRouterClient.php     # OpenRouter cURL SSE client
 │   └── ModelManager.php         # Model caching & transients
-├── admin/                       # React Frontend Project
-│   └── src/                     # React + TypeScript + SASS development source code
+├── resources/                   # Frontend source files
+│   ├── ts/                      # React + TypeScript development source code
+│   └── scss/                    # SASS styling stylesheets
 ├── assets/
 │   └── dist/                    # Minified static build targets (JS/CSS) enqueued by PHP
 ├── iris.php                     # Global bootstrap file
@@ -34,10 +35,10 @@ iris/
 ### 2.1. Backend (PHP)
 * **Namespaces:** All PHP classes must belong to the `Iris` namespace or its sub-namespaces (e.g. `namespace Iris;`).
 * **Autoloading (PSR-4):** Filenames and casings must map *exactly* to class names and namespaces. For example:
-  * Class `Iris\Admin` must reside in `src/Admin.php`.
-  * Class `Iris\OpenRouterClient` must reside in `src/OpenRouterClient.php`.
+  * Class `Iris\Admin` must reside in `app/Admin.php`.
+  * Class `Iris\OpenRouterClient` must reside in `app/OpenRouterClient.php`.
 * **Coding Standards (WPCS):** The PHP code conforms to WordPress Coding Standards (WPCS). We utilize PHP_CodeSniffer (`phpcs`) to check formatting, secure escaping/sanitization, and nonce verification.
-  * *Exception:* The `WordPress.Files.FileName` rule is excluded for files in the `src/` directory to support standard PSR-4 naming rules.
+  * *Exception:* The `WordPress.Files.FileName` rule is excluded for files in the `app/` directory to support standard PSR-4 naming rules.
 
 ### 2.2. Frontend (React / TSX / SASS)
 * **Component Naming:** React components must be written in TypeScript (`.tsx`) and use PascalCase filenames (e.g. `ChatDrawer.tsx`).
@@ -70,7 +71,7 @@ Before staging and committing your code, you must execute validation checks loca
 ### 4.1. PHP Code Checks
 1. Check file syntax using PHP Lint:
    ```bash
-   php -l src/ModifiedFile.php
+   php -l app/ModifiedFile.php
    ```
 2. Check coding standards:
    ```bash
