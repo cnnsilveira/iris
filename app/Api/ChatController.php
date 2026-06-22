@@ -70,6 +70,38 @@ class ChatController {
 				'permission_callback' => array( __CLASS__, 'check_permissions' ),
 			)
 		);
+
+		register_rest_route(
+			self::ROUTE_NAMESPACE,
+			'/conversations',
+			array(
+				array(
+					'methods'             => 'GET',
+					'callback'            => array( __CLASS__, 'handle_get_conversations' ),
+					'permission_callback' => array( __CLASS__, 'check_permissions' ),
+				),
+				array(
+					'methods'             => 'POST',
+					'callback'            => array( __CLASS__, 'handle_save_conversation' ),
+					'permission_callback' => array( __CLASS__, 'check_permissions' ),
+				),
+				array(
+					'methods'             => 'DELETE',
+					'callback'            => array( __CLASS__, 'handle_clear_conversations' ),
+					'permission_callback' => array( __CLASS__, 'check_permissions' ),
+				),
+			)
+		);
+
+		register_rest_route(
+			self::ROUTE_NAMESPACE,
+			'/conversations/(?P<id>[a-zA-Z0-9_-]+)',
+			array(
+				'methods'             => 'DELETE',
+				'callback'            => array( __CLASS__, 'handle_delete_conversation' ),
+				'permission_callback' => array( __CLASS__, 'check_permissions' ),
+			)
+		);
 	}
 
 	/**
@@ -345,5 +377,152 @@ class ChatController {
 		flush();
 
 		exit;
+	}
+
+	/**
+	 * Retrieve all conversations for the current logged-in user.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @return WP_REST_Response The REST response containing the list of conversations.
+	 */
+	public static function handle_get_conversations() {
+		$user_id       = get_current_user_id();
+		$conversations = get_user_meta( $user_id, 'iris_conversations', true );
+
+		if ( ! is_array( $conversations ) ) {
+			$conversations = array();
+		}
+
+		return rest_ensure_response( $conversations );
+	}
+
+	/**
+	 * Save or update a single conversation in the user's history list.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @param WP_REST_Request $request The incoming request.
+	 * @return WP_REST_Response|WP_Error Response or validation error.
+	 */
+	public static function handle_save_conversation( WP_REST_Request $request ) {
+		$user_id  = get_current_user_id();
+		$id       = sanitize_text_field( $request->get_param( 'id' ) );
+		$title    = sanitize_text_field( $request->get_param( 'title' ) );
+		$messages = $request->get_param( 'messages' );
+
+		if ( empty( $id ) ) {
+			return new WP_Error( 'iris_missing_id', __( 'Conversation ID is required.', 'iris' ), array( 'status' => 400 ) );
+		}
+
+		// Ensure messages is a valid array.
+		if ( ! is_array( $messages ) ) {
+			$messages = array();
+		}
+
+		// Sanitize messages structure.
+		$sanitized_messages = array();
+		foreach ( $messages as $msg ) {
+			if ( isset( $msg['role'], $msg['content'] ) ) {
+				$sanitized_messages[] = array(
+					'role'    => sanitize_text_field( $msg['role'] ),
+					'content' => wp_kses_post( $msg['content'] ),
+					'id'      => isset( $msg['id'] ) ? sanitize_text_field( $msg['id'] ) : 'msg-' . wp_rand( 1000, 9999 ),
+				);
+			}
+		}
+
+		$conversations = get_user_meta( $user_id, 'iris_conversations', true );
+		if ( ! is_array( $conversations ) ) {
+			$conversations = array();
+		}
+
+		// Find and update or append.
+		$found = false;
+		foreach ( $conversations as $key => $conv ) {
+			if ( isset( $conv['id'] ) && $conv['id'] === $id ) {
+				$conversations[ $key ]['title']     = $title;
+				$conversations[ $key ]['messages']  = $sanitized_messages;
+				$conversations[ $key ]['updatedAt'] = (int) ( $request->get_param( 'updatedAt' ) ?? time() );
+				$found                              = true;
+				break;
+			}
+		}
+
+		if ( ! $found ) {
+			$conversations[] = array(
+				'id'        => $id,
+				'title'     => $title,
+				'messages'  => $sanitized_messages,
+				'updatedAt' => (int) ( $request->get_param( 'updatedAt' ) ?? time() ),
+			);
+		}
+
+		// Sort by updatedAt descending.
+		usort(
+			$conversations,
+			function ( $a, $b ) {
+				$t1 = $a['updatedAt'] ?? 0;
+				$t2 = $b['updatedAt'] ?? 0;
+				return $t2 <=> $t1;
+			}
+		);
+
+		update_user_meta( $user_id, 'iris_conversations', $conversations );
+
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Delete a specific conversation by ID.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @param WP_REST_Request $request The incoming request.
+	 * @return WP_REST_Response|WP_Error Response or error.
+	 */
+	public static function handle_delete_conversation( WP_REST_Request $request ) {
+		$user_id = get_current_user_id();
+		$id      = sanitize_text_field( $request->get_param( 'id' ) );
+
+		if ( empty( $id ) ) {
+			return new WP_Error( 'iris_missing_id', __( 'Conversation ID is required.', 'iris' ), array( 'status' => 400 ) );
+		}
+
+		$conversations = get_user_meta( $user_id, 'iris_conversations', true );
+		if ( ! is_array( $conversations ) ) {
+			$conversations = array();
+		}
+
+		$updated_conversations = array();
+		$found                 = false;
+		foreach ( $conversations as $conv ) {
+			if ( isset( $conv['id'] ) && $conv['id'] === $id ) {
+				$found = true;
+				continue;
+			}
+			$updated_conversations[] = $conv;
+		}
+
+		if ( ! $found ) {
+			return new WP_Error( 'iris_not_found', __( 'Conversation not found.', 'iris' ), array( 'status' => 404 ) );
+		}
+
+		update_user_meta( $user_id, 'iris_conversations', $updated_conversations );
+
+		return rest_ensure_response( array( 'success' => true ) );
+	}
+
+	/**
+	 * Clear all conversations for the current user.
+	 *
+	 * @since 0.2.0
+	 *
+	 * @return WP_REST_Response Response.
+	 */
+	public static function handle_clear_conversations() {
+		$user_id = get_current_user_id();
+		delete_user_meta( $user_id, 'iris_conversations' );
+		return rest_ensure_response( array( 'success' => true ) );
 	}
 }
