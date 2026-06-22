@@ -297,6 +297,13 @@
         border: 1px solid rgba(255, 255, 255, 0.04);
         margin: $iris-space-sm 0;
       }
+
+	  hr {
+		border-bottom: none;
+		opacity: 0.5;
+		margin: 20px 0;
+		border-color: #6b6b6b;
+	  }
     }
 
     // Loading typing dots
