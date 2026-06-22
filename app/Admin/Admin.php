@@ -62,7 +62,7 @@ class Admin {
 			'iris',
 			array( __CLASS__, 'render_settings_page' ),
 			'dashicons-format-chat',
-			80
+			30
 		);
 	}
 

@@ -20,6 +20,7 @@ All notable changes to the Iris WordPress plugin will be documented in this file
   - Reorganized frontend React components into feature folders: `components/chat/` and `components/settings/`.
   - Nested component SCSS stylesheets in subfolders (`components/chat/` and `components/settings/`) and updated Sass imports.
   - Added direct file access check guards (`ABSPATH` checks) to all PHP source files.
+- **WP Menu Position:** Repositioned the Iris menu higher up in the WordPress admin sidebar by adjusting the menu priority from 80 to 30.
 
 ### Fixed
 - **SSE Stream Error Propagation:** Updated the frontend streaming chunk decoder to capture API error payloads (`dataJson.error`) immediately. Throws an error to abort typing state and report issues inside the chat bubble, resolving the bug where invalid keys or quota errors caused the bubble to hang indefinitely and return empty blocks.
