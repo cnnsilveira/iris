@@ -4,6 +4,15 @@ All notable changes to the Iris WordPress plugin will be documented in this file
 
 ## [Unreleased]
 
+### Added
+- **Developer Debug Logging:** Appends structured connection logs directly to `iris-debug.log` in the plugin root for terminal troubleshooting (`tail -f iris-debug.log`), controlled by a toggle switch on the upgraded tabbed dashboard layout.
+  - Adds a tab navigation layout dividing the settings screen into **Settings** and **Debug Logs** panels.
+  - Introduces a new `debug_logging` settings option (disabled by default) to restrict file writing operations to active troubleshooting windows.
+  - Records request method, URL, and full JSON body (including system instructions, site context sharing, and message history).
+  - Records response status, elapsed timing, and raw response chunks.
+  - Automatically masks Authorization tokens to secure API credentials in the file system.
+  - Automatically deletes the log file during plugin uninstall and excludes it from Git tracking via `.gitignore`.
+
 ### Changed
 - **Folder and Namespace Restructuring:** Reorganized directory layout and namespacing to match the plugin standards specified in `AGENTS.md`.
   - Moved PHP classes into feature-specific namespace directories: `Admin/`, `Api/`, `Chat/`, and `Models/`.
@@ -11,6 +20,9 @@ All notable changes to the Iris WordPress plugin will be documented in this file
   - Reorganized frontend React components into feature folders: `components/chat/` and `components/settings/`.
   - Nested component SCSS stylesheets in subfolders (`components/chat/` and `components/settings/`) and updated Sass imports.
   - Added direct file access check guards (`ABSPATH` checks) to all PHP source files.
+
+### Fixed
+- **SSE Stream Error Propagation:** Updated the frontend streaming chunk decoder to capture API error payloads (`dataJson.error`) immediately. Throws an error to abort typing state and report issues inside the chat bubble, resolving the bug where invalid keys or quota errors caused the bubble to hang indefinitely and return empty blocks.
 
 ## [0.1.0-alpha] - 2026-06-21
 

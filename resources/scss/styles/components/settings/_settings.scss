@@ -495,6 +495,36 @@
         cursor: not-allowed;
       }
     }
+
+    // Tabs Navigation
+    &__tabs {
+      display: flex;
+      border-bottom: 1px solid $iris-border;
+      gap: $iris-space-md;
+      margin-bottom: $iris-space-xl;
+    }
+
+    &__tab {
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      padding: $iris-space-sm $iris-space-md;
+      color: $iris-text-secondary;
+      font-weight: $iris-weight-semibold;
+      font-size: $iris-font-base;
+      cursor: pointer;
+      transition: all $iris-transition-fast;
+      margin-bottom: -1px;
+
+      &:hover {
+        color: $iris-text-primary;
+      }
+
+      &--active {
+        color: $iris-accent;
+        border-bottom-color: $iris-accent;
+      }
+    }
   }
 }
 

@@ -19,3 +19,6 @@ Thumbs.db
 # Docs whitelist
 docs/*
 !docs/.gitkeep
+
+# Debug logs
+iris-debug.log

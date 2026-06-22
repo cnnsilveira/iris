@@ -144,21 +144,28 @@ export function useChat() {
               break;
             }
             if (cleanedLine.startsWith("data: ")) {
+              let dataJson;
               try {
-                const dataJson = JSON.parse(cleanedLine.substring(6));
-                const token = dataJson.choices?.[0]?.delta?.content;
-                if (token) {
-                  responseText += token;
-                  setMessages((prev) =>
-                    prev.map((msg) =>
-                      msg.id === assistantMsgId
-                        ? { ...msg, content: responseText }
-                        : msg,
-                    ),
-                  );
-                }
+                dataJson = JSON.parse(cleanedLine.substring(6));
               } catch (e) {
-                // Safe skip for partial packets or format mismatch
+                // Safe skip for partial JSON packets
+                continue;
+              }
+
+              if (dataJson && dataJson.error) {
+                throw new Error(dataJson.error.message || "API Error");
+              }
+
+              const token = dataJson.choices?.[0]?.delta?.content;
+              if (token) {
+                responseText += token;
+                setMessages((prev) =>
+                  prev.map((msg) =>
+                    msg.id === assistantMsgId
+                      ? { ...msg, content: responseText }
+                      : msg,
+                  ),
+                );
               }
             }
           }

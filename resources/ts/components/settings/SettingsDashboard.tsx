@@ -48,6 +48,8 @@ interface Settings {
   has_api_key: boolean;
   /** Flag showing if api key is forced by constant definition. */
   has_constant_key: boolean;
+  /** Flag showing if debug logging is enabled. */
+  debug_logging: boolean;
 }
 
 /**
@@ -61,6 +63,9 @@ interface Settings {
  * @returns {React.ReactElement} The settings dashboard markup.
  */
 export const SettingsDashboard: React.FC = () => {
+  // Navigation tab
+  const [activeTab, setActiveTab] = useState<"settings" | "logs">("settings");
+
   // Loading & saving states
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -77,6 +82,7 @@ export const SettingsDashboard: React.FC = () => {
   const [maxTokens, setMaxTokens] = useState(1024);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [contextSharing, setContextSharing] = useState(false);
+  const [debugLogging, setDebugLogging] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
   const [hasConstantKey, setHasConstantKey] = useState(false);
 
@@ -136,6 +142,7 @@ export const SettingsDashboard: React.FC = () => {
       setMaxTokens(data.max_tokens);
       setSystemPrompt(data.system_prompt);
       setContextSharing(data.context_sharing);
+      setDebugLogging(data.debug_logging);
       setHasApiKey(data.has_api_key);
       setHasConstantKey(data.has_constant_key);
 
@@ -188,6 +195,7 @@ export const SettingsDashboard: React.FC = () => {
       max_tokens: parseInt(maxTokens.toString(), 10),
       system_prompt: systemPrompt,
       context_sharing: contextSharing,
+      debug_logging: debugLogging,
     };
 
     // Only send API key if user changed it from the mask
@@ -343,6 +351,23 @@ export const SettingsDashboard: React.FC = () => {
         </button>
       </div>
 
+      <div className="iris-settings__tabs">
+        <button
+          type="button"
+          className={`iris-settings__tab ${activeTab === "settings" ? "iris-settings__tab--active" : ""}`}
+          onClick={() => setActiveTab("settings")}
+        >
+          Settings
+        </button>
+        <button
+          type="button"
+          className={`iris-settings__tab ${activeTab === "logs" ? "iris-settings__tab--active" : ""}`}
+          onClick={() => setActiveTab("logs")}
+        >
+          Debug Logs
+        </button>
+      </div>
+
       {statusMsg && (
         <div
           className={`iris-settings__alert iris-settings__alert--${statusMsg.type}`}
@@ -358,250 +383,280 @@ export const SettingsDashboard: React.FC = () => {
       )}
 
       <form className="iris-settings__form" onSubmit={handleSave}>
-        {/* Section 1: API Configuration */}
-        <div className="iris-settings__section">
-          <h2 className="iris-settings__section-title">API Authentication</h2>
-          <div className="iris-settings__form-group">
-            <label htmlFor="api_key" className="iris-settings__label">
-              OpenRouter API Key
-            </label>
-            <div className="iris-settings__input-wrapper">
-              <input
-                id="api_key"
-                type="password"
-                className="iris-settings__input"
-                placeholder={
-                  hasApiKey
-                    ? "••••••••••••••••••••••••••••••••"
-                    : "sk-or-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                }
-                value={apiKey}
-                onChange={(e) => setApiKey(e.target.value)}
-                disabled={hasConstantKey}
-              />
-              {hasConstantKey && (
-                <div className="iris-settings__badge iris-settings__badge--constant">
-                  <svg
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    width="14"
-                    height="14"
-                    xmlns="http://www.w3.org/2000/svg"
+        {activeTab === "settings" ? (
+          <>
+            {/* Section 1: API Configuration */}
+            <div className="iris-settings__section">
+              <h2 className="iris-settings__section-title">API Authentication</h2>
+              <div className="iris-settings__form-group">
+                <label htmlFor="api_key" className="iris-settings__label">
+                  OpenRouter API Key
+                </label>
+                <div className="iris-settings__input-wrapper">
+                  <input
+                    id="api_key"
+                    type="password"
+                    className="iris-settings__input"
+                    placeholder={
+                      hasApiKey
+                        ? "••••••••••••••••••••••••••••••••"
+                        : "sk-or-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                    }
+                    value={apiKey}
+                    onChange={(e) => setApiKey(e.target.value)}
+                    disabled={hasConstantKey}
+                  />
+                  {hasConstantKey && (
+                    <div className="iris-settings__badge iris-settings__badge--constant">
+                      <svg
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        width="14"
+                        height="14"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <path
+                          d="M18 8H17V6C17 3.24 14.76 1 12 1C9.24 1 7 3.24 7 6V8H6C4.9 8 4 8.9 4 10V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V10C20 8.9 19.1 8 18 8ZM12 17C10.9 17 10 16.1 10 15C10 13.9 10.9 13 12 13C13.1 13 14 13.9 14 15C14 16.1 13.1 17 12 17ZM15 8H9V6C9 4.34 10.34 3 12 3C13.66 3 15 4.34 15 6V8Z"
+                          fill="currentColor"
+                        />
+                      </svg>
+                      Configured in wp-config.php
+                    </div>
+                  )}
+                </div>
+                <p className="iris-settings__help-text">
+                  Retrieve your API key from your{" "}
+                  <a
+                    href="https://openrouter.ai/keys"
+                    target="_blank"
+                    rel="noopener noreferrer"
                   >
-                    <path
-                      d="M18 8H17V6C17 3.24 14.76 1 12 1C9.24 1 7 3.24 7 6V8H6C4.9 8 4 8.9 4 10V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V10C20 8.9 19.1 8 18 8ZM12 17C10.9 17 10 16.1 10 15C10 13.9 10.9 13 12 13C13.1 13 14 13.9 14 15C14 16.1 13.1 17 12 17ZM15 8H9V6C9 4.34 10.34 3 12 3C13.66 3 15 4.34 15 6V8Z"
-                      fill="currentColor"
-                    />
-                  </svg>
-                  Configured in wp-config.php
-                </div>
-              )}
-            </div>
-            <p className="iris-settings__help-text">
-              Retrieve your API key from your{" "}
-              <a
-                href="https://openrouter.ai/keys"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                OpenRouter Dashboard
-              </a>
-              .
-            </p>
-          </div>
-        </div>
-
-        {/* Section 2: Model Configuration */}
-        <div className="iris-settings__section">
-          <h2 className="iris-settings__section-title">Model Selection</h2>
-
-          <div className="iris-settings__form-group">
-            <label className="iris-settings__label">Active Model</label>
-
-            <div className="iris-settings__model-dropdown" ref={dropdownRef}>
-              <div
-                className={`iris-settings__model-trigger ${dropdownOpen ? "iris-settings__model-trigger--open" : ""}`}
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-              >
-                {activeModelObj ? (
-                  <div className="iris-settings__selected-model">
-                    <span className="iris-settings__selected-name">
-                      {activeModelObj.name}
-                    </span>
-                    <span className="iris-settings__selected-meta">
-                      {activeModelObj.context_length.toLocaleString()} ctx
-                      &bull; {getModelPricingStr(activeModelObj)}
-                    </span>
-                  </div>
-                ) : (
-                  <span className="iris-settings__placeholder">
-                    {selectedModel || "Select an AI Model..."}
-                  </span>
-                )}
-                <svg
-                  className="iris-settings__dropdown-arrow"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path d="M7 10L12 15L17 10H7Z" fill="currentColor" />
-                </svg>
+                    OpenRouter Dashboard
+                  </a>
+                  .
+                </p>
               </div>
+            </div>
 
-              {dropdownOpen && (
-                <div className="iris-settings__model-menu">
-                  <div className="iris-settings__model-menu-header">
-                    <input
-                      type="text"
-                      className="iris-settings__model-search"
-                      placeholder="Search models..."
-                      value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
-                      onClick={(e) => e.stopPropagation()}
-                      autoFocus
-                    />
-                    <label
-                      className="iris-settings__free-filter"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <input
-                        type="checkbox"
-                        checked={freeOnly}
-                        onChange={(e) => setFreeOnly(e.target.checked)}
-                      />
-                      Free models only
-                    </label>
-                  </div>
+            {/* Section 2: Model Configuration */}
+            <div className="iris-settings__section">
+              <h2 className="iris-settings__section-title">Model Selection</h2>
 
-                  <div className="iris-settings__model-list">
-                    {filteredModels.length > 0 ? (
-                      filteredModels.map((model) => (
-                        <div
-                          key={model.id}
-                          className={`iris-settings__model-option ${selectedModel === model.id ? "iris-settings__model-option--selected" : ""}`}
-                          onClick={() => {
-                            setSelectedModel(model.id);
-                            setDropdownOpen(false);
-                          }}
-                        >
-                          <div className="iris-settings__option-name">
-                            {model.name}
-                            {parseFloat(model.pricing.prompt.toString()) ===
-                              0 && (
-                              <span className="iris-settings__free-badge">
-                                Free
-                              </span>
-                            )}
-                          </div>
-                          <div className="iris-settings__option-meta">
-                            {model.id} &bull;{" "}
-                            {(model.context_length / 1000).toFixed(0)}k context
-                            &bull; {getModelPricingStr(model)}
-                          </div>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="iris-settings__model-no-results">
-                        No models found matching criteria.
+              <div className="iris-settings__form-group">
+                <label className="iris-settings__label">Active Model</label>
+
+                <div className="iris-settings__model-dropdown" ref={dropdownRef}>
+                  <div
+                    className={`iris-settings__model-trigger ${dropdownOpen ? "iris-settings__model-trigger--open" : ""}`}
+                    onClick={() => setDropdownOpen(!dropdownOpen)}
+                  >
+                    {activeModelObj ? (
+                      <div className="iris-settings__selected-model">
+                        <span className="iris-settings__selected-name">
+                          {activeModelObj.name}
+                        </span>
+                        <span className="iris-settings__selected-meta">
+                          {activeModelObj.context_length.toLocaleString()} ctx
+                          &bull; {getModelPricingStr(activeModelObj)}
+                        </span>
                       </div>
+                    ) : (
+                      <span className="iris-settings__placeholder">
+                        {selectedModel || "Select an AI Model..."}
+                      </span>
                     )}
+                    <svg
+                      className="iris-settings__dropdown-arrow"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path d="M7 10L12 15L17 10H7Z" fill="currentColor" />
+                    </svg>
                   </div>
+
+                  {dropdownOpen && (
+                    <div className="iris-settings__model-menu">
+                      <div className="iris-settings__model-menu-header">
+                        <input
+                          type="text"
+                          className="iris-settings__model-search"
+                          placeholder="Search models..."
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          onClick={(e) => e.stopPropagation()}
+                          autoFocus
+                        />
+                        <label
+                          className="iris-settings__free-filter"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <input
+                            type="checkbox"
+                            checked={freeOnly}
+                            onChange={(e) => setFreeOnly(e.target.checked)}
+                          />
+                          Free models only
+                        </label>
+                      </div>
+
+                      <div className="iris-settings__model-list">
+                        {filteredModels.length > 0 ? (
+                          filteredModels.map((model) => (
+                            <div
+                              key={model.id}
+                              className={`iris-settings__model-option ${selectedModel === model.id ? "iris-settings__model-option--selected" : ""}`}
+                              onClick={() => {
+                                setSelectedModel(model.id);
+                                setDropdownOpen(false);
+                              }}
+                            >
+                              <div className="iris-settings__option-name">
+                                {model.name}
+                                {parseFloat(model.pricing.prompt.toString()) ===
+                                  0 && (
+                                  <span className="iris-settings__free-badge">
+                                    Free
+                                  </span>
+                                )}
+                              </div>
+                              <div className="iris-settings__option-meta">
+                                {model.id} &bull;{" "}
+                                {(model.context_length / 1000).toFixed(0)}k context
+                                &bull; {getModelPricingStr(model)}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="iris-settings__model-no-results">
+                            No models found matching criteria.
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              )}
-            </div>
-            <p className="iris-settings__help-text">
-              Select the LLM that Iris will query. Models marked as Free do not
-              incur billing charges on your OpenRouter account.
-            </p>
-          </div>
-        </div>
-
-        {/* Section 3: AI Behavior & System Prompts */}
-        <div className="iris-settings__section">
-          <h2 className="iris-settings__section-title">
-            Assistant Instructions
-          </h2>
-
-          <div className="iris-settings__form-group">
-            <label htmlFor="system_prompt" className="iris-settings__label">
-              System Prompt
-            </label>
-            <textarea
-              id="system_prompt"
-              className="iris-settings__textarea"
-              rows={6}
-              placeholder="You are Iris, a helpful and expert AI assistant integrated within WordPress. Help the user troubleshoot issues, write code, or craft layouts."
-              value={systemPrompt}
-              onChange={(e) => setSystemPrompt(e.target.value)}
-            />
-            <p className="iris-settings__help-text">
-              Custom instructions prepended to the message context. Guides the
-              tone, boundaries, and responsiveness of the model.
-            </p>
-          </div>
-
-          <div className="iris-settings__form-group iris-settings__form-group--checkbox">
-            <label className="iris-settings__checkbox-label">
-              <input
-                type="checkbox"
-                className="iris-settings__checkbox"
-                checked={contextSharing}
-                onChange={(e) => setContextSharing(e.target.checked)}
-              />
-              <span className="iris-settings__checkbox-text">
-                Share site telemetry to help Iris give better answers (WordPress
-                version, active plugins, and active theme).
-              </span>
-            </label>
-          </div>
-        </div>
-
-        {/* Section 4: Advanced Parameters */}
-        <div className="iris-settings__section">
-          <h2 className="iris-settings__section-title">Advanced Parameters</h2>
-
-          <div className="iris-settings__grid">
-            <div className="iris-settings__form-group">
-              <label htmlFor="temperature" className="iris-settings__label">
-                Temperature ({temperature.toFixed(1)})
-              </label>
-              <input
-                id="temperature"
-                type="range"
-                min="0"
-                max="2"
-                step="0.1"
-                className="iris-settings__slider"
-                value={temperature}
-                onChange={(e) => setTemperature(parseFloat(e.target.value))}
-              />
-              <div className="iris-settings__slider-labels">
-                <span>Precise (0.0)</span>
-                <span>Creative (2.0)</span>
+                <p className="iris-settings__help-text">
+                  Select the LLM that Iris will query. Models marked as Free do not
+                  incur billing charges on your OpenRouter account.
+                </p>
               </div>
             </div>
 
-            <div className="iris-settings__form-group">
-              <label htmlFor="max_tokens" className="iris-settings__label">
-                Max Output Tokens
-              </label>
-              <input
-                id="max_tokens"
-                type="number"
-                min="1"
-                max="32768"
-                className="iris-settings__input"
-                value={maxTokens}
-                onChange={(e) =>
-                  setMaxTokens(parseInt(e.target.value, 10) || 1024)
-                }
-              />
-              <p className="iris-settings__help-text">
-                Maximum length of the assistant response.
-              </p>
+            {/* Section 3: AI Behavior & System Prompts */}
+            <div className="iris-settings__section">
+              <h2 className="iris-settings__section-title">
+                Assistant Instructions
+              </h2>
+
+              <div className="iris-settings__form-group">
+                <label htmlFor="system_prompt" className="iris-settings__label">
+                  System Prompt
+                </label>
+                <textarea
+                  id="system_prompt"
+                  className="iris-settings__textarea"
+                  rows={6}
+                  placeholder="You are Iris, a helpful and expert AI assistant integrated within WordPress. Help the user troubleshoot issues, write code, or craft layouts."
+                  value={systemPrompt}
+                  onChange={(e) => setSystemPrompt(e.target.value)}
+                />
+                <p className="iris-settings__help-text">
+                  Custom instructions prepended to the message context. Guides the
+                  tone, boundaries, and responsiveness of the model.
+                </p>
+              </div>
+
+              <div className="iris-settings__form-group iris-settings__form-group--checkbox">
+                <label className="iris-settings__checkbox-label">
+                  <input
+                    type="checkbox"
+                    className="iris-settings__checkbox"
+                    checked={contextSharing}
+                    onChange={(e) => setContextSharing(e.target.checked)}
+                  />
+                  <span className="iris-settings__checkbox-text">
+                    Share site telemetry to help Iris give better answers (WordPress
+                    version, active plugins, and active theme).
+                  </span>
+                </label>
+              </div>
             </div>
+
+            {/* Section 4: Advanced Parameters */}
+            <div className="iris-settings__section">
+              <h2 className="iris-settings__section-title">Advanced Parameters</h2>
+
+              <div className="iris-settings__grid">
+                <div className="iris-settings__form-group">
+                  <label htmlFor="temperature" className="iris-settings__label">
+                    Temperature ({temperature.toFixed(1)})
+                  </label>
+                  <input
+                    id="temperature"
+                    type="range"
+                    min="0"
+                    max="2"
+                    step="0.1"
+                    className="iris-settings__slider"
+                    value={temperature}
+                    onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                  />
+                  <div className="iris-settings__slider-labels">
+                    <span>Precise (0.0)</span>
+                    <span>Creative (2.0)</span>
+                  </div>
+                </div>
+
+                <div className="iris-settings__form-group">
+                  <label htmlFor="max_tokens" className="iris-settings__label">
+                    Max Output Tokens
+                  </label>
+                  <input
+                    id="max_tokens"
+                    type="number"
+                    min="1"
+                    max="32768"
+                    className="iris-settings__input"
+                    value={maxTokens}
+                    onChange={(e) =>
+                      setMaxTokens(parseInt(e.target.value, 10) || 1024)
+                    }
+                  />
+                  <p className="iris-settings__help-text">
+                    Maximum length of the assistant response.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="iris-settings__section">
+            <h2 className="iris-settings__section-title">Developer Tools</h2>
+            <div className="iris-settings__form-group iris-settings__form-group--checkbox">
+              <label className="iris-settings__checkbox-label">
+                <input
+                  type="checkbox"
+                  className="iris-settings__checkbox"
+                  checked={debugLogging}
+                  onChange={(e) => setDebugLogging(e.target.checked)}
+                />
+                <span className="iris-settings__checkbox-text">
+                  <strong>Enable Debug Logging</strong>
+                  <br />
+                  Write API communication logs (including full request payloads and response durations) to a local <code>iris-debug.log</code> file in the plugin root.
+                </span>
+              </label>
+            </div>
+            <p className="iris-settings__help-text" style={{ marginTop: "1rem" }}>
+              To view real-time log output, open your terminal at the plugin root and run:
+              <br />
+              <code style={{ background: "rgba(255, 255, 255, 0.05)", padding: "0.2rem 0.4rem", borderRadius: "4px", display: "inline-block", marginTop: "0.5rem" }}>
+                tail -f iris-debug.log
+              </code>
+            </p>
           </div>
-        </div>
+        )}
 
         <div className="iris-settings__footer">
           <button
