@@ -394,6 +394,9 @@
       justify-content: center;
       cursor: pointer;
       transition: all $iris-transition-fast;
+	  margin: auto;
+      top: 0;
+	  bottom: 0;
 
       &:hover:not(:disabled) {
         background: $iris-accent-hover;
