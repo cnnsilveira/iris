@@ -7,6 +7,7 @@
 
 import React from "react";
 import { createRoot } from "react-dom/client";
+import { ChatPage } from "./components/chat/ChatPage";
 import { SettingsDashboard } from "./components/settings/SettingsDashboard";
 import { ChatDrawer } from "./components/chat/ChatDrawer";
 import "../scss/main.scss";
@@ -33,12 +34,26 @@ declare global {
   }
 }
 
-// Conditionally mount Settings Dashboard
-const adminContainer = document.getElementById("iris-admin-root");
-if (adminContainer) {
-  createRoot(adminContainer).render(
+// Conditionally mount Chat Page
+const chatPageContainer = document.getElementById("iris-chat-page-root");
+if (chatPageContainer) {
+  createRoot(chatPageContainer).render(
     <React.StrictMode>
-      <SettingsDashboard />
+      <ChatPage onOpenSettings={() => {
+        window.location.href = "admin.php?page=iris-settings";
+      }} />
+    </React.StrictMode>,
+  );
+}
+
+// Conditionally mount Settings Dashboard
+const settingsPageContainer = document.getElementById("iris-settings-page-root");
+if (settingsPageContainer) {
+  createRoot(settingsPageContainer).render(
+    <React.StrictMode>
+      <SettingsDashboard onBackToChat={() => {
+        window.location.href = "admin.php?page=iris";
+      }} />
     </React.StrictMode>,
   );
 }

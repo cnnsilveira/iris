@@ -15,46 +15,176 @@ export interface Message {
 }
 
 /**
- * Custom hook to manage chat conversation state, history sync, and API streaming.
+ * Chat conversation session interface.
  *
- * @since v0.1.0
- *
- * @returns State variables, loading flags, and message handlers.
+ * @since v0.2.0
  */
-export function useChat() {
-  const [messages, setMessages] = useState<Message[]>([]);
+export interface Conversation {
+  /** Unique conversation identifier. */
+  id: string;
+  /** Display title. */
+  title: string;
+  /** List of messages. */
+  messages: Message[];
+  /** Timestamp of last message update. */
+  updatedAt: number;
+}
+
+/**
+ * Custom hook to manage chat conversation states, history sync, and API streaming.
+ * Supports multiple threads synced with the WordPress database (per-user).
+ *
+ * @since v0.2.0
+ *
+ * @param {boolean} [isDrawer=false] If true, manages storage/active ID for the floating drawer instead of the main page.
+ * @returns State variables, list of conversations, active conversation context, and management handlers.
+ */
+export function useChat(isDrawer = false) {
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [activeConversationId, setActiveConversationIdState] = useState<string | null>(null);
   const [isTyping, setIsTyping] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   const restUrl = window.irisSettings?.restUrl || "/wp-json/iris/v1/";
   const nonce = window.irisSettings?.nonce || "";
   const siteHash = window.irisSettings?.siteHash || "default";
-  const storageKey = `iris_chat_history_${siteHash}`;
 
-  // Load conversation history on initial mount
+  const activeIdStorageKey = isDrawer
+    ? `iris_drawer_active_conv_id_${siteHash}`
+    : `iris_active_conv_id_${siteHash}`;
+
+  // Fetch all conversations from server on mount
   useEffect(() => {
-    const storedHistory = localStorage.getItem(storageKey);
-    if (storedHistory) {
-      try {
-        setMessages(JSON.parse(storedHistory));
-      } catch (e) {
-        console.error("Failed to parse chat history from localStorage", e);
+    fetchConversations();
+  }, []);
+
+  const getHeaders = () => {
+    const headers: Record<string, string> = {
+      "Content-Type": "application/json",
+    };
+    if (nonce) {
+      headers["X-WP-Nonce"] = nonce;
+    }
+    return headers;
+  };
+
+  const fetchConversations = async () => {
+    try {
+      setLoading(true);
+      const res = await fetch(`${restUrl}conversations`, {
+        headers: getHeaders(),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setConversations(data);
+
+        // Resolve active conversation ID
+        const storedActiveId = localStorage.getItem(activeIdStorageKey);
+        if (storedActiveId && data.some((c: Conversation) => c.id === storedActiveId)) {
+          setActiveConversationIdState(storedActiveId);
+        } else if (!isDrawer && data.length > 0) {
+          // Default main chat page to newest conversation
+          setActiveConversationIdState(data[0].id);
+          localStorage.setItem(activeIdStorageKey, data[0].id);
+        } else {
+          setActiveConversationIdState(null);
+        }
+      }
+    } catch (e) {
+      console.error("Error fetching conversations from WP database", e);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const setActiveConversationId = (id: string | null) => {
+    setActiveConversationIdState(id);
+    if (id) {
+      localStorage.setItem(activeIdStorageKey, id);
+    } else {
+      localStorage.removeItem(activeIdStorageKey);
+    }
+  };
+
+  const startNewChat = () => {
+    setActiveConversationId(null);
+    setError(null);
+  };
+
+  const saveConversationToServer = async (conv: Conversation) => {
+    try {
+      await fetch(`${restUrl}conversations`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify(conv),
+      });
+    } catch (e) {
+      console.error("Failed to save conversation to WP server", e);
+    }
+  };
+
+  const renameConversation = async (id: string, newTitle: string) => {
+    const trimmedTitle = newTitle.trim();
+    if (!trimmedTitle) return;
+
+    setConversations((prev) =>
+      prev.map((c) => (c.id === id ? { ...c, title: trimmedTitle } : c)),
+    );
+
+    const conv = conversations.find((c) => c.id === id);
+    if (conv) {
+      await saveConversationToServer({
+        ...conv,
+        title: trimmedTitle,
+      });
+    }
+  };
+
+  const deleteConversation = async (id: string) => {
+    setConversations((prev) => prev.filter((c) => c.id !== id));
+
+    if (activeConversationId === id) {
+      const remaining = conversations.filter((c) => c.id !== id);
+      if (remaining.length > 0) {
+        setActiveConversationId(remaining[0].id);
+      } else {
+        setActiveConversationId(null);
       }
     }
-  }, [storageKey]);
 
-  // Keep localStorage synchronized with the messages state
-  useEffect(() => {
-    if (messages.length > 0) {
-      localStorage.setItem(storageKey, JSON.stringify(messages));
-    } else {
-      localStorage.removeItem(storageKey);
+    try {
+      await fetch(`${restUrl}conversations/${id}`, {
+        method: "DELETE",
+        headers: getHeaders(),
+      });
+    } catch (e) {
+      console.error("Failed to delete conversation from server", e);
     }
-  }, [messages, storageKey]);
+  };
 
-  const clearHistory = () => {
-    setMessages([]);
+  const clearHistory = async () => {
+    setConversations([]);
+    setActiveConversationId(null);
     setError(null);
+
+    try {
+      await fetch(`${restUrl}conversations`, {
+        method: "DELETE",
+        headers: getHeaders(),
+      });
+    } catch (e) {
+      console.error("Failed to clear conversations from server", e);
+    }
+  };
+
+  const generateTitle = (text: string): string => {
+    const clean = text.replace(/[#*`_]/g, "").trim();
+    const words = clean.split(/\s+/);
+    if (words.length <= 4) {
+      return clean;
+    }
+    return words.slice(0, 4).join(" ") + "...";
   };
 
   const sendMessage = async (content: string) => {
@@ -62,6 +192,7 @@ export function useChat() {
     if (!cleanContent || isTyping) return;
 
     setError(null);
+    setIsTyping(true);
 
     const userMsg: Message = {
       role: "user",
@@ -69,59 +200,79 @@ export function useChat() {
       id: `user-${Date.now()}`,
     };
 
-    // 1. Append User Message
-    const updatedMessages = [...messages, userMsg];
-    setMessages(updatedMessages);
-    setIsTyping(true);
-
-    // 2. Set up Assistant Placeholder Message
     const assistantMsgId = `assistant-${Date.now()}`;
     const assistantPlaceholder: Message = {
       role: "assistant",
       content: "",
       id: assistantMsgId,
     };
-    setMessages((prev) => [...prev, assistantPlaceholder]);
 
-    try {
-      const headers: Record<string, string> = {
-        "Content-Type": "application/json",
+    let currentConvId = activeConversationId;
+    let currentConv: Conversation;
+
+    if (!currentConvId) {
+      // Create new conversation
+      currentConvId = `conv-${Date.now()}`;
+      const newTitle = generateTitle(cleanContent);
+      currentConv = {
+        id: currentConvId,
+        title: newTitle,
+        messages: [userMsg, assistantPlaceholder],
+        updatedAt: Date.now(),
       };
-      if (nonce) {
-        headers["X-WP-Nonce"] = nonce;
+
+      setConversations((prev) => [currentConv, ...prev]);
+      setActiveConversationId(currentConvId);
+    } else {
+      // Find existing
+      const existing = conversations.find((c) => c.id === currentConvId);
+      if (!existing) {
+        setIsTyping(false);
+        return;
       }
 
-      // Format payload messages for the REST API (role + content only)
-      const apiMessages = updatedMessages.map((m) => ({
-        role: m.role,
-        content: m.content,
-      }));
+      currentConv = {
+        ...existing,
+        messages: [...existing.messages, userMsg, assistantPlaceholder],
+        updatedAt: Date.now(),
+      };
 
-      // Fetch the SSE response using POST request
+      setConversations((prev) =>
+        [currentConv, ...prev.filter((c) => c.id !== currentConvId)].sort(
+          (a, b) => b.updatedAt - a.updatedAt,
+        ),
+      );
+    }
+
+    // Save immediate state to server (user message + placeholder)
+    await saveConversationToServer(currentConv);
+
+    try {
+      // Get all messages up to the user's latest query (role + content format for API)
+      const apiMessages = currentConv.messages
+        .slice(0, -1) // Exclude the assistant placeholder
+        .map((m) => ({
+          role: m.role,
+          content: m.content,
+        }));
+
       const response = await fetch(`${restUrl}chat`, {
         method: "POST",
-        headers,
+        headers: getHeaders(),
         body: JSON.stringify({
           messages: apiMessages,
         }),
       });
 
-      // Strict Error Bound Handling
       if (!response.ok) {
         let errorMessage = `HTTP error! Status: ${response.status}`;
         try {
           const jsonErr = await response.json();
-          if (jsonErr && jsonErr.message) {
+          if (jsonErr?.message) {
             errorMessage = jsonErr.message;
-          } else if (jsonErr && jsonErr.error && jsonErr.error.message) {
-            errorMessage = jsonErr.error.message;
-
-            if (jsonErr.error.metadata && jsonErr.error.metadata.raw) {
-              errorMessage += "\n\n---\n**Error details:**\n" + jsonErr.error.metadata.raw;
-            }
           }
         } catch (e) {
-          // Fall back to HTTP status message if JSON parsing fails
+          // Ignore
         }
         throw new Error(errorMessage);
       }
@@ -154,22 +305,30 @@ export function useChat() {
               try {
                 dataJson = JSON.parse(cleanedLine.substring(6));
               } catch (e) {
-                // Safe skip for partial JSON packets
                 continue;
               }
 
-              if (dataJson && dataJson.error) {
+              if (dataJson?.error) {
                 throw new Error(dataJson.error.message || "API Error");
               }
 
               const token = dataJson.choices?.[0]?.delta?.content;
               if (token) {
                 responseText += token;
-                setMessages((prev) =>
-                  prev.map((msg) =>
-                    msg.id === assistantMsgId
-                      ? { ...msg, content: responseText }
-                      : msg,
+
+                // Update UI state
+                setConversations((prev) =>
+                  prev.map((c) =>
+                    c.id === currentConvId
+                      ? {
+                          ...c,
+                          messages: c.messages.map((m) =>
+                            m.id === assistantMsgId
+                              ? { ...m, content: responseText }
+                              : m,
+                          ),
+                        }
+                      : c,
                   ),
                 );
               }
@@ -177,32 +336,57 @@ export function useChat() {
           }
         }
       }
+
+      // Stream succeeded, save completed conversation to server
+      const finalConv = {
+        ...currentConv,
+        messages: currentConv.messages.map((m) =>
+          m.id === assistantMsgId ? { ...m, content: responseText } : m,
+        ),
+      };
+      await saveConversationToServer(finalConv);
     } catch (err: any) {
-      const displayError =
-        err.message || "An unknown networking error occurred.";
+      const displayError = err.message || "An unknown networking error occurred.";
       setError(displayError);
 
-      // Append error notice within the chat bubble directly so context is clear in the UI
-      setMessages((prev) =>
-        prev.map((msg) =>
-          msg.id === assistantMsgId
+      const errorConv = {
+        ...currentConv,
+        messages: currentConv.messages.map((m) =>
+          m.id === assistantMsgId
             ? {
-                ...msg,
+                ...m,
                 content: `⚠️ **Error connecting to AI assistant:** ${displayError}`,
               }
-            : msg,
+            : m,
         ),
+      };
+
+      setConversations((prev) =>
+        prev.map((c) => (c.id === currentConvId ? errorConv : c)),
       );
+
+      await saveConversationToServer(errorConv);
     } finally {
       setIsTyping(false);
     }
   };
 
+  // Extract messages of the active conversation for consumption
+  const activeConversation = conversations.find((c) => c.id === activeConversationId);
+  const messages = activeConversation ? activeConversation.messages : [];
+
   return {
+    conversations,
+    activeConversationId,
+    setActiveConversationId,
     messages,
     isTyping,
+    loading,
     error,
     sendMessage,
+    startNewChat,
+    renameConversation,
+    deleteConversation,
     clearHistory,
   };
 }
