@@ -5,6 +5,10 @@ All notable changes to the Iris WordPress plugin will be documented in this file
 ## [Unreleased]
 
 ### Added
+- **Main Chat Page:** Introduced a native WordPress admin Chat page registered under the top-level **Iris** menu (`page=iris`).
+- **Collapsible History Sidebar:** Created a two-column ChatGPT/Gemini-style layout featuring a list of recent conversations, a "New Chat" button, model badges, and a settings switcher link.
+- **Server-Side Conversation Persistence:** Added new REST endpoints (`GET /conversations`, `POST /conversations`, `DELETE /conversations/<id>`, `DELETE /conversations`) syncing multiple concurrent conversations directly to the WordPress user metadata (`iris_conversations`), ensuring chat history persists per-user.
+- **AI Assistant Message Balloons:** Added visual balloons styled with theme design tokens and correct border-radii tail overrides for AI assistant replies.
 - **Developer Debug Logging:** Appends structured connection logs directly to `iris-debug.log` in the plugin root for terminal troubleshooting (`tail -f iris-debug.log`), controlled by a toggle switch on the upgraded tabbed dashboard layout.
   - Adds a tab navigation layout dividing the settings screen into **Settings** and **Debug Logs** panels.
   - Introduces a new `debug_logging` settings option (disabled by default) to restrict file writing operations to active troubleshooting windows.
@@ -14,6 +18,11 @@ All notable changes to the Iris WordPress plugin will be documented in this file
   - Automatically deletes the log file during plugin uninstall and excludes it from Git tracking via `.gitignore`.
 
 ### Changed
+- **WordPress Admin Submenus:** Split the layout into native WordPress submenu screens: **Chat** (slug `iris`) and **Settings** (slug `iris-settings`), using standard page routing.
+- **Mount Container Separation:** Configured independent mount containers (`#iris-chat-page-root` and `#iris-settings-page-root`) in `main.tsx` and updated SCSS scoping selectors in `_reset.scss`, `_settings.scss`, and `_chat-page.scss`.
+- **Drawer Visibility Logic:** Updated `render_chat_root()` in `Admin.php` to hide the floating drawer when browsing either the Chat or Settings submenu screens.
+- **WP Body Padding Reset:** Added body overrides to zero out the WordPress `#wpbody-content` bottom padding on the Iris pages, avoiding vertical page scrollbars and locking layout to `calc(100vh - 100px)`.
+- **Drawer History Sync:** Configured the quick chat drawer to write to the shared server-side user database, automatically syncing drawer sessions with the main page history list.
 - **Folder and Namespace Restructuring:** Reorganized directory layout and namespacing to match the plugin standards specified in `AGENTS.md`.
   - Moved PHP classes into feature-specific namespace directories: `Admin/`, `Api/`, `Chat/`, and `Models/`.
   - Split unified `RestController` into domain-specific controllers (`ChatController`, `ModelsController`, `SettingsController`) under the `Iris\Api` namespace.
