@@ -198,6 +198,12 @@
       }
     }
 
+    &__textarea {
+      font-family: $iris-font-mono;
+      font-size: $iris-font-sm;
+      line-height: $iris-line-height;
+    }
+
     &__badge {
       position: absolute;
       right: $iris-space-md;
@@ -524,6 +530,168 @@
         color: $iris-accent;
         border-bottom-color: $iris-accent;
       }
+    }
+
+    // System Prompt Markdown Editor (GitHub-style)
+    &__prompt-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: $iris-space-sm;
+      border-bottom: 1px solid $iris-border;
+      flex-wrap: wrap;
+      gap: $iris-space-sm;
+
+      .iris-settings__label {
+        margin-bottom: 5px;
+      }
+    }
+
+    &__prompt-tabs {
+      display: flex;
+      align-items: center;
+      gap: $iris-space-xs;
+    }
+
+    &__prompt-tab {
+      background: none;
+      border: 1px solid transparent;
+      border-bottom: none;
+      padding: $iris-space-xs $iris-space-md;
+      color: $iris-text-secondary;
+      font-weight: $iris-weight-medium;
+      font-size: $iris-font-sm;
+      cursor: pointer;
+      border-radius: $iris-radius-sm $iris-radius-sm 0 0;
+      transition: all $iris-transition-fast;
+      margin-bottom: -1px;
+
+      &:hover {
+        color: $iris-text-primary;
+        background: $iris-bg-surface-hover;
+      }
+
+      &--active {
+        color: $iris-accent;
+        background: $iris-bg-surface;
+        border-color: $iris-border;
+        border-bottom: 1px solid $iris-bg-surface;
+        font-weight: $iris-weight-semibold;
+      }
+    }
+
+    &__prompt-char-count {
+      font-size: $iris-font-xs;
+      color: $iris-text-muted;
+      margin-left: $iris-space-md;
+      align-self: center;
+    }
+
+    &__prompt-editor {
+      position: relative;
+    }
+
+    &__prompt-preview {
+      width: 100%;
+      background: $iris-bg-surface;
+      border: 1px solid $iris-border;
+      border-radius: $iris-radius-md;
+      color: $iris-text-primary;
+      padding: $iris-space-md;
+      font-size: $iris-font-base;
+      line-height: $iris-line-height;
+      min-height: 180px;
+      overflow-y: auto;
+      box-sizing: border-box;
+
+      // Basic Markdown styling inside preview
+      h1, h2, h3, h4, h5, h6 {
+        color: $iris-accent;
+        font-weight: $iris-weight-semibold;
+        margin-top: $iris-space-md;
+        margin-bottom: $iris-space-sm;
+        line-height: $iris-line-height-tight;
+
+        &:first-child {
+          margin-top: 0;
+        }
+      }
+
+      h1 { font-size: $iris-font-lg; border-bottom: 1px solid $iris-border; padding-bottom: $iris-space-xs; }
+      h2 { font-size: $iris-font-md; }
+      h3 { font-size: $iris-font-base; }
+
+      p {
+        margin-top: 0;
+        margin-bottom: $iris-space-md;
+        &:last-child {
+          margin-bottom: 0;
+        }
+      }
+
+      a {
+        color: $iris-accent;
+        text-decoration: none;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+
+      ul, ol {
+        margin-top: 0;
+        margin-bottom: $iris-space-md;
+        padding-left: $iris-space-lg;
+      }
+
+      ul {
+        list-style-type: disc;
+      }
+
+      ol {
+        list-style-type: decimal;
+      }
+
+      li {
+        margin-bottom: $iris-space-xs;
+      }
+
+      code {
+        font-family: $iris-font-mono;
+        font-size: $iris-font-sm;
+        background: rgba(255, 255, 255, 0.06);
+        padding: 2px 6px;
+        border-radius: 4px;
+        color: $iris-success;
+      }
+
+      pre {
+        background: $iris-bg-primary;
+        border: 1px solid $iris-border;
+        border-radius: $iris-radius-sm;
+        padding: $iris-space-md;
+        overflow-x: auto;
+        margin-bottom: $iris-space-md;
+
+        code {
+          background: none;
+          padding: 0;
+          border-radius: 0;
+          font-size: $iris-font-sm;
+        }
+      }
+
+      blockquote {
+        margin: 0 0 $iris-space-md 0;
+        padding: 0 $iris-space-md;
+        color: $iris-text-secondary;
+        border-left: 4px solid $iris-border-focus;
+      }
+    }
+
+    &__prompt-empty {
+      color: $iris-text-muted;
+      font-style: italic;
+      margin: 0;
     }
   }
 }

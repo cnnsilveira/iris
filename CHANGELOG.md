@@ -5,6 +5,7 @@ All notable changes to the Iris WordPress plugin will be documented in this file
 ## [Unreleased]
 
 ### Added
+- **System Prompt Tabbed Editor:** Added a "Markdown" and "Preview" toggle to the System Prompt editor on the Settings page. Configured a monospaced font stack for markdown writing, and styled the preview pane with custom theme-accented headings, lists, blockquotes, and inline code elements.
 - **Main Chat Page:** Introduced a native WordPress admin Chat page registered under the top-level **Iris** menu (`page=iris`).
 - **Collapsible History Sidebar:** Created a two-column ChatGPT/Gemini-style layout featuring a list of recent conversations, a "New Chat" button, model badges, and a settings switcher link.
 - **Server-Side Conversation Persistence:** Added new REST endpoints (`GET /conversations`, `POST /conversations`, `DELETE /conversations/<id>`, `DELETE /conversations`) syncing multiple concurrent conversations directly to the WordPress user metadata (`iris_conversations`), ensuring chat history persists per-user.

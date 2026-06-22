@@ -1,4 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
+import { marked } from "marked";
+import DOMPurify from "dompurify";
 
 /**
  * Representation of prompt and completion token costs.
@@ -83,6 +85,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
   const [temperature, setTemperature] = useState(0.7);
   const [maxTokens, setMaxTokens] = useState(1024);
   const [systemPrompt, setSystemPrompt] = useState("");
+  const [promptTab, setPromptTab] = useState<"raw" | "preview">("raw");
   const [contextSharing, setContextSharing] = useState(false);
   const [debugLogging, setDebugLogging] = useState(false);
   const [hasApiKey, setHasApiKey] = useState(false);
@@ -284,6 +287,16 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
       return "Free";
     }
     return `${formatPrice(model.pricing.prompt)}/1M prompt tokens`;
+  };
+
+  const renderMarkdown = (content: string) => {
+    try {
+      const rawHtml = marked.parse(content, { async: false }) as string;
+      const cleanHtml = DOMPurify.sanitize(rawHtml);
+      return { __html: cleanHtml };
+    } catch (e) {
+      return { __html: DOMPurify.sanitize(content) };
+    }
   };
 
   // Filter models based on search and free checkbox
@@ -573,17 +586,59 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
               </h2>
 
               <div className="iris-settings__form-group">
-                <label htmlFor="system_prompt" className="iris-settings__label">
-                  System Prompt
-                </label>
-                <textarea
-                  id="system_prompt"
-                  className="iris-settings__textarea"
-                  rows={6}
-                  placeholder="You are Iris, a helpful and expert AI assistant integrated within WordPress. Help the user troubleshoot issues, write code, or craft layouts."
-                  value={systemPrompt}
-                  onChange={(e) => setSystemPrompt(e.target.value)}
-                />
+                <div className="iris-settings__prompt-header">
+                  <label htmlFor="system_prompt" className="iris-settings__label">
+                    System Prompt
+                  </label>
+                  <div className="iris-settings__prompt-tabs">
+                    <button
+                      type="button"
+                      className={`iris-settings__prompt-tab ${
+                        promptTab === "raw" ? "iris-settings__prompt-tab--active" : ""
+                      }`}
+                      onClick={() => setPromptTab("raw")}
+                    >
+                      Markdown
+                    </button>
+                    <button
+                      type="button"
+                      className={`iris-settings__prompt-tab ${
+                        promptTab === "preview" ? "iris-settings__prompt-tab--active" : ""
+                      }`}
+                      onClick={() => setPromptTab("preview")}
+                    >
+                      Preview
+                    </button>
+                    <span className="iris-settings__prompt-char-count">
+                      {systemPrompt.length} characters
+                    </span>
+                  </div>
+                </div>
+
+                <div className="iris-settings__prompt-editor">
+                  {promptTab === "raw" ? (
+                    <textarea
+                      id="system_prompt"
+                      className="iris-settings__textarea"
+                      rows={8}
+                      placeholder="You are Iris, a helpful and expert AI assistant integrated within WordPress. Help the user troubleshoot issues, write code, or craft layouts."
+                      value={systemPrompt}
+                      onChange={(e) => setSystemPrompt(e.target.value)}
+                    />
+                  ) : (
+                    <div className="iris-settings__prompt-preview">
+                      {systemPrompt.trim() ? (
+                        <div
+                          dangerouslySetInnerHTML={renderMarkdown(systemPrompt)}
+                        />
+                      ) : (
+                        <p className="iris-settings__prompt-empty">
+                          Nothing to preview.
+                        </p>
+                      )}
+                    </div>
+                  )}
+                </div>
                 <p className="iris-settings__help-text">
                   Custom instructions prepended to the message context. Guides the
                   tone, boundaries, and responsiveness of the model.
