@@ -113,6 +113,12 @@ export function useChat() {
           const jsonErr = await response.json();
           if (jsonErr && jsonErr.message) {
             errorMessage = jsonErr.message;
+          } else if (jsonErr && jsonErr.error && jsonErr.error.message) {
+            errorMessage = jsonErr.error.message;
+
+            if (jsonErr.error.metadata && jsonErr.error.metadata.raw) {
+              errorMessage += "\n\n---\n**Error details:**\n" + jsonErr.error.metadata.raw;
+            }
           }
         } catch (e) {
           // Fall back to HTTP status message if JSON parsing fails

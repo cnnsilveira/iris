@@ -23,6 +23,7 @@ All notable changes to the Iris WordPress plugin will be documented in this file
 
 ### Fixed
 - **SSE Stream Error Propagation:** Updated the frontend streaming chunk decoder to capture API error payloads (`dataJson.error`) immediately. Throws an error to abort typing state and report issues inside the chat bubble, resolving the bug where invalid keys or quota errors caused the bubble to hang indefinitely and return empty blocks.
+- **False 200 Stream Status & Upstream Error Handling:** Deferred sending HTTP stream headers (`200 OK`) until the upstream OpenRouter connection status is verified. On rate limit (HTTP 429) or other immediate connection errors, propagates the actual HTTP status code and raw error body to the client. Updated the frontend parser to extract detailed upstream rate limit metadata (`jsonErr.error.metadata.raw`) and display it cleanly in the chatbox using Markdown formatting.
 
 ## [0.1.0-alpha] - 2026-06-21
 

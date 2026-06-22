@@ -47,9 +47,6 @@ class OpenRouterClient {
 	 * @return void
 	 */
 	public static function stream_chat( $api_key, array $body ) {
-		self::prepare_stream_headers();
-		self::clean_output_buffers();
-
 		// Let PHP exit if the browser disconnects mid-stream.
 		ignore_user_abort( false );
 
@@ -102,14 +99,35 @@ class OpenRouterClient {
 		curl_setopt( $ch, CURLOPT_TIMEOUT, 120 );
 
 		$streamed_response = '';
+		$headers_sent      = false;
 
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
 		curl_setopt(
 			$ch,
 			CURLOPT_WRITEFUNCTION,
-			function ( $ch, $data ) use ( &$streamed_response ) {
+			function ( $ch, $data ) use ( &$streamed_response, &$headers_sent ) {
 				if ( connection_aborted() ) {
 					return 0;
+				}
+
+				if ( ! $headers_sent ) {
+					// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_getinfo
+					$http_code = curl_getinfo( $ch, CURLINFO_HTTP_CODE );
+					if ( 200 === $http_code ) {
+						self::prepare_stream_headers();
+						self::clean_output_buffers();
+						$headers_sent = true;
+					} else {
+						status_header( $http_code );
+						header( 'Content-Type: application/json' );
+						// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- raw error data.
+						echo $data;
+						if ( ob_get_level() > 0 ) {
+							ob_flush();
+						}
+						flush();
+						return strlen( $data );
+					}
 				}
 
 				// Forward the raw SSE chunk to the client.
@@ -143,8 +161,15 @@ class OpenRouterClient {
 			$error_msg = curl_error( $ch );
 			$payload   = wp_json_encode( array( 'error' => array( 'message' => $error_msg ) ) );
 
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo 'data: ' . $payload . "\n\n";
+			if ( ! $headers_sent ) {
+				status_header( 500 );
+				header( 'Content-Type: application/json' );
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $payload;
+			} else {
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo 'data: ' . $payload . "\n\n";
+			}
 
 			if ( ob_get_level() > 0 ) {
 				ob_flush();
@@ -216,8 +241,10 @@ class OpenRouterClient {
 				array( 'error' => array( 'message' => $error_message ) )
 			);
 
+			status_header( 500 );
+			header( 'Content-Type: application/json' );
 			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo 'data: ' . $payload . "\n\n";
+			echo $payload;
 
 			DebugLogger::log(
 				'fallback_stream',
@@ -231,8 +258,17 @@ class OpenRouterClient {
 			$result      = wp_remote_retrieve_body( $response );
 			$status_code = wp_remote_retrieve_response_code( $response );
 
-			// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
-			echo 'data: ' . $result . "\n\n";
+			if ( 200 === $status_code ) {
+				self::prepare_stream_headers();
+				self::clean_output_buffers();
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo 'data: ' . $result . "\n\n";
+			} else {
+				status_header( $status_code );
+				header( 'Content-Type: application/json' );
+				// phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped
+				echo $result;
+			}
 
 			DebugLogger::log(
 				'fallback_stream',
