@@ -83,3 +83,11 @@ Before staging and committing your code, you must execute validation checks loca
    ```bash
    npm run build
    ```
+
+---
+
+## 5. AI-Assisted Development
+
+All AI agents operating on this codebase MUST follow the rules defined in [`AGENTS.md`](AGENTS.md).
+
+If you are using an AI agent to contribute, ensure it has access to `AGENTS.md` before starting any task. The file covers architecture, coding standards, security requirements, git workflow, and strict behavioral guidelines that keep agent output consistent and safe.
