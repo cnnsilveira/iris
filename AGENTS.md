@@ -334,3 +334,13 @@ When requirements are ambiguous, redundant, or underspecified, **always ask the 
 - Be **concise**. Focus on *what* changed and *why*.
 - No tutorials, generic advice, or restating obvious information.
 - When presenting code, show only the relevant diff — not entire files.
+
+### File Output Location
+
+- **Before** creating any non-source file (implementation plans, research notes, task lists, etc.), **ask the user** where to save it. Offer these options:
+  - A. Project `docs/` directory
+  - B. Agent's default output location
+  - C. Both
+  - D. Other (let the user specify)
+- Never silently dump files outside the project without asking.
+- This applies to every file type: `.md`, `.txt`, scratch notes, migration plans, etc.
