@@ -18,14 +18,14 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Persists API connection logs to a local file.
  *
- * @since 0.1.0-alpha
+ * @since 0.2.0
  */
 class DebugLogger {
 
 	/**
 	 * Log an API operation to a local file.
 	 *
-	 * @since 0.1.0-alpha
+	 * @since 0.2.0
 	 *
 	 * @param string $action      The operation name (e.g., 'chat_stream', 'model_sync').
 	 * @param array  $request     Data about the request (url, method, body).
