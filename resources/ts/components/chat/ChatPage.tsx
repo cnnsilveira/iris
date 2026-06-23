@@ -254,7 +254,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
             </div>
           ) : (
             <div className="iris-chat-page__messages">
-              {messages.map((msg) => (
+              {messages.map((msg, idx) => (
                 <div
                   key={msg.id}
                   className={`iris-chat-page__message iris-chat-page__message--${msg.role}`}
@@ -282,7 +282,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
                     )}
                   </div>
                   <div className="iris-chat-page__bubble">
-                    {msg.content === "" && isTyping ? (
+                    {msg.content === "" && isTyping && idx === messages.length - 1 ? (
                       <div className="iris-chat-page__typing">
                         <span></span>
                         <span></span>

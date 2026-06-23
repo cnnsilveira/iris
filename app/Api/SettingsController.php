@@ -99,7 +99,7 @@ class SettingsController {
 		$defaults = array(
 			'model'           => '',
 			'temperature'     => 0.7,
-			'max_tokens'      => 1024,
+			'max_tokens'      => 4096,
 			'system_prompt'   => '',
 			'context_sharing' => false,
 			'debug_logging'   => false,
@@ -132,7 +132,7 @@ class SettingsController {
 		$settings = array(
 			'model'           => sanitize_text_field( $request->get_param( 'model' ) ?? $current['model'] ?? '' ),
 			'temperature'     => self::clamp_float( (float) ( $request->get_param( 'temperature' ) ?? $current['temperature'] ?? 0.7 ), 0.0, 2.0 ),
-			'max_tokens'      => absint( $request->get_param( 'max_tokens' ) ?? $current['max_tokens'] ?? 1024 ),
+			'max_tokens'      => absint( $request->get_param( 'max_tokens' ) ?? $current['max_tokens'] ?? 4096 ),
 			'system_prompt'   => sanitize_textarea_field( $request->get_param( 'system_prompt' ) ?? $current['system_prompt'] ?? '' ),
 			'context_sharing' => (bool) ( $request->get_param( 'context_sharing' ) ?? $current['context_sharing'] ?? false ),
 			'debug_logging'   => (bool) ( $request->get_param( 'debug_logging' ) ?? $current['debug_logging'] ?? false ),

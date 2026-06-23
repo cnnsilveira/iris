@@ -284,6 +284,7 @@ export function useChat(isDrawer = false) {
 
       const decoder = new TextDecoder();
       let responseText = "";
+      let lastFinishReason: string | null = null;
       let done = false;
 
       while (!done) {
@@ -312,6 +313,11 @@ export function useChat(isDrawer = false) {
                 throw new Error(dataJson.error.message || "API Error");
               }
 
+              const finishReason = dataJson.choices?.[0]?.finish_reason;
+              if (finishReason) {
+                lastFinishReason = finishReason;
+              }
+
               const token = dataJson.choices?.[0]?.delta?.content;
               if (token) {
                 responseText += token;
@@ -335,6 +341,30 @@ export function useChat(isDrawer = false) {
             }
           }
         }
+      }
+
+      if (!responseText.trim()) {
+        if (lastFinishReason === "length") {
+          responseText = "Ops! The model couldn't complete the response due to the Max Output Tokens limit. You can adjust it at Settings -> Advanced Parameters -> [Max Output Tokens](admin.php?page=iris-settings)";
+        } else {
+          responseText = "Ops! Something went wrong...";
+        }
+
+        // Update UI state with the fallback message
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === currentConvId
+              ? {
+                  ...c,
+                  messages: c.messages.map((m) =>
+                    m.id === assistantMsgId
+                      ? { ...m, content: responseText }
+                      : m,
+                  ),
+                }
+              : c,
+          ),
+        );
       }
 
       // Stream succeeded, save completed conversation to server

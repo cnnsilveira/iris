@@ -83,7 +83,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
   const [apiKey, setApiKey] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [temperature, setTemperature] = useState(0.7);
-  const [maxTokens, setMaxTokens] = useState(1024);
+  const [maxTokens, setMaxTokens] = useState(4096);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [promptTab, setPromptTab] = useState<"raw" | "preview">("raw");
   const [contextSharing, setContextSharing] = useState(false);
@@ -698,7 +698,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                     className="iris-settings__input"
                     value={maxTokens}
                     onChange={(e) =>
-                      setMaxTokens(parseInt(e.target.value, 10) || 1024)
+                      setMaxTokens(parseInt(e.target.value, 10) || 4096)
                     }
                   />
                   <p className="iris-settings__help-text">

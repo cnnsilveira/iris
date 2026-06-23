@@ -166,7 +166,7 @@ class ChatController {
 			'model'       => sanitize_text_field( $request->get_param( 'model' ) ?? $settings['model'] ?? '' ),
 			'messages'    => $messages,
 			'temperature' => (float) ( $request->get_param( 'temperature' ) ?? $settings['temperature'] ?? 0.7 ),
-			'max_tokens'  => (int) ( $request->get_param( 'max_tokens' ) ?? $settings['max_tokens'] ?? 1024 ),
+			'max_tokens'  => (int) ( $request->get_param( 'max_tokens' ) ?? $settings['max_tokens'] ?? 4096 ),
 		);
 
 		OpenRouterClient::stream_chat( $api_key, $body );

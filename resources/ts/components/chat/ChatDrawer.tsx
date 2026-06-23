@@ -220,7 +220,7 @@ export const ChatDrawer: React.FC = () => {
             </div>
           ) : (
             <div className="iris-drawer__messages">
-              {messages.map((msg) => (
+              {messages.map((msg, idx) => (
                 <div
                   key={msg.id}
                   className={`iris-drawer__message iris-drawer__message--${msg.role}`}
@@ -229,7 +229,7 @@ export const ChatDrawer: React.FC = () => {
                     {msg.role === "user" ? "U" : "AI"}
                   </div>
                   <div className="iris-drawer__message-bubble">
-                    {msg.content === "" && isTyping ? (
+                    {msg.content === "" && isTyping && idx === messages.length - 1 ? (
                       <div className="iris-drawer__typing-indicator">
                         <span></span>
                         <span></span>

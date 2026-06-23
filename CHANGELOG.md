@@ -4,11 +4,15 @@ All notable changes to the Iris WordPress plugin will be documented in this file
 
 ## [Unreleased]
 
-### Added
-- **Delete Chat Confirmation Modal:** Added a custom, glassmorphic deletion confirmation popup modal that overlays the Chat page when clicking a conversation's trash icon, replacing the unstyled browser-native `window.confirm` popup.
+### Changed
+- **Default Token Limit Upgrade:** Upgraded the default `max_tokens` (Max Output Tokens) limit value from `1024` to `4096` in the REST API controllers and settings dashboard UI config to provide reasoning-heavy models with sufficient space to complete both their thinking process and actual response content.
 
 ### Fixed
+- **Duplicate Typing Animation Dots:** Fixed a bug where a new prompt caused historical empty chat bubbles to display animated typing dots by verifying that only the very last message in the feed displays the typing dots.
+- **Empty API Response Handlers:** Added a check for empty API responses. Shows a warning recommending that the user increase their token limit if generation stopped due to token limit length (`finish_reason: "length"`), and returns a generic warning for other empty streams.
 - **History Action Button Hover:** Fixed a nested SASS nesting bug in `_chat-page.scss` where parent references (`&`) compiled into duplicate `#iris-chat-page-root` selectors, which prevented the rename and delete action icons from displaying when hovering over conversation items.
+### Added
+- **Delete Chat Confirmation Modal:** Added a custom, glassmorphic deletion confirmation popup modal that overlays the Chat page when clicking a conversation's trash icon, replacing the unstyled browser-native `window.confirm` popup.
 
 ## [0.2.0-alpha] - 2026-06-22
 
