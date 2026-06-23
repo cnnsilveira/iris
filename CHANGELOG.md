@@ -2,7 +2,7 @@
 
 All notable changes to the Iris WordPress plugin will be documented in this file.
 
-## [Unreleased]
+## [0.2.0-alpha] - 2026-06-22
 
 ### Added
 - **System Prompt Tabbed Editor:** Added a "Markdown" and "Preview" toggle to the System Prompt editor on the Settings page. Configured a monospaced font stack for markdown writing, and styled the preview pane with custom theme-accented headings, lists, blockquotes, and inline code elements.

@@ -59,7 +59,7 @@ class Plugin {
 	 */
 	private static function define_constants() {
 		if ( ! defined( 'IRIS_VERSION' ) ) {
-			define( 'IRIS_VERSION', '0.1.0-alpha' );
+			define( 'IRIS_VERSION', '0.2.0-alpha' );
 		}
 
 		if ( ! defined( 'IRIS_PLUGIN_FILE' ) ) {

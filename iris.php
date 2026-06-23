@@ -3,7 +3,7 @@
  * Plugin Name: Iris
  * Plugin URI:  https://github.com/cnnsilveira/iris/
  * Description: The best AI Assistant for WordPress, powered by OpenRouter.
- * Version:     0.1.0-alpha
+ * Version:     0.2.0-alpha
  * Requires PHP: 7.4
  * Author:      Caio Nunes da Silveira
  * Author URI:  https://caionunes.dev/
