@@ -4,17 +4,16 @@ import path from 'path';
 
 export default defineConfig({
 	plugins: [react()],
-	root: 'admin',
 	resolve: {
 		alias: {
-			'@': path.resolve(__dirname, 'admin/src'),
+			'@': path.resolve(__dirname, 'resources/ts'),
 		},
 	},
 	build: {
 		outDir: path.resolve(__dirname, 'assets/dist'),
 		emptyOutDir: true,
 		rollupOptions: {
-			input: path.resolve(__dirname, 'admin/src/main.tsx'),
+			input: path.resolve(__dirname, 'resources/ts/main.tsx'),
 			output: {
 				entryFileNames: 'iris-admin.js',
 				chunkFileNames: 'iris-[name].js',

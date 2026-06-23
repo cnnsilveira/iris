@@ -8,7 +8,12 @@
  * @package Iris
  */
 
-namespace Iris;
+namespace Iris\Models;
+
+// Prevent direct file access.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Manages the cached model list and its background sync schedule.
@@ -59,6 +64,8 @@ class ModelManager {
 			return;
 		}
 
+		$start_time = microtime( true );
+
 		$response = wp_remote_get(
 			self::API_URL,
 			array(
@@ -69,28 +76,70 @@ class ModelManager {
 			)
 		);
 
+		$duration    = microtime( true ) - $start_time;
+		$request_log = array(
+			'url'    => self::API_URL,
+			'method' => 'GET',
+		);
+
 		if ( is_wp_error( $response ) ) {
+			$error_message = $response->get_error_message();
 			set_transient( 'iris_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
+
+			\Iris\Chat\DebugLogger::log(
+				'model_sync',
+				$request_log,
+				0,
+				'',
+				$duration,
+				$error_message
+			);
 			return;
 		}
 
 		$status_code = wp_remote_retrieve_response_code( $response );
+		$body        = wp_remote_retrieve_body( $response );
 
 		if ( 200 !== $status_code ) {
 			set_transient( 'iris_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
+
+			\Iris\Chat\DebugLogger::log(
+				'model_sync',
+				$request_log,
+				$status_code,
+				$body,
+				$duration,
+				'HTTP status code: ' . $status_code
+			);
 			return;
 		}
 
-		$body = wp_remote_retrieve_body( $response );
 		$data = json_decode( $body, true );
 
 		if ( ! is_array( $data ) || empty( $data['data'] ) ) {
 			set_transient( 'iris_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
+
+			\Iris\Chat\DebugLogger::log(
+				'model_sync',
+				$request_log,
+				$status_code,
+				$body,
+				$duration,
+				'Invalid model data returned or JSON decode failed.'
+			);
 			return;
 		}
 
 		// Store the full model array; do not autoload to save memory.
 		update_option( 'iris_model_list', $data['data'], false );
+
+		\Iris\Chat\DebugLogger::log(
+			'model_sync',
+			$request_log,
+			$status_code,
+			sprintf( 'Successfully fetched and cached %d models.', count( $data['data'] ) ),
+			$duration
+		);
 	}
 
 	/**

@@ -9,7 +9,12 @@
  * @package Iris
  */
 
-namespace Iris;
+namespace Iris\Admin;
+
+// Prevent direct file access.
+if ( ! defined( 'ABSPATH' ) ) {
+	exit;
+}
 
 /**
  * Handles all WordPress admin integration for Iris.
@@ -19,8 +24,15 @@ namespace Iris;
 class Admin {
 
 	/**
-	 * Hook suffix returned by add_menu_page, used to target
-	 * page-specific enqueues.
+	 * Hook suffix returned by add_menu_page for the Chat page.
+	 *
+	 * @since 0.2.0
+	 * @var string
+	 */
+	private static $chat_hook = '';
+
+	/**
+	 * Hook suffix returned by add_submenu_page for the Settings page.
 	 *
 	 * @since v0.1.0
 	 * @var string
@@ -50,14 +62,32 @@ class Admin {
 	 * @return void
 	 */
 	public static function register_menu() {
-		self::$settings_hook = add_menu_page(
+		self::$chat_hook = add_menu_page(
 			__( 'Iris', 'iris' ),
 			__( 'Iris', 'iris' ),
 			'manage_options',
 			'iris',
-			array( __CLASS__, 'render_settings_page' ),
+			array( __CLASS__, 'render_chat_page' ),
 			'dashicons-format-chat',
-			80
+			30
+		);
+
+		add_submenu_page(
+			'iris',
+			__( 'Chat', 'iris' ),
+			__( 'Chat', 'iris' ),
+			'manage_options',
+			'iris',
+			array( __CLASS__, 'render_chat_page' )
+		);
+
+		self::$settings_hook = add_submenu_page(
+			'iris',
+			__( 'Settings', 'iris' ),
+			__( 'Settings', 'iris' ),
+			'manage_options',
+			'iris-settings',
+			array( __CLASS__, 'render_settings_page' )
 		);
 	}
 
@@ -71,7 +101,20 @@ class Admin {
 	 * @return void
 	 */
 	public static function render_settings_page() {
-		echo '<div id="iris-admin-root"></div>';
+		echo '<div id="iris-settings-page-root"></div>';
+	}
+
+	/**
+	 * Render the chat page mount point.
+	 *
+	 * Outputs a single container that the React chat
+	 * application mounts onto.
+	 *
+	 * @since 0.2.0
+	 * @return void
+	 */
+	public static function render_chat_page() {
+		echo '<div id="iris-chat-page-root"></div>';
 	}
 
 	/**
@@ -84,6 +127,11 @@ class Admin {
 	 */
 	public static function render_chat_root() {
 		if ( ! current_user_can( 'manage_options' ) ) {
+			return;
+		}
+
+		global $hook_suffix;
+		if ( $hook_suffix === self::$chat_hook || $hook_suffix === self::$settings_hook ) {
 			return;
 		}
 

@@ -1,0 +1,655 @@
+@use "../../tokens" as *;
+
+#iris-chat-page-root {
+  .iris-chat-page {
+    display: flex;
+    position: relative;
+    height: calc(100vh - 100px);
+    margin: 20px 20px 20px 2px;
+    background: $iris-bg-primary;
+    border: 1px solid $iris-border;
+    border-radius: $iris-radius-lg;
+    box-shadow: $iris-shadow-lg;
+    overflow: hidden;
+    color: $iris-text-primary;
+    font-family: $iris-font-family;
+
+    @media (max-width: 782px) {
+      height: calc(100vh - 46px - 20px);
+      margin: 10px;
+    }
+    
+    // Main Chat Panel
+    &__main {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      background: $iris-bg-primary;
+      position: relative;
+    }
+    
+    // Header
+    &__header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: $iris-space-base $iris-space-lg;
+      border-bottom: 1px solid $iris-border;
+      background: $iris-bg-secondary;
+    }
+
+    &__header-title-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    &__header-title {
+      font-size: $iris-font-md;
+      font-weight: $iris-weight-semibold;
+      color: $iris-text-primary;
+      margin: 0;
+      line-height: $iris-line-height-tight;
+    }
+
+    &__header-meta {
+      font-size: $iris-font-xs;
+      color: $iris-text-secondary;
+    }
+
+    &__header-actions {
+      display: flex;
+      align-items: center;
+      gap: $iris-space-md;
+    }
+
+    &__sidebar-toggle {
+      background: none;
+      border: none;
+      color: $iris-text-secondary;
+      cursor: pointer;
+      padding: $iris-space-xs;
+      border-radius: $iris-radius-sm;
+      transition: all $iris-transition-fast;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: $iris-text-primary;
+        background: $iris-bg-surface-hover;
+      }
+      
+      &--active {
+        color: $iris-accent;
+      }
+    }
+
+    // Message Feed body
+    &__body {
+      flex: 1;
+      overflow-y: auto;
+      padding: $iris-space-lg;
+      background: $iris-bg-primary;
+      display: flex;
+      flex-direction: column;
+    }
+
+    &__loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      height: 100%;
+      color: $iris-text-secondary;
+      gap: $iris-space-md;
+    }
+
+    &__spinner {
+      width: 28px;
+      height: 28px;
+      border: 3px solid $iris-border;
+      border-top-color: $iris-accent;
+      border-radius: $iris-radius-full;
+      animation: iris-spin 0.8s linear infinite;
+    }
+
+    // Empty Welcome State
+    &__empty-state {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      max-width: 650px;
+      margin: auto;
+      text-align: center;
+      padding: $iris-space-xl 0;
+    }
+
+    &__welcome-logo {
+      margin-bottom: $iris-space-lg;
+      filter: drop-shadow(0 0 15px rgba(130, 143, 255, 0.2));
+      animation: iris-float 4s ease-in-out infinite;
+    }
+
+    &__welcome-title {
+      font-size: $iris-font-xl;
+      font-weight: $iris-weight-bold;
+      color: $iris-text-primary;
+      margin: 0 0 $iris-space-sm 0;
+    }
+
+    &__welcome-subtitle {
+      font-size: $iris-font-base;
+      color: $iris-text-secondary;
+      margin: 0 0 $iris-space-2xl 0;
+      line-height: $iris-line-height;
+    }
+
+    &__suggestions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: $iris-space-md;
+      width: 100%;
+
+      @media (min-width: 600px) {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    &__suggestion-card {
+      background: $iris-bg-secondary;
+      border: 1px solid $iris-border;
+      border-radius: $iris-radius-md;
+      padding: $iris-space-md $iris-space-base;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: all $iris-transition-fast;
+      color: $iris-text-primary;
+
+      &:hover {
+        background: $iris-bg-surface-hover;
+        border-color: $iris-border-focus;
+        transform: translateY(-2px);
+        box-shadow: $iris-shadow-sm;
+      }
+    }
+
+    &__suggestion-text {
+      font-size: $iris-font-sm;
+      font-weight: $iris-weight-medium;
+      color: $iris-text-secondary;
+      line-height: 1.4;
+      flex: 1;
+      padding-right: $iris-space-sm;
+    }
+
+    &__suggestion-arrow {
+      color: $iris-accent;
+      font-weight: $iris-weight-bold;
+      opacity: 0.7;
+      transition: transform $iris-transition-fast;
+    }
+
+    &__suggestion-card:hover &__suggestion-arrow {
+      transform: translateX(3px);
+      opacity: 1;
+    }
+
+    // Message container
+    &__messages {
+      display: flex;
+      flex-direction: column;
+      gap: $iris-space-xl;
+      max-width: 800px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    &__message {
+      display: flex;
+      gap: $iris-space-base;
+      
+      &--user {
+        flex-direction: row-reverse;
+        
+        .iris-chat-page__bubble {
+          background: $iris-bg-secondary;
+          border: 1px solid $iris-border;
+          border-radius: $iris-radius-lg $iris-radius-sm $iris-radius-lg $iris-radius-lg;
+        }
+      }
+      
+      &--assistant {
+        .iris-chat-page__bubble {
+          background: $iris-bg-secondary;
+          border: 1px solid $iris-border;
+          border-radius: $iris-radius-sm $iris-radius-lg $iris-radius-lg $iris-radius-lg;
+        }
+      }
+    }
+
+    &__avatar-wrapper {
+      flex-shrink: 0;
+    }
+
+    &__avatar {
+      width: 32px;
+      height: 32px;
+      border-radius: $iris-radius-full;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: $iris-font-sm;
+      font-weight: $iris-weight-semibold;
+      
+      &--user {
+        background: $iris-bg-surface;
+        color: $iris-text-primary;
+        border: 1px solid $iris-border;
+      }
+      
+      &--ai {
+        background: linear-gradient(135deg, $iris-accent 0%, #a78bfa 100%);
+        color: #fff;
+        box-shadow: $iris-shadow-sm;
+      }
+    }
+
+    &__bubble {
+      max-width: 80%;
+      padding: $iris-space-md $iris-space-base;
+      line-height: $iris-line-height;
+    }
+
+    &__message-content {
+      font-size: $iris-font-base;
+      color: $iris-text-primary;
+
+      p:first-child {
+        margin-top: 0;
+      }
+      p:last-child {
+        margin-bottom: 0;
+      }
+
+      code {
+        background: rgba(255, 255, 255, 0.05);
+        padding: 2px 5px;
+        border-radius: $iris-radius-sm;
+        font-family: $iris-font-mono;
+        font-size: $iris-font-sm;
+      }
+
+      pre {
+        background: $iris-bg-secondary;
+        border: 1px solid $iris-border;
+        border-radius: $iris-radius-md;
+        padding: $iris-space-base;
+        overflow-x: auto;
+        margin: $iris-space-md 0;
+        
+        code {
+          background: none;
+          padding: 0;
+          border-radius: 0;
+          font-size: $iris-font-sm;
+          color: $iris-text-primary;
+          display: block;
+        }
+      }
+
+      ul, ol {
+        margin: $iris-space-sm 0;
+        padding-left: $iris-space-xl;
+      }
+
+      a {
+        color: $iris-accent;
+        text-decoration: none;
+        &:hover {
+          text-decoration: underline;
+        }
+      }
+    }
+
+    &__typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      height: 20px;
+
+      span {
+        width: 6px;
+        height: 6px;
+        background-color: $iris-text-secondary;
+        border-radius: 50%;
+        display: inline-block;
+        animation: iris-typing 1.4s infinite ease-in-out both;
+
+        &:nth-child(1) { animation-delay: -0.32s; }
+        &:nth-child(2) { animation-delay: -0.16s; }
+      }
+    }
+
+    // Input area
+    &__footer {
+      padding: $iris-space-base $iris-space-lg;
+      background: $iris-bg-primary;
+      border-top: 1px solid $iris-border;
+    }
+
+    &__input-container {
+      max-width: 800px;
+      margin: 0 auto;
+      position: relative;
+      background: $iris-bg-secondary;
+      border: 1px solid $iris-border;
+      border-radius: $iris-radius-lg;
+      display: flex;
+      align-items: flex-end;
+      padding: $iris-space-sm $iris-space-md;
+      transition: border-color $iris-transition-fast;
+
+      &:focus-within {
+        border-color: $iris-border-focus;
+        box-shadow: 0 0 0 1px $iris-border-focus;
+      }
+    }
+
+    &__textarea {
+      flex: 1;
+      background: transparent;
+      border: none;
+      outline: none;
+      resize: none;
+      color: $iris-text-primary;
+      font-size: $iris-font-base;
+      line-height: 1.5;
+      max-height: $iris-chat-input-max-height;
+      padding: $iris-space-xs 0;
+      margin-right: 40px;
+
+      &::placeholder {
+        color: $iris-text-muted;
+      }
+    }
+
+    &__send-button {
+      position: absolute;
+      right: $iris-space-md;
+      bottom: $iris-space-md;
+      background: $iris-accent;
+      color: #fff;
+      border: none;
+      border-radius: $iris-radius-md;
+      width: 32px;
+      height: 32px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all $iris-transition-fast;
+	  margin: auto;
+      top: 0;
+	  bottom: 0;
+
+      &:hover:not(:disabled) {
+        background: $iris-accent-hover;
+        transform: scale(1.05);
+      }
+
+      &:disabled {
+        background: $iris-bg-surface;
+        color: $iris-text-muted;
+        cursor: not-allowed;
+      }
+    }
+
+    &__footer-note {
+      text-align: center;
+      font-size: $iris-font-xs;
+      color: $iris-text-muted;
+      margin-top: $iris-space-sm;
+    }
+
+    // Right Sidebar (Collapsible)
+    &__sidebar {
+      width: 0;
+      background: $iris-bg-secondary;
+      border-left: 0 solid $iris-border;
+      display: flex;
+      flex-direction: column;
+      height: 100%;
+      transition: width $iris-transition-drawer, border-left-width $iris-transition-drawer;
+      overflow: hidden;
+      flex-shrink: 0;
+
+      &--open {
+        width: 260px;
+        border-left: 1px solid $iris-border;
+      }
+    }
+
+    &__sidebar-header {
+      padding: $iris-space-base;
+      border-bottom: 1px solid $iris-border;
+    }
+
+    &__new-chat-btn {
+      width: 100%;
+      background: $iris-accent-subtle;
+      border: 1px dashed rgba($iris-accent, 0.4);
+      color: $iris-accent;
+      border-radius: $iris-radius-md;
+      padding: $iris-space-md;
+      font-size: $iris-font-sm;
+      font-weight: $iris-weight-medium;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: $iris-space-sm;
+      transition: all $iris-transition-fast;
+
+      &:hover {
+        background: rgba($iris-accent, 0.18);
+        border-color: $iris-accent;
+        color: $iris-accent-hover;
+      }
+    }
+
+    &__sidebar-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: $iris-space-base $iris-space-sm;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    &__sidebar-empty {
+      font-size: $iris-font-sm;
+      color: $iris-text-muted;
+      text-align: center;
+      padding: $iris-space-xl 0;
+    }
+
+    &__history-item {
+      display: flex;
+      align-items: center;
+      padding: $iris-space-md $iris-space-base;
+      border-radius: $iris-radius-md;
+      cursor: pointer;
+      position: relative;
+      transition: all $iris-transition-fast;
+      color: $iris-text-secondary;
+      gap: $iris-space-sm;
+      
+      &:hover {
+        background: $iris-bg-surface;
+        color: $iris-text-primary;
+      }
+
+      &--active {
+        background: $iris-bg-surface-hover;
+        color: $iris-text-primary;
+        font-weight: $iris-weight-medium;
+      }
+    }
+
+    &__history-icon {
+      flex-shrink: 0;
+      opacity: 0.6;
+    }
+
+    &__history-title {
+      font-size: $iris-font-sm;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      padding-right: 40px; // space for hover action buttons
+    }
+
+    &__rename-input {
+      flex: 1;
+      background: $iris-bg-primary;
+      border: 1px solid $iris-border-focus;
+      border-radius: $iris-radius-sm;
+      color: $iris-text-primary;
+      font-size: $iris-font-sm;
+      padding: 2px 6px;
+      outline: none;
+      width: 100%;
+    }
+
+    &__history-actions {
+      position: absolute;
+      right: $iris-space-base;
+      display: none;
+      align-items: center;
+      gap: $iris-space-xs;
+      background: linear-gradient(90deg, transparent 0%, $iris-bg-surface 30%, $iris-bg-surface 100%);
+      padding-left: $iris-space-md;
+    }
+
+    &__history-item:hover &__history-actions {
+      display: flex;
+    }
+
+    &__history-item--active:hover &__history-actions {
+      background: linear-gradient(90deg, transparent 0%, $iris-bg-surface-hover 30%, $iris-bg-surface-hover 100%);
+    }
+
+    &__history-action-btn {
+      background: none;
+      border: none;
+      color: $iris-text-secondary;
+      cursor: pointer;
+      padding: 2px;
+      border-radius: $iris-radius-sm;
+      transition: all $iris-transition-fast;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: $iris-text-primary;
+        background: rgba(255, 255, 255, 0.05);
+      }
+    }
+
+    &__sidebar-footer {
+      padding: $iris-space-base;
+      border-top: 1px solid $iris-border;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: $iris-bg-secondary;
+    }
+
+    &__sidebar-footer-brand {
+      display: flex;
+      align-items: center;
+      gap: $iris-space-sm;
+    }
+
+    &__sidebar-logo-text {
+      font-size: $iris-font-sm;
+      font-weight: $iris-weight-semibold;
+      background: linear-gradient(135deg, $iris-accent 0%, #a78bfa 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    &__settings-btn {
+      background: none;
+      border: none;
+      color: $iris-text-secondary;
+      cursor: pointer;
+      padding: $iris-space-xs;
+      border-radius: $iris-radius-sm;
+      transition: all $iris-transition-fast;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      &:hover {
+        color: $iris-text-primary;
+        transform: rotate(30deg);
+        background: $iris-bg-surface-hover;
+      }
+    }
+  }
+
+  // Adjustments on Settings view inside AdminApp
+  .iris-settings {
+    // Styling the back button next to logo
+    &__back-btn {
+      background: none;
+      border: none;
+      color: $iris-text-secondary;
+      cursor: pointer;
+      padding: $iris-space-xs;
+      border-radius: $iris-radius-sm;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-right: $iris-space-md;
+      transition: all $iris-transition-fast;
+
+      &:hover {
+        color: $iris-text-primary;
+        background: $iris-bg-surface-hover;
+      }
+    }
+  }
+}
+
+// Global Keyframes for animations
+@keyframes iris-typing {
+  0%, 100% { transform: scale(1); opacity: 0.4; }
+  50% { transform: scale(1.4); opacity: 1; }
+}
+
+@keyframes iris-spin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes iris-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+// Override WP default bottom padding on Iris screens to prevent vertical page scrollbar
+body.toplevel_page_iris,
+body.iris_page_iris-settings {
+  #wpbody-content {
+    padding-bottom: 0 !important;
+  }
+}

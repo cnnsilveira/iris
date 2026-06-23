@@ -1,13 +1,14 @@
 {
 	"name": "iris",
-	"version": "0.1.0-alpha",
+	"version": "0.2.0-alpha",
 	"private": true,
 	"description": "Iris – WordPress AI Assistant frontend.",
+	"license": "GPL-2.0-or-later",
 	"scripts": {
 		"dev": "vite --config vite.config.ts",
 		"build": "tsc -b && vite build --config vite.config.ts",
-		"lint": "eslint 'admin/src/**/*.{ts,tsx}'",
-		"format": "prettier --write 'admin/src/**/*.{ts,tsx,scss}'",
+		"lint": "eslint 'resources/ts/**/*.{ts,tsx}'",
+		"format": "prettier --write 'resources/ts/**/*.{ts,tsx}' 'resources/scss/**/*.scss'",
 		"zip": "python3 bin/release.py"
 	},
 	"dependencies": {

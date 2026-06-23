@@ -76,14 +76,32 @@ The plugin maintains strict adherence to WordPress Coding Standards (WPCS) for P
 
 ```
 iris/
-├── src/                         # PHP Source Files (PSR-4 Namespaced under Iris\)
-│   ├── Plugin.php               # Bootstrapper Orchestrator
-│   ├── Admin.php                # Sidebar screens, option settings hooks, asset enqueuing
-│   ├── RestController.php       # API route registration, schema validation checks, access gates
-│   ├── OpenRouterClient.php     # cURL SSE connection stream controller
-│   └── ModelManager.php         # Model caching option hydrators & Cron sync registers
-├── admin/                       # React Frontend Project
-│   └── src/                     # React + TSX + SASS development source code
+├── app/                         # PHP Source Files (PSR-4 Namespaced under Iris\)
+│   ├── Admin/                   # Admin hooks, settings, asset enqueuing
+│   │   └── Admin.php
+│   ├── Api/                     # REST controllers & route registration
+│   │   ├── ChatController.php
+│   │   ├── ModelsController.php
+│   │   └── SettingsController.php
+│   ├── Chat/                    # Chat/streaming logic, OpenRouter client
+│   │   └── OpenRouterClient.php
+│   ├── Models/                  # Model sync, caching, WP-Cron tasks
+│   │   └── ModelManager.php
+│   └── Plugin.php               # Bootstrapper Orchestrator (at root of app/)
+├── resources/                   # Frontend source files
+│   ├── ts/                      # React + TSX development source code
+│   │   ├── components/
+│   │   │   ├── chat/            # Chat feature components
+│   │   │   └── settings/        # Settings feature components
+│   │   └── main.tsx             # Vite entry point
+│   └── scss/                    # SASS styling stylesheets
+│       ├── styles/
+│       │   ├── _tokens.scss     # Design tokens
+│       │   ├── _reset.scss      # Scoped CSS reset
+│       │   └── components/      # Component-level SCSS partials
+│       │       ├── chat/        # Chat component styles
+│       │       └── settings/    # Settings component styles
+│       └── main.scss            # SCSS entry point
 ├── assets/
 │   └── dist/                    # Transpiled and minified build targets (JS/CSS)
 ├── iris.php                     # Global bootstrap file
@@ -95,4 +113,4 @@ iris/
 
 ## License
 
-This project is licensed under the MIT License.
+This project is licensed under the [GPL-2.0-or-later](https://www.gnu.org/licenses/gpl-2.0.html) license.

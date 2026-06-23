@@ -15,3 +15,10 @@ tsconfig.tsbuildinfo
 *.swo
 .DS_Store
 Thumbs.db
+
+# Docs whitelist
+docs/*
+!docs/.gitkeep
+
+# Debug logs
+iris-debug.log
