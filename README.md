@@ -1,6 +1,6 @@
 # Iris - The Premium WordPress AI Assistant
 
-Iris is an enterprise-grade WordPress AI Assistant plugin leveraging the OpenRouter API. It provides a sleek, real-time streaming assistant to help administrators manage their sites, draft content, and troubleshoot issues directly from the WordPress Admin dashboard.
+Iris is a robust WordPress AI Assistant plugin leveraging the OpenRouter API. It provides a sleek, real-time streaming assistant to help administrators manage their sites, draft content, and troubleshoot issues directly from the WordPress Admin dashboard.
 
 ---
 
