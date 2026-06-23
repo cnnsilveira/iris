@@ -3,6 +3,7 @@
 	"version": "0.1.0-alpha",
 	"private": true,
 	"description": "Iris – WordPress AI Assistant frontend.",
+	"license": "GPL-2.0-or-later",
 	"scripts": {
 		"dev": "vite --config vite.config.ts",
 		"build": "tsc -b && vite build --config vite.config.ts",
