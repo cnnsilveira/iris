@@ -2,6 +2,14 @@
 
 All notable changes to the Iris WordPress plugin will be documented in this file.
 
+## [Unreleased]
+
+### Added
+- **Delete Chat Confirmation Modal:** Added a custom, glassmorphic deletion confirmation popup modal that overlays the Chat page when clicking a conversation's trash icon, replacing the unstyled browser-native `window.confirm` popup.
+
+### Fixed
+- **History Action Button Hover:** Fixed a nested SASS nesting bug in `_chat-page.scss` where parent references (`&`) compiled into duplicate `#iris-chat-page-root` selectors, which prevented the rename and delete action icons from displaying when hovering over conversation items.
+
 ## [0.2.0-alpha] - 2026-06-22
 
 ### Added

@@ -1,4 +1,5 @@
 @use "../../tokens" as *;
+@use "sass:color";
 
 #iris-chat-page-root {
   .iris-chat-page {
@@ -534,16 +535,13 @@
       display: none;
       align-items: center;
       gap: $iris-space-xs;
-      background: linear-gradient(90deg, transparent 0%, $iris-bg-surface 30%, $iris-bg-surface 100%);
       padding-left: $iris-space-md;
     }
 
-    &__history-item:hover &__history-actions {
-      display: flex;
-    }
-
-    &__history-item--active:hover &__history-actions {
-      background: linear-gradient(90deg, transparent 0%, $iris-bg-surface-hover 30%, $iris-bg-surface-hover 100%);
+    &__history-item:hover {
+      .iris-chat-page__history-actions {
+        display: flex;
+      }
     }
 
     &__history-action-btn {
@@ -551,7 +549,7 @@
       border: none;
       color: $iris-text-secondary;
       cursor: pointer;
-      padding: 2px;
+      padding: 5px;
       border-radius: $iris-radius-sm;
       transition: all $iris-transition-fast;
       display: flex;
@@ -605,6 +603,89 @@
         background: $iris-bg-surface-hover;
       }
     }
+
+    // Modal Overlay
+    &__modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: $iris-bg-glass;
+      backdrop-filter: blur(4px);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 100000;
+      animation: iris-fade-in $iris-transition-fast;
+    }
+
+    // Modal Card
+    &__modal {
+      background: $iris-bg-secondary;
+      border: 1px solid $iris-border;
+      border-radius: $iris-radius-lg;
+      padding: $iris-space-lg;
+      max-width: 400px;
+      width: 90%;
+      box-shadow: $iris-shadow-lg;
+      animation: iris-scale-up $iris-transition-fast;
+      display: flex;
+      flex-direction: column;
+      gap: $iris-space-md;
+    }
+
+    &__modal-title {
+      font-size: $iris-font-lg;
+      font-weight: $iris-weight-semibold;
+      color: $iris-text-primary;
+      margin: 0;
+    }
+
+    &__modal-message {
+      font-size: $iris-font-base;
+      color: $iris-text-secondary;
+      line-height: $iris-line-height;
+      margin: 0;
+    }
+
+    &__modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: $iris-space-md;
+      margin-top: $iris-space-sm;
+    }
+
+    &__modal-btn {
+      padding: $iris-space-sm $iris-space-base;
+      font-size: $iris-font-sm;
+      font-weight: $iris-weight-medium;
+      border-radius: $iris-radius-md;
+      cursor: pointer;
+      transition: all $iris-transition-fast;
+
+      &--cancel {
+        background: transparent;
+        border: 1px solid $iris-border;
+        color: $iris-text-primary;
+
+        &:hover {
+          background: $iris-bg-surface-hover;
+          border-color: $iris-border-focus;
+        }
+      }
+
+      &--delete {
+        background: $iris-error;
+        border: 1px solid $iris-error;
+        color: #fff;
+
+        &:hover {
+          background: color.adjust($iris-error, $lightness: 8%);
+          border-color: color.adjust($iris-error, $lightness: 8%);
+        }
+      }
+    }
   }
 
   // Adjustments on Settings view inside AdminApp
@@ -644,6 +725,16 @@
 @keyframes iris-float {
   0%, 100% { transform: translateY(0); }
   50% { transform: translateY(-8px); }
+}
+
+@keyframes iris-fade-in {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes iris-scale-up {
+  from { transform: scale(0.95); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
 }
 
 // Override WP default bottom padding on Iris screens to prevent vertical page scrollbar

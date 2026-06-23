@@ -37,6 +37,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const [activeModel, setActiveModel] = useState("Select a model...");
   const [editingConvId, setEditingConvId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
+  const [convIdToDelete, setConvIdToDelete] = useState<string | null>(null);
 
   const chatBodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -137,8 +138,13 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
 
   const handleDeleteClick = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this conversation?")) {
-      deleteConversation(id);
+    setConvIdToDelete(id);
+  };
+
+  const handleConfirmDelete = () => {
+    if (convIdToDelete) {
+      deleteConversation(convIdToDelete);
+      setConvIdToDelete(null);
     }
   };
 
@@ -476,6 +482,37 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
           </button>
         </div>
       </aside>
+
+      {convIdToDelete && (
+        <div
+          className="iris-chat-page__modal-overlay"
+          onClick={() => setConvIdToDelete(null)}
+        >
+          <div
+            className="iris-chat-page__modal"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h3 className="iris-chat-page__modal-title">Delete Conversation</h3>
+            <p className="iris-chat-page__modal-message">
+              Are you sure you want to delete this conversation? This action cannot be undone.
+            </p>
+            <div className="iris-chat-page__modal-actions">
+              <button
+                className="iris-chat-page__modal-btn iris-chat-page__modal-btn--cancel"
+                onClick={() => setConvIdToDelete(null)}
+              >
+                Cancel
+              </button>
+              <button
+                className="iris-chat-page__modal-btn iris-chat-page__modal-btn--delete"
+                onClick={handleConfirmDelete}
+              >
+                Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
