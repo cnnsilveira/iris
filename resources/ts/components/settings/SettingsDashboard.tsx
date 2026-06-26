@@ -336,24 +336,34 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
       )}
       <hr className="wp-header-end" />
 
-      <nav className="nav-tab-wrapper wp-filter" style={{ marginBottom: "20px" }}>
-        <button
-          type="button"
-          className={`nav-tab ${activeTab === "settings" ? "nav-tab-active" : ""}`}
-          onClick={() => setActiveTab("settings")}
-          style={{ background: "none", border: "none", boxShadow: "none", cursor: "pointer" }}
-        >
-          Settings
-        </button>
-        <button
-          type="button"
-          className={`nav-tab ${activeTab === "logs" ? "nav-tab-active" : ""}`}
-          onClick={() => setActiveTab("logs")}
-          style={{ background: "none", border: "none", boxShadow: "none", cursor: "pointer" }}
-        >
-          Debug Logs
-        </button>
-      </nav>
+      <div className="wp-filter">
+        <ul className="filter-links">
+          <li>
+            <a
+              href="#settings"
+              className={activeTab === "settings" ? "current" : ""}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("settings");
+              }}
+            >
+              Settings
+            </a>
+          </li>
+          <li>
+            <a
+              href="#logs"
+              className={activeTab === "logs" ? "current" : ""}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("logs");
+              }}
+            >
+              Debug Logs
+            </a>
+          </li>
+        </ul>
+      </div>
 
       {statusMsg && (
         <div

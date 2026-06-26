@@ -738,9 +738,8 @@
 }
 
 // Override WP default bottom padding on Iris screens to prevent vertical page scrollbar
-body.toplevel_page_iris,
-body.iris_page_iris-settings {
+body.toplevel_page_iris {
   #wpbody-content {
-    padding-bottom: 0 !important;
+    padding-bottom: 0;
   }
 }
