@@ -476,6 +476,26 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
               </tr>
               <tr>
                 <th scope="row">
+                  <label>Sync Models</label>
+                </th>
+                <td>
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={handleSyncModels}
+                    disabled={syncing || (!hasApiKey && !hasConstantKey)}
+                    style={{ display: "flex", alignItems: "center", gap: "6px" }}
+                  >
+                    {syncing && <div className="iris-settings__spinner iris-settings__spinner--btn"></div>}
+                    Sync Models
+                  </button>
+                  <p className="description">
+                    Retrieve the latest list of compatible models from OpenRouter. Requires a configured API key.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
                   <label>Active Model</label>
                 </th>
                 <td>
@@ -819,16 +839,6 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
         >
           <button type="submit" className="button button-primary" disabled={saving}>
             {saving ? "Saving..." : "Save Settings"}
-          </button>
-          <button
-            type="button"
-            className="button button-secondary"
-            onClick={handleSyncModels}
-            disabled={syncing || (!hasApiKey && !hasConstantKey)}
-            style={{ display: "flex", alignItems: "center", gap: "6px" }}
-          >
-            {syncing && <div className="iris-settings__spinner iris-settings__spinner--btn"></div>}
-            Sync Models
           </button>
         </p>
       </form>
