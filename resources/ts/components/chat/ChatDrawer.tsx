@@ -23,8 +23,8 @@ export const ChatDrawer: React.FC = () => {
   const chatBodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  const restUrl = window.irisSettings?.restUrl || "/wp-json/iris/v1/";
-  const nonce = window.irisSettings?.nonce || "";
+  const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
+  const nonce = window.vitrusSettings?.nonce || "";
 
   // Fetch active model from settings to show in header
   useEffect(() => {
@@ -106,12 +106,12 @@ export const ChatDrawer: React.FC = () => {
   ];
 
   return (
-    <div className="iris-drawer-container">
+    <div className="vitrus-drawer-container">
       {/* FAB Button */}
       <button
-        className={`iris-fab ${isOpen ? "iris-fab--active" : ""}`}
+        className={`vitrus-fab ${isOpen ? "vitrus-fab--active" : ""}`}
         onClick={() => setIsOpen(!isOpen)}
-        aria-label="Toggle Iris AI Assistant"
+        aria-label="Toggle Vitrus AI Assistant"
       >
         {isOpen ? (
           <svg
@@ -146,17 +146,17 @@ export const ChatDrawer: React.FC = () => {
       </button>
 
       {/* Sliding Drawer panel */}
-      <div className={`iris-drawer ${isOpen ? "iris-drawer--open" : ""}`}>
+      <div className={`vitrus-drawer ${isOpen ? "vitrus-drawer--open" : ""}`}>
         {/* Header */}
-        <div className="iris-drawer__header">
-          <div className="iris-drawer__title-group">
-            <h3 className="iris-drawer__title">Iris AI Assistant</h3>
-            <span className="iris-drawer__subtitle">Model: {activeModel}</span>
+        <div className="vitrus-drawer__header">
+          <div className="vitrus-drawer__title-group">
+            <h3 className="vitrus-drawer__title">Vitrus AI Assistant</h3>
+            <span className="vitrus-drawer__subtitle">Model: {activeModel}</span>
           </div>
-          <div className="iris-drawer__actions">
+          <div className="vitrus-drawer__actions">
             {messages.length > 0 && (
               <button
-                className="iris-drawer__clear-btn"
+                className="vitrus-drawer__clear-btn"
                 onClick={handleNewChat}
                 title="Start new conversation"
               >
@@ -175,7 +175,7 @@ export const ChatDrawer: React.FC = () => {
               </button>
             )}
             <button
-              className="iris-drawer__close-btn"
+              className="vitrus-drawer__close-btn"
               onClick={() => setIsOpen(false)}
             >
               &times;
@@ -184,10 +184,10 @@ export const ChatDrawer: React.FC = () => {
         </div>
 
         {/* Body messages */}
-        <div className="iris-drawer__body" ref={chatBodyRef}>
+        <div className="vitrus-drawer__body" ref={chatBodyRef}>
           {messages.length === 0 ? (
-            <div className="iris-drawer__empty-state">
-              <div className="iris-drawer__empty-icon">
+            <div className="vitrus-drawer__empty-state">
+              <div className="vitrus-drawer__empty-icon">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -201,16 +201,16 @@ export const ChatDrawer: React.FC = () => {
                   />
                 </svg>
               </div>
-              <h4 className="iris-drawer__welcome-title">Welcome to Iris</h4>
-              <p className="iris-drawer__welcome-text">
+              <h4 className="vitrus-drawer__welcome-title">Welcome to Vitrus</h4>
+              <p className="vitrus-drawer__welcome-text">
                 Ask me questions about your site configuration, code
                 diagnostics, theme configurations, or WordPress administration.
               </p>
-              <div className="iris-drawer__suggestions">
+              <div className="vitrus-drawer__suggestions">
                 {promptSuggestions.map((suggestion, idx) => (
                   <button
                     key={idx}
-                    className="iris-drawer__suggestion-chip"
+                    className="vitrus-drawer__suggestion-chip"
                     onClick={() => handleSend(suggestion)}
                   >
                     {suggestion}
@@ -219,25 +219,25 @@ export const ChatDrawer: React.FC = () => {
               </div>
             </div>
           ) : (
-            <div className="iris-drawer__messages">
+            <div className="vitrus-drawer__messages">
               {messages.map((msg, idx) => (
                 <div
                   key={msg.id}
-                  className={`iris-drawer__message iris-drawer__message--${msg.role}`}
+                  className={`vitrus-drawer__message vitrus-drawer__message--${msg.role}`}
                 >
-                  <div className="iris-drawer__message-avatar">
+                  <div className="vitrus-drawer__message-avatar">
                     {msg.role === "user" ? "U" : "AI"}
                   </div>
-                  <div className="iris-drawer__message-bubble">
+                  <div className="vitrus-drawer__message-bubble">
                     {msg.content === "" && isTyping && idx === messages.length - 1 ? (
-                      <div className="iris-drawer__typing-indicator">
+                      <div className="vitrus-drawer__typing-indicator">
                         <span></span>
                         <span></span>
                         <span></span>
                       </div>
                     ) : (
                       <div
-                        className="iris-drawer__message-text"
+                        className="vitrus-drawer__message-text"
                         dangerouslySetInnerHTML={renderMarkdown(msg.content)}
                       />
                     )}
@@ -249,11 +249,11 @@ export const ChatDrawer: React.FC = () => {
         </div>
 
         {/* Input box */}
-        <div className="iris-drawer__footer">
-          <div className="iris-drawer__input-group">
+        <div className="vitrus-drawer__footer">
+          <div className="vitrus-drawer__input-group">
             <textarea
               ref={textareaRef}
-              className="iris-drawer__textarea"
+              className="vitrus-drawer__textarea"
               placeholder="Type your message..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -263,7 +263,7 @@ export const ChatDrawer: React.FC = () => {
               disabled={isTyping}
             />
             <button
-              className="iris-drawer__send-btn"
+              className="vitrus-drawer__send-btn"
               onClick={() => handleSend()}
               disabled={!input.trim() || isTyping}
             >
@@ -281,8 +281,8 @@ export const ChatDrawer: React.FC = () => {
               </svg>
             </button>
           </div>
-          <div className="iris-drawer__footer-note">
-            Iris answers using the active OpenRouter model.
+          <div className="vitrus-drawer__footer-note">
+            Vitrus answers using the active OpenRouter model.
           </div>
         </div>
       </div>

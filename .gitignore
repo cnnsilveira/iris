@@ -21,4 +21,4 @@ docs/*
 !docs/.gitkeep
 
 # Debug logs
-iris-debug.log
+vitrus-debug.log

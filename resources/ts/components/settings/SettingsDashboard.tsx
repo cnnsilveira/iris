@@ -58,7 +58,7 @@ interface Settings {
  * SettingsDashboard Component.
  *
  * Renders the main administration settings layout for configuring
- * the Iris Assistant, API keys, behavior, and parameters.
+ * the Vitrus Assistant, API keys, behavior, and parameters.
  *
  * @since v0.1.0
  *
@@ -100,8 +100,8 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // REST details from localized script
-  const restUrl = window.irisSettings?.restUrl || "/wp-json/iris/v1/";
-  const nonce = window.irisSettings?.nonce || "";
+  const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
+  const nonce = window.vitrusSettings?.nonce || "";
 
   useEffect(() => {
     fetchSettings();
@@ -315,16 +315,16 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
 
   if (loading) {
     return (
-      <div className="iris-settings__loading">
-        <div className="iris-settings__spinner"></div>
-        <p>Loading Iris settings dashboard...</p>
+      <div className="vitrus-settings__loading">
+        <div className="vitrus-settings__spinner"></div>
+        <p>Loading Vitrus settings dashboard...</p>
       </div>
     );
   }
 
   return (
     <div className="wrap">
-      <h1 className="wp-heading-inline">Iris Settings</h1>
+      <h1 className="wp-heading-inline">Vitrus Settings</h1>
       {onBackToChat && (
         <button
           type="button"
@@ -486,7 +486,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                     disabled={syncing || (!hasApiKey && !hasConstantKey)}
                     style={{ display: "flex", alignItems: "center", gap: "6px" }}
                   >
-                    {syncing && <div className="iris-settings__spinner iris-settings__spinner--btn"></div>}
+                    {syncing && <div className="vitrus-settings__spinner vitrus-settings__spinner--btn"></div>}
                     Sync Models
                   </button>
                   <p className="description">
@@ -499,10 +499,10 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                   <label>Active Model</label>
                 </th>
                 <td>
-                  <div className="iris-settings__model-dropdown" ref={dropdownRef}>
+                  <div className="vitrus-settings__model-dropdown" ref={dropdownRef}>
                     <div
-                      className={`iris-settings__model-trigger ${
-                        dropdownOpen ? "iris-settings__model-trigger--open" : ""
+                      className={`vitrus-settings__model-trigger ${
+                        dropdownOpen ? "vitrus-settings__model-trigger--open" : ""
                       }`}
                       onClick={() => setDropdownOpen(!dropdownOpen)}
                       tabIndex={0}
@@ -513,22 +513,22 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                       }}
                     >
                       {activeModelObj ? (
-                        <div className="iris-settings__selected-model">
-                          <span className="iris-settings__selected-name">
+                        <div className="vitrus-settings__selected-model">
+                          <span className="vitrus-settings__selected-name">
                             {activeModelObj.name}
                           </span>
-                          <span className="iris-settings__selected-meta">
+                          <span className="vitrus-settings__selected-meta">
                             {activeModelObj.context_length.toLocaleString()} ctx
                             &bull; {getModelPricingStr(activeModelObj)}
                           </span>
                         </div>
                       ) : (
-                        <span className="iris-settings__placeholder" style={{ color: "#646970" }}>
+                        <span className="vitrus-settings__placeholder" style={{ color: "#646970" }}>
                           {selectedModel || "Select an AI Model..."}
                         </span>
                       )}
                       <svg
-                        className="iris-settings__dropdown-arrow"
+                        className="vitrus-settings__dropdown-arrow"
                         viewBox="0 0 24 24"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
@@ -539,11 +539,11 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                     </div>
 
                     {dropdownOpen && (
-                      <div className="iris-settings__model-menu">
-                        <div className="iris-settings__model-menu-header">
+                      <div className="vitrus-settings__model-menu">
+                        <div className="vitrus-settings__model-menu-header">
                           <input
                             type="text"
-                            className="iris-settings__model-search"
+                            className="vitrus-settings__model-search"
                             placeholder="Search models..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
@@ -551,7 +551,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                             autoFocus
                           />
                           <label
-                            className="iris-settings__free-filter"
+                            className="vitrus-settings__free-filter"
                             onClick={(e) => e.stopPropagation()}
                           >
                             <input
@@ -564,14 +564,14 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                           </label>
                         </div>
 
-                        <div className="iris-settings__model-list">
+                        <div className="vitrus-settings__model-list">
                           {filteredModels.length > 0 ? (
                             filteredModels.map((model) => (
                               <div
                                 key={model.id}
-                                className={`iris-settings__model-option ${
+                                className={`vitrus-settings__model-option ${
                                   selectedModel === model.id
-                                    ? "iris-settings__model-option--selected"
+                                    ? "vitrus-settings__model-option--selected"
                                     : ""
                                 }`}
                                 onClick={() => {
@@ -579,13 +579,13 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                                   setDropdownOpen(false);
                                 }}
                               >
-                                <div className="iris-settings__option-name">
+                                <div className="vitrus-settings__option-name">
                                   {model.name}
                                   {parseFloat(model.pricing.prompt.toString()) === 0 && (
-                                    <span className="iris-settings__free-badge">Free</span>
+                                    <span className="vitrus-settings__free-badge">Free</span>
                                   )}
                                 </div>
-                                <div className="iris-settings__option-meta">
+                                <div className="vitrus-settings__option-meta">
                                   {model.id} &bull;{" "}
                                   {(model.context_length / 1000).toFixed(0)}k context
                                   &bull; {getModelPricingStr(model)}
@@ -593,7 +593,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                               </div>
                             ))
                           ) : (
-                            <div className="iris-settings__model-no-results">
+                            <div className="vitrus-settings__model-no-results">
                               No models found matching criteria.
                             </div>
                           )}
@@ -602,7 +602,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                     )}
                   </div>
                   <p className="description">
-                    Select the LLM that Iris will query. Models marked as Free do not incur billing
+                    Select the LLM that Vitrus will query. Models marked as Free do not incur billing
                     charges on your OpenRouter account.
                   </p>
                 </td>
@@ -662,17 +662,17 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                         id="system_prompt"
                         className="large-text"
                         rows={8}
-                        placeholder="You are Iris, a helpful and expert AI assistant..."
+                        placeholder="You are Vitrus, a helpful and expert AI assistant..."
                         value={systemPrompt}
                         onChange={(e) => setSystemPrompt(e.target.value)}
                         style={{ fontFamily: "monospace" }}
                       />
                     ) : (
-                      <div className="iris-settings__prompt-preview">
+                      <div className="vitrus-settings__prompt-preview">
                         {systemPrompt.trim() ? (
                           <div dangerouslySetInnerHTML={renderMarkdown(systemPrompt)} />
                         ) : (
-                          <p className="iris-settings__prompt-empty">Nothing to preview.</p>
+                          <p className="vitrus-settings__prompt-empty">Nothing to preview.</p>
                         )}
                       </div>
                     )}
@@ -694,7 +694,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                       onChange={(e) => setContextSharing(e.target.checked)}
                       style={{ margin: "0 8px 0 0", verticalAlign: "middle" }}
                     />
-                    Share site telemetry to help Iris give better answers (WordPress version, active
+                    Share site telemetry to help Vitrus give better answers (WordPress version, active
                     plugins, and active theme).
                   </label>
                 </td>
@@ -802,7 +802,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                   </label>
                   <p className="description">
                     Write API communication logs (including full request payloads and response
-                    durations) to a local <code>iris-debug.log</code> file in the plugin root.
+                    durations) to a local <code>vitrus-debug.log</code> file in the plugin root.
                   </p>
                   <p className="description" style={{ marginTop: "1rem" }}>
                     To view real-time log output, open your terminal at the plugin root and run:
@@ -817,7 +817,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
                         marginTop: "0.5rem",
                       }}
                     >
-                      tail -f iris-debug.log
+                      tail -f vitrus-debug.log
                     </code>
                   </p>
                 </td>

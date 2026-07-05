@@ -1,6 +1,6 @@
 {
-	"name": "cnnsilveira/iris",
-	"description": "Iris – The best AI Assistant for WordPress, powered by OpenRouter.",
+	"name": "cnnsilveira/vitrus",
+	"description": "Vitrus – The best AI Assistant for WordPress, powered by OpenRouter.",
 	"type": "wordpress-plugin",
 	"license": "GPL-2.0-or-later",
 	"require": {
@@ -13,7 +13,7 @@
 	},
 	"autoload": {
 		"psr-4": {
-			"Iris\\": "app/"
+			"Vitrus\\": "app/"
 		}
 	},
 	"config": {

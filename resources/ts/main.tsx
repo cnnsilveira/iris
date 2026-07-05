@@ -1,7 +1,7 @@
 /**
- * Frontend initialization and entry point for the Iris admin interfaces.
+ * Frontend initialization and entry point for the Vitrus admin interfaces.
  *
- * @package Iris
+ * @package Vitrus
  * @since   v0.1.0
  */
 
@@ -17,10 +17,10 @@ import "../scss/main.scss";
  *
  * @since v0.1.0
  */
-interface IrisSettings {
+interface VitrusSettings {
   /** Security nonce for WordPress REST API authentication. */
   nonce: string;
-  /** Root URL for Iris REST endpoints. */
+  /** Root URL for Vitrus REST endpoints. */
   restUrl: string;
   /** MD5 hash of the site URL for storage compartmentalization. */
   siteHash: string;
@@ -30,36 +30,36 @@ interface IrisSettings {
 
 declare global {
   interface Window {
-    irisSettings?: IrisSettings;
+    vitrusSettings?: VitrusSettings;
   }
 }
 
 // Conditionally mount Chat Page
-const chatPageContainer = document.getElementById("iris-chat-page-root");
+const chatPageContainer = document.getElementById("vitrus-chat-page-root");
 if (chatPageContainer) {
   createRoot(chatPageContainer).render(
     <React.StrictMode>
       <ChatPage onOpenSettings={() => {
-        window.location.href = "admin.php?page=iris-settings";
+        window.location.href = "admin.php?page=vitrus-settings";
       }} />
     </React.StrictMode>,
   );
 }
 
 // Conditionally mount Settings Dashboard
-const settingsPageContainer = document.getElementById("iris-settings-page-root");
+const settingsPageContainer = document.getElementById("vitrus-settings-page-root");
 if (settingsPageContainer) {
   createRoot(settingsPageContainer).render(
     <React.StrictMode>
       <SettingsDashboard onBackToChat={() => {
-        window.location.href = "admin.php?page=iris";
+        window.location.href = "admin.php?page=vitrus";
       }} />
     </React.StrictMode>,
   );
 }
 
 // Conditionally mount Chat Drawer
-const chatContainer = document.getElementById("iris-chat-root");
+const chatContainer = document.getElementById("vitrus-chat-root");
 if (chatContainer) {
   createRoot(chatContainer).render(
     <React.StrictMode>

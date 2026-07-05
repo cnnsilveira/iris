@@ -46,13 +46,13 @@ export function useChat(isDrawer = false) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
-  const restUrl = window.irisSettings?.restUrl || "/wp-json/iris/v1/";
-  const nonce = window.irisSettings?.nonce || "";
-  const siteHash = window.irisSettings?.siteHash || "default";
+  const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
+  const nonce = window.vitrusSettings?.nonce || "";
+  const siteHash = window.vitrusSettings?.siteHash || "default";
 
   const activeIdStorageKey = isDrawer
-    ? `iris_drawer_active_conv_id_${siteHash}`
-    : `iris_active_conv_id_${siteHash}`;
+    ? `vitrus_drawer_active_conv_id_${siteHash}`
+    : `vitrus_active_conv_id_${siteHash}`;
 
   // Fetch all conversations from server on mount
   useEffect(() => {
@@ -345,7 +345,7 @@ export function useChat(isDrawer = false) {
 
       if (!responseText.trim()) {
         if (lastFinishReason === "length") {
-          responseText = "Ops! The model couldn't complete the response due to the Max Output Tokens limit. You can adjust it at Settings -> Advanced Parameters -> [Max Output Tokens](admin.php?page=iris-settings)";
+          responseText = "Ops! The model couldn't complete the response due to the Max Output Tokens limit. You can adjust it at Settings -> Advanced Parameters -> [Max Output Tokens](admin.php?page=vitrus-settings)";
         } else {
           responseText = "Ops! Something went wrong...";
         }

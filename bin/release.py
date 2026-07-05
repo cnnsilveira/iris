@@ -14,7 +14,7 @@ def run_command(cmd):
     return result.stdout
 
 def main():
-    plugin_slug = "iris"
+    plugin_slug = "vitrus"
     dist_dir = "dist"
     zip_filename = f"{plugin_slug}.zip"
 
@@ -43,7 +43,7 @@ def main():
 
         # 5. Copy files
         print("📂 Copying production files...")
-        files_to_copy = ["iris.php", "uninstall.php", "README.md", "CHANGELOG.md"]
+        files_to_copy = ["vitrus.php", "uninstall.php", "README.md", "CHANGELOG.md"]
         dirs_to_copy = ["app", "assets", "vendor"]
 
         for f in files_to_copy:

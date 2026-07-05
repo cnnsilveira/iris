@@ -1,14 +1,14 @@
 <?php
 /**
- * Debug logging utility for Iris.
+ * Debug logging utility for Vitrus.
  *
  * Captures, processes, and appends internal API communication
  * logs directly to a local log file for terminal troubleshooting.
  *
- * @package Iris
+ * @package Vitrus
  */
 
-namespace Iris\Chat;
+namespace Vitrus\Chat;
 
 // Prevent direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -36,17 +36,17 @@ class DebugLogger {
 	 * @return void
 	 */
 	public static function log( $action, array $request, $status_code, $response, $duration, $error_msg = '' ) {
-		$settings = get_option( 'iris_settings', array() );
+		$settings = get_option( 'vitrus_settings', array() );
 		if ( empty( $settings['debug_logging'] ) ) {
 			return;
 		}
 
 		// Clean up the legacy DB option on first log write.
-		if ( get_option( 'iris_debug_logs' ) ) {
-			delete_option( 'iris_debug_logs' );
+		if ( get_option( 'vitrus_debug_logs' ) ) {
+			delete_option( 'vitrus_debug_logs' );
 		}
 
-		$log_file  = defined( 'IRIS_PLUGIN_DIR' ) ? IRIS_PLUGIN_DIR . '/iris-debug.log' : dirname( dirname( __DIR__ ) ) . '/iris-debug.log';
+		$log_file  = defined( 'VITRUS_PLUGIN_DIR' ) ? VITRUS_PLUGIN_DIR . '/vitrus-debug.log' : dirname( dirname( __DIR__ ) ) . '/vitrus-debug.log';
 		$timestamp = current_time( 'Y-m-d H:i:s' );
 
 		// Format separators.
