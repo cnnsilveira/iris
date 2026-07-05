@@ -5,7 +5,7 @@ import { SettingsDashboard } from "../settings/SettingsDashboard";
 /**
  * AdminApp Component.
  *
- * Serves as the primary coordinator for the Iris administrator screen,
+ * Serves as the primary coordinator for the Vitrus administrator screen,
  * toggling views between the main AI Chat interface and settings dashboard.
  *
  * @since v0.2.0

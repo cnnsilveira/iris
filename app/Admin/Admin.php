@@ -2,14 +2,14 @@
 /**
  * Admin screens, script enqueuing, and option-save hooks.
  *
- * Registers the Iris settings menu page, enqueues the React
+ * Registers the Vitrus settings menu page, enqueues the React
  * application globally for administrators, and schedules a
  * model-list sync whenever the API key option changes.
  *
- * @package Iris
+ * @package Vitrus
  */
 
-namespace Iris\Admin;
+namespace Vitrus\Admin;
 
 // Prevent direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,7 +17,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Handles all WordPress admin integration for Iris.
+ * Handles all WordPress admin integration for Vitrus.
  *
  * @since v0.1.0
  */
@@ -51,42 +51,42 @@ class Admin {
 		add_action( 'admin_footer', array( __CLASS__, 'render_chat_root' ) );
 
 		// Schedule a model sync whenever the API key is saved.
-		add_action( 'add_option_iris_api_key', array( __CLASS__, 'schedule_model_sync' ) );
-		add_action( 'update_option_iris_api_key', array( __CLASS__, 'schedule_model_sync' ) );
+		add_action( 'add_option_vitrus_api_key', array( __CLASS__, 'schedule_model_sync' ) );
+		add_action( 'update_option_vitrus_api_key', array( __CLASS__, 'schedule_model_sync' ) );
 	}
 
 	/**
-	 * Register the top-level Iris menu page.
+	 * Register the top-level Vitrus menu page.
 	 *
 	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function register_menu() {
 		self::$chat_hook = add_menu_page(
-			__( 'Iris', 'iris' ),
-			__( 'Iris', 'iris' ),
+			__( 'Vitrus', 'vitrus' ),
+			__( 'Vitrus', 'vitrus' ),
 			'manage_options',
-			'iris',
+			'vitrus',
 			array( __CLASS__, 'render_chat_page' ),
 			'dashicons-format-chat',
 			30
 		);
 
 		add_submenu_page(
-			'iris',
-			__( 'Chat', 'iris' ),
-			__( 'Chat', 'iris' ),
+			'vitrus',
+			__( 'Chat', 'vitrus' ),
+			__( 'Chat', 'vitrus' ),
 			'manage_options',
-			'iris',
+			'vitrus',
 			array( __CLASS__, 'render_chat_page' )
 		);
 
 		self::$settings_hook = add_submenu_page(
-			'iris',
-			__( 'Settings', 'iris' ),
-			__( 'Settings', 'iris' ),
+			'vitrus',
+			__( 'Settings', 'vitrus' ),
+			__( 'Settings', 'vitrus' ),
 			'manage_options',
-			'iris-settings',
+			'vitrus-settings',
 			array( __CLASS__, 'render_settings_page' )
 		);
 	}
@@ -101,7 +101,7 @@ class Admin {
 	 * @return void
 	 */
 	public static function render_settings_page() {
-		echo '<div id="iris-settings-page-root"></div>';
+		echo '<div id="vitrus-settings-page-root"></div>';
 	}
 
 	/**
@@ -114,7 +114,7 @@ class Admin {
 	 * @return void
 	 */
 	public static function render_chat_page() {
-		echo '<div id="iris-chat-page-root"></div>';
+		echo '<div id="vitrus-chat-page-root"></div>';
 	}
 
 	/**
@@ -135,7 +135,7 @@ class Admin {
 			return;
 		}
 
-		echo '<div id="iris-chat-root"></div>';
+		echo '<div id="vitrus-chat-root"></div>';
 	}
 
 	/**
@@ -155,20 +155,20 @@ class Admin {
 			return;
 		}
 
-		$dist_dir = IRIS_PLUGIN_DIR . '/assets/dist';
-		$dist_url = plugins_url( 'assets/dist', IRIS_PLUGIN_FILE );
+		$dist_dir = VITRUS_PLUGIN_DIR . '/assets/dist';
+		$dist_url = plugins_url( 'assets/dist', VITRUS_PLUGIN_FILE );
 
-		$js_path  = $dist_dir . '/iris-admin.js';
-		$css_path = $dist_dir . '/iris-admin.css';
+		$js_path  = $dist_dir . '/vitrus-admin.js';
+		$css_path = $dist_dir . '/vitrus-admin.css';
 
 		// Use filemtime for cache-busting during development.
-		$js_version  = file_exists( $js_path ) ? (string) filemtime( $js_path ) : IRIS_VERSION;
-		$css_version = file_exists( $css_path ) ? (string) filemtime( $css_path ) : IRIS_VERSION;
+		$js_version  = file_exists( $js_path ) ? (string) filemtime( $js_path ) : VITRUS_VERSION;
+		$css_version = file_exists( $css_path ) ? (string) filemtime( $css_path ) : VITRUS_VERSION;
 
 		if ( file_exists( $css_path ) ) {
 			wp_enqueue_style(
-				'iris-admin',
-				$dist_url . '/iris-admin.css',
+				'vitrus-admin',
+				$dist_url . '/vitrus-admin.css',
 				array(),
 				$css_version
 			);
@@ -176,19 +176,19 @@ class Admin {
 
 		if ( file_exists( $js_path ) ) {
 			wp_enqueue_script(
-				'iris-admin',
-				$dist_url . '/iris-admin.js',
+				'vitrus-admin',
+				$dist_url . '/vitrus-admin.js',
 				array(),
 				$js_version,
 				true
 			);
 
 			wp_localize_script(
-				'iris-admin',
-				'irisSettings',
+				'vitrus-admin',
+				'vitrusSettings',
 				array(
 					'nonce'          => wp_create_nonce( 'wp_rest' ),
-					'restUrl'        => esc_url_raw( rest_url( 'iris/v1/' ) ),
+					'restUrl'        => esc_url_raw( rest_url( 'vitrus/v1/' ) ),
 					'siteHash'       => md5( get_site_url() ),
 					'isSettingsPage' => ( $hook_suffix === self::$settings_hook ),
 				)
@@ -200,15 +200,15 @@ class Admin {
 	 * Schedule a one-off WP-Cron event to sync the model list.
 	 *
 	 * Fired by the add_option and update_option hooks for the
-	 * iris_api_key option so the model catalogue refreshes
+	 * vitrus_api_key option so the model catalogue refreshes
 	 * automatically whenever the key changes.
 	 *
 	 * @since v0.1.0
 	 * @return void
 	 */
 	public static function schedule_model_sync() {
-		if ( ! wp_next_scheduled( 'iris_sync_models_event' ) ) {
-			wp_schedule_single_event( time() + 10, 'iris_sync_models_event' );
+		if ( ! wp_next_scheduled( 'vitrus_sync_models_event' ) ) {
+			wp_schedule_single_event( time() + 10, 'vitrus_sync_models_event' );
 		}
 	}
 }

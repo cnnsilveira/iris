@@ -5,10 +5,10 @@
  * Handles fetching the available model catalogue from the
  * OpenRouter API and caching it as a WordPress option.
  *
- * @package Iris
+ * @package Vitrus
  */
 
-namespace Iris\Models;
+namespace Vitrus\Models;
 
 // Prevent direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -37,7 +37,7 @@ class ModelManager {
 	 * @return void
 	 */
 	public static function init() {
-		add_action( 'iris_sync_models_event', array( __CLASS__, 'sync_models' ) );
+		add_action( 'vitrus_sync_models_event', array( __CLASS__, 'sync_models' ) );
 	}
 
 	/**
@@ -55,12 +55,12 @@ class ModelManager {
 
 		// No key configured — wipe stale data and bail.
 		if ( empty( $api_key ) ) {
-			delete_option( 'iris_model_list' );
+			delete_option( 'vitrus_model_list' );
 			return;
 		}
 
 		// Respect the lockout window after a previous failure.
-		if ( get_transient( 'iris_model_sync_failed' ) ) {
+		if ( get_transient( 'vitrus_model_sync_failed' ) ) {
 			return;
 		}
 
@@ -84,9 +84,9 @@ class ModelManager {
 
 		if ( is_wp_error( $response ) ) {
 			$error_message = $response->get_error_message();
-			set_transient( 'iris_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
+			set_transient( 'vitrus_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
 
-			\Iris\Chat\DebugLogger::log(
+			\Vitrus\Chat\DebugLogger::log(
 				'model_sync',
 				$request_log,
 				0,
@@ -101,9 +101,9 @@ class ModelManager {
 		$body        = wp_remote_retrieve_body( $response );
 
 		if ( 200 !== $status_code ) {
-			set_transient( 'iris_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
+			set_transient( 'vitrus_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
 
-			\Iris\Chat\DebugLogger::log(
+			\Vitrus\Chat\DebugLogger::log(
 				'model_sync',
 				$request_log,
 				$status_code,
@@ -117,9 +117,9 @@ class ModelManager {
 		$data = json_decode( $body, true );
 
 		if ( ! is_array( $data ) || empty( $data['data'] ) ) {
-			set_transient( 'iris_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
+			set_transient( 'vitrus_model_sync_failed', 1, 15 * MINUTE_IN_SECONDS );
 
-			\Iris\Chat\DebugLogger::log(
+			\Vitrus\Chat\DebugLogger::log(
 				'model_sync',
 				$request_log,
 				$status_code,
@@ -131,9 +131,9 @@ class ModelManager {
 		}
 
 		// Store the full model array; do not autoload to save memory.
-		update_option( 'iris_model_list', $data['data'], false );
+		update_option( 'vitrus_model_list', $data['data'], false );
 
-		\Iris\Chat\DebugLogger::log(
+		\Vitrus\Chat\DebugLogger::log(
 			'model_sync',
 			$request_log,
 			$status_code,
@@ -152,10 +152,10 @@ class ModelManager {
 	 * @return string The API key, or an empty string if unset.
 	 */
 	private static function get_api_key() {
-		if ( defined( 'IRIS_OPENROUTER_API_KEY' ) && IRIS_OPENROUTER_API_KEY ) {
-			return IRIS_OPENROUTER_API_KEY;
+		if ( defined( 'VITRUS_OPENROUTER_API_KEY' ) && VITRUS_OPENROUTER_API_KEY ) {
+			return VITRUS_OPENROUTER_API_KEY;
 		}
 
-		return get_option( 'iris_api_key', '' );
+		return get_option( 'vitrus_api_key', '' );
 	}
 }

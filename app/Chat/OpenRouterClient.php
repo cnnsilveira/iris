@@ -7,10 +7,10 @@
  * compression deactivation, safe buffer flushing, and a
  * wp_remote_post fallback when cURL is unavailable.
  *
- * @package Iris
+ * @package Vitrus
  */
 
-namespace Iris\Chat;
+namespace Vitrus\Chat;
 
 // Prevent direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -90,7 +90,7 @@ class OpenRouterClient {
 				'Authorization: Bearer ' . $api_key,
 				'Content-Type: application/json',
 				'HTTP-Referer: ' . get_site_url(),
-				'X-Title: Iris',
+				'X-Title: Vitrus',
 			)
 		);
 		// phpcs:ignore WordPress.WP.AlternativeFunctions.curl_curl_setopt
@@ -221,7 +221,7 @@ class OpenRouterClient {
 					'Authorization' => 'Bearer ' . $api_key,
 					'Content-Type'  => 'application/json',
 					'HTTP-Referer'  => get_site_url(),
-					'X-Title'       => 'Iris',
+					'X-Title'       => 'Vitrus',
 				),
 				'body'    => wp_json_encode( $body ),
 				'timeout' => 120,

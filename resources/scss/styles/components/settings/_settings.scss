@@ -1,17 +1,17 @@
 @use "../../tokens" as *;
 
-// Styled components nested inside #iris-settings-page-root to avoid leaks,
+// Styled components nested inside #vitrus-settings-page-root to avoid leaks,
 // but scoped only to the custom searchable select and markdown preview elements.
-#iris-settings-page-root {
+#vitrus-settings-page-root {
   // Searchable Model Select Dropdown
-  .iris-settings__model-dropdown {
+  .vitrus-settings__model-dropdown {
     position: relative;
     width: 100%;
     max-width: 450px;
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
   }
 
-  .iris-settings__model-trigger {
+  .vitrus-settings__model-trigger {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -38,7 +38,7 @@
     }
   }
 
-  .iris-settings__selected-model {
+  .vitrus-settings__selected-model {
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -46,29 +46,29 @@
     text-align: left;
   }
 
-  .iris-settings__selected-name {
+  .vitrus-settings__selected-name {
     font-weight: 500;
     font-size: 14px;
     color: #2c3338;
   }
 
-  .iris-settings__selected-meta {
+  .vitrus-settings__selected-meta {
     font-size: 11px;
     color: #646970;
   }
 
-  .iris-settings__dropdown-arrow {
+  .vitrus-settings__dropdown-arrow {
     width: 20px;
     height: 20px;
     color: #646970;
     transition: transform 0.2s ease-in-out;
 
-    .iris-settings__model-trigger--open & {
+    .vitrus-settings__model-trigger--open & {
       transform: rotate(180deg);
     }
   }
 
-  .iris-settings__model-menu {
+  .vitrus-settings__model-menu {
     position: absolute;
     top: calc(100% + 4px);
     left: 0;
@@ -79,11 +79,11 @@
     box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
     z-index: 100;
     overflow: hidden;
-    animation: iris-fade-in 0.15s ease-out;
+    animation: vitrus-fade-in 0.15s ease-out;
     box-sizing: border-box;
   }
 
-  .iris-settings__model-menu-header {
+  .vitrus-settings__model-menu-header {
     padding: 10px;
     border-bottom: 1px solid #dcdcde;
     display: flex;
@@ -92,7 +92,7 @@
     background-color: #f6f7f7;
   }
 
-  .iris-settings__model-search {
+  .vitrus-settings__model-search {
     width: 100% !important;
     background-color: #fff;
     border: 1px solid #8c8f94;
@@ -109,7 +109,7 @@
     }
   }
 
-  .iris-settings__free-filter {
+  .vitrus-settings__free-filter {
     display: flex;
     align-items: center;
     gap: 6px;
@@ -124,12 +124,12 @@
     }
   }
 
-  .iris-settings__model-list {
+  .vitrus-settings__model-list {
     max-height: 200px;
     overflow-y: auto;
   }
 
-  .iris-settings__model-option {
+  .vitrus-settings__model-option {
     padding: 8px 12px;
     cursor: pointer;
     box-sizing: border-box;
@@ -156,7 +156,7 @@
     }
   }
 
-  .iris-settings__option-name {
+  .vitrus-settings__option-name {
     display: flex;
     align-items: center;
     gap: 8px;
@@ -165,7 +165,7 @@
     color: #2c3338;
   }
 
-  .iris-settings__free-badge {
+  .vitrus-settings__free-badge {
     background-color: #d8f3e5;
     color: #137847;
     font-size: 10px;
@@ -175,14 +175,14 @@
     display: inline-block;
   }
 
-  .iris-settings__option-meta {
+  .vitrus-settings__option-meta {
     font-size: 11px;
     color: #646970;
     margin-top: 2px;
     word-break: break-all;
   }
 
-  .iris-settings__model-no-results {
+  .vitrus-settings__model-no-results {
     padding: 15px;
     text-align: center;
     color: #646970;
@@ -190,7 +190,7 @@
   }
 
   // System Prompt Markdown Preview container
-  .iris-settings__prompt-preview {
+  .vitrus-settings__prompt-preview {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
     color: #2c3338;
     background-color: #fff;
@@ -277,21 +277,21 @@
     }
   }
 
-  .iris-settings__prompt-empty {
+  .vitrus-settings__prompt-empty {
     color: #646970;
     font-style: italic;
     margin: 0;
   }
 
   // Spinner styled specifically to match standard WP style spin/rotate
-  .iris-settings__spinner {
+  .vitrus-settings__spinner {
     display: inline-block;
     width: 20px;
     height: 20px;
     border: 2px solid #c3c4c7;
     border-top-color: #2271b1;
     border-radius: 50%;
-    animation: iris-spin 0.6s linear infinite;
+    animation: vitrus-spin 0.6s linear infinite;
     vertical-align: middle;
     margin-right: 8px;
 
@@ -305,7 +305,7 @@
   }
 
   // Loading area in settings page before REST response returns
-  .iris-settings__loading {
+  .vitrus-settings__loading {
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -322,13 +322,13 @@
   }
 }
 
-@keyframes iris-spin {
+@keyframes vitrus-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes iris-fade-in {
+@keyframes vitrus-fade-in {
   from {
     opacity: 0;
     transform: translateY(2px);

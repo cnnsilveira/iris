@@ -43,8 +43,8 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const editInputRef = useRef<HTMLInputElement>(null);
 
-  const restUrl = window.irisSettings?.restUrl || "/wp-json/iris/v1/";
-  const nonce = window.irisSettings?.nonce || "";
+  const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
+  const nonce = window.vitrusSettings?.nonce || "";
 
   // Fetch active model from settings
   useEffect(() => {
@@ -167,23 +167,23 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const activeConv = conversations.find((c) => c.id === activeConversationId);
 
   return (
-    <div className="iris-chat-page">
+    <div className="vitrus-chat-page">
       {/* Main Chat Area */}
-      <div className="iris-chat-page__main">
+      <div className="vitrus-chat-page__main">
         {/* Header */}
-        <header className="iris-chat-page__header">
-          <div className="iris-chat-page__header-title-group">
-            <h1 className="iris-chat-page__header-title">
+        <header className="vitrus-chat-page__header">
+          <div className="vitrus-chat-page__header-title-group">
+            <h1 className="vitrus-chat-page__header-title">
               {activeConv ? activeConv.title : "New Conversation"}
             </h1>
-            <span className="iris-chat-page__header-meta">
+            <span className="vitrus-chat-page__header-meta">
               Model: {activeModel}
             </span>
           </div>
 
-          <div className="iris-chat-page__header-actions">
+          <div className="vitrus-chat-page__header-actions">
             <button
-              className={`iris-chat-page__sidebar-toggle ${sidebarOpen ? "iris-chat-page__sidebar-toggle--active" : ""}`}
+              className={`vitrus-chat-page__sidebar-toggle ${sidebarOpen ? "vitrus-chat-page__sidebar-toggle--active" : ""}`}
               onClick={() => setSidebarOpen(!sidebarOpen)}
               title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
             >
@@ -204,15 +204,15 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
         </header>
 
         {/* Message Feed */}
-        <div className="iris-chat-page__body" ref={chatBodyRef}>
+        <div className="vitrus-chat-page__body" ref={chatBodyRef}>
           {loading ? (
-            <div className="iris-chat-page__loading">
-              <div className="iris-chat-page__spinner"></div>
+            <div className="vitrus-chat-page__loading">
+              <div className="vitrus-chat-page__spinner"></div>
               <p>Loading history...</p>
             </div>
           ) : messages.length === 0 ? (
-            <div className="iris-chat-page__empty-state">
-              <div className="iris-chat-page__welcome-logo">
+            <div className="vitrus-chat-page__empty-state">
+              <div className="vitrus-chat-page__welcome-logo">
                 <svg
                   viewBox="0 0 24 24"
                   fill="none"
@@ -221,51 +221,51 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
                   xmlns="http://www.w3.org/2000/svg"
                 >
                   <defs>
-                    <linearGradient id="iris-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                    <linearGradient id="vitrus-grad" x1="0%" y1="0%" x2="100%" y2="100%">
                       <stop offset="0%" stopColor="#7e22ce" />
                       <stop offset="100%" stopColor="#3b82f6" />
                     </linearGradient>
                   </defs>
                   <path
                     d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-                    fill="url(#iris-grad)"
+                    fill="url(#vitrus-grad)"
                   />
                 </svg>
               </div>
-              <h2 className="iris-chat-page__welcome-title">How can Iris help you?</h2>
-              <p className="iris-chat-page__welcome-subtitle">
+              <h2 className="vitrus-chat-page__welcome-title">How can Vitrus help you?</h2>
+              <p className="vitrus-chat-page__welcome-subtitle">
                 Ask me about theme configuration, custom plugin logic, database
                 performance, or standard WordPress core practices.
               </p>
-              <div className="iris-chat-page__suggestions">
+              <div className="vitrus-chat-page__suggestions">
                 {promptSuggestions.map((suggestion, idx) => (
                   <button
                     key={idx}
-                    className="iris-chat-page__suggestion-card"
+                    className="vitrus-chat-page__suggestion-card"
                     onClick={() => handleSend(suggestion)}
                   >
-                    <span className="iris-chat-page__suggestion-text">
+                    <span className="vitrus-chat-page__suggestion-text">
                       {suggestion}
                     </span>
-                    <span className="iris-chat-page__suggestion-arrow">→</span>
+                    <span className="vitrus-chat-page__suggestion-arrow">→</span>
                   </button>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="iris-chat-page__messages">
+            <div className="vitrus-chat-page__messages">
               {messages.map((msg, idx) => (
                 <div
                   key={msg.id}
-                  className={`iris-chat-page__message iris-chat-page__message--${msg.role}`}
+                  className={`vitrus-chat-page__message vitrus-chat-page__message--${msg.role}`}
                 >
-                  <div className="iris-chat-page__avatar-wrapper">
+                  <div className="vitrus-chat-page__avatar-wrapper">
                     {msg.role === "user" ? (
-                      <div className="iris-chat-page__avatar iris-chat-page__avatar--user">
+                      <div className="vitrus-chat-page__avatar vitrus-chat-page__avatar--user">
                         U
                       </div>
                     ) : (
-                      <div className="iris-chat-page__avatar iris-chat-page__avatar--ai">
+                      <div className="vitrus-chat-page__avatar vitrus-chat-page__avatar--ai">
                         <svg
                           viewBox="0 0 24 24"
                           fill="none"
@@ -281,16 +281,16 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
                       </div>
                     )}
                   </div>
-                  <div className="iris-chat-page__bubble">
+                  <div className="vitrus-chat-page__bubble">
                     {msg.content === "" && isTyping && idx === messages.length - 1 ? (
-                      <div className="iris-chat-page__typing">
+                      <div className="vitrus-chat-page__typing">
                         <span></span>
                         <span></span>
                         <span></span>
                       </div>
                     ) : (
                       <div
-                        className="iris-chat-page__message-content"
+                        className="vitrus-chat-page__message-content"
                         dangerouslySetInnerHTML={renderMarkdown(msg.content)}
                       />
                     )}
@@ -302,12 +302,12 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
         </div>
 
         {/* Input Bar */}
-        <footer className="iris-chat-page__footer">
-          <div className="iris-chat-page__input-container">
+        <footer className="vitrus-chat-page__footer">
+          <div className="vitrus-chat-page__input-container">
             <textarea
               ref={textareaRef}
-              className="iris-chat-page__textarea"
-              placeholder="Message Iris..."
+              className="vitrus-chat-page__textarea"
+              placeholder="Message Vitrus..."
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onInput={handleTextareaInput}
@@ -316,7 +316,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
               disabled={isTyping}
             />
             <button
-              className="iris-chat-page__send-button"
+              className="vitrus-chat-page__send-button"
               onClick={() => handleSend()}
               disabled={!input.trim() || isTyping}
               title="Send Message"
@@ -335,20 +335,20 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
               </svg>
             </button>
           </div>
-          <div className="iris-chat-page__footer-note">
-            Iris answers using the active OpenRouter model.
+          <div className="vitrus-chat-page__footer-note">
+            Vitrus answers using the active OpenRouter model.
           </div>
         </footer>
       </div>
 
       {/* Right Sidebar (Collapsible) */}
       <aside
-        className={`iris-chat-page__sidebar ${sidebarOpen ? "iris-chat-page__sidebar--open" : ""}`}
+        className={`vitrus-chat-page__sidebar ${sidebarOpen ? "vitrus-chat-page__sidebar--open" : ""}`}
       >
         {/* Sidebar Header */}
-        <div className="iris-chat-page__sidebar-header">
+        <div className="vitrus-chat-page__sidebar-header">
           <button
-            className="iris-chat-page__new-chat-btn"
+            className="vitrus-chat-page__new-chat-btn"
             onClick={startNewChat}
             title="Start a new conversation thread"
           >
@@ -369,20 +369,20 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
         </div>
 
         {/* Conversations List */}
-        <div className="iris-chat-page__sidebar-list">
+        <div className="vitrus-chat-page__sidebar-list">
           {conversations.length === 0 ? (
-            <div className="iris-chat-page__sidebar-empty">
+            <div className="vitrus-chat-page__sidebar-empty">
               No conversations yet.
             </div>
           ) : (
             conversations.map((conv) => (
               <div
                 key={conv.id}
-                className={`iris-chat-page__history-item ${activeConversationId === conv.id ? "iris-chat-page__history-item--active" : ""}`}
+                className={`vitrus-chat-page__history-item ${activeConversationId === conv.id ? "vitrus-chat-page__history-item--active" : ""}`}
                 onClick={() => setActiveConversationId(conv.id)}
               >
                 <svg
-                  className="iris-chat-page__history-icon"
+                  className="vitrus-chat-page__history-icon"
                   viewBox="0 0 24 24"
                   fill="none"
                   width="16"
@@ -399,7 +399,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
                   <input
                     ref={editInputRef}
                     type="text"
-                    className="iris-chat-page__rename-input"
+                    className="vitrus-chat-page__rename-input"
                     value={editingTitle}
                     onChange={(e) => setEditingTitle(e.target.value)}
                     onBlur={() => handleRenameSave(conv.id)}
@@ -407,15 +407,15 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
                     onClick={(e) => e.stopPropagation()}
                   />
                 ) : (
-                  <span className="iris-chat-page__history-title">
+                  <span className="vitrus-chat-page__history-title">
                     {conv.title}
                   </span>
                 )}
 
                 {editingConvId !== conv.id && (
-                  <div className="iris-chat-page__history-actions">
+                  <div className="vitrus-chat-page__history-actions">
                     <button
-                      className="iris-chat-page__history-action-btn"
+                      className="vitrus-chat-page__history-action-btn"
                       onClick={(e) => handleRenameStart(conv.id, conv.title, e)}
                       title="Rename"
                     >
@@ -433,7 +433,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
                       </svg>
                     </button>
                     <button
-                      className="iris-chat-page__history-action-btn"
+                      className="vitrus-chat-page__history-action-btn"
                       onClick={(e) => handleDeleteClick(conv.id, e)}
                       title="Delete"
                     >
@@ -458,12 +458,12 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
         </div>
 
         {/* Sidebar Footer */}
-        <div className="iris-chat-page__sidebar-footer">
-          <div className="iris-chat-page__sidebar-footer-brand">
-            <span className="iris-chat-page__sidebar-logo-text">Iris Copilot</span>
+        <div className="vitrus-chat-page__sidebar-footer">
+          <div className="vitrus-chat-page__sidebar-footer-brand">
+            <span className="vitrus-chat-page__sidebar-logo-text">Vitrus Copilot</span>
           </div>
           <button
-            className="iris-chat-page__settings-btn"
+            className="vitrus-chat-page__settings-btn"
             onClick={onOpenSettings}
             title="Open settings page"
           >
@@ -485,26 +485,26 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
 
       {convIdToDelete && (
         <div
-          className="iris-chat-page__modal-overlay"
+          className="vitrus-chat-page__modal-overlay"
           onClick={() => setConvIdToDelete(null)}
         >
           <div
-            className="iris-chat-page__modal"
+            className="vitrus-chat-page__modal"
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="iris-chat-page__modal-title">Delete Conversation</h3>
-            <p className="iris-chat-page__modal-message">
+            <h3 className="vitrus-chat-page__modal-title">Delete Conversation</h3>
+            <p className="vitrus-chat-page__modal-message">
               Are you sure you want to delete this conversation? This action cannot be undone.
             </p>
-            <div className="iris-chat-page__modal-actions">
+            <div className="vitrus-chat-page__modal-actions">
               <button
-                className="iris-chat-page__modal-btn iris-chat-page__modal-btn--cancel"
+                className="vitrus-chat-page__modal-btn vitrus-chat-page__modal-btn--cancel"
                 onClick={() => setConvIdToDelete(null)}
               >
                 Cancel
               </button>
               <button
-                className="iris-chat-page__modal-btn iris-chat-page__modal-btn--delete"
+                className="vitrus-chat-page__modal-btn vitrus-chat-page__modal-btn--delete"
                 onClick={handleConfirmDelete}
               >
                 Delete

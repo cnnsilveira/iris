@@ -15,9 +15,9 @@ export default defineConfig({
 		rollupOptions: {
 			input: path.resolve(__dirname, 'resources/ts/main.tsx'),
 			output: {
-				entryFileNames: 'iris-admin.js',
-				chunkFileNames: 'iris-[name].js',
-				assetFileNames: 'iris-admin[extname]',
+				entryFileNames: 'vitrus-admin.js',
+				chunkFileNames: 'vitrus-[name].js',
+				assetFileNames: 'vitrus-admin[extname]',
 			},
 		},
 	},
