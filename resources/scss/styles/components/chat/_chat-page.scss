@@ -1,5 +1,25 @@
 // Vitrus chat page — design-system layout. Tokens from _ds-tokens; fonts self-hosted.
 #vitrus-chat-page-root {
+  // Neutralize WordPress admin bare-element rules (e.g.
+  // `p, .wp-die-message { font-size: 13px }`, `li`, `td`) that leak in and
+  // override our sizing through inheritance. These element selectors
+  // (specificity 0,1,0,1) beat WP core (0,0,0,1) so text inherits our
+  // component sizes, while staying below our component rules (0,1,1,1),
+  // which still win wherever they set an explicit size.
+  p,
+  ul,
+  ol,
+  li,
+  a,
+  span,
+  strong,
+  em,
+  blockquote,
+  td,
+  th {
+    font-size: inherit;
+  }
+
   .vitrus-chat-shell {
     display: flex;
     flex-direction: column;
