@@ -17,7 +17,12 @@ export default defineConfig({
 			output: {
 				entryFileNames: 'vitrus-admin.js',
 				chunkFileNames: 'vitrus-[name].js',
-				assetFileNames: 'vitrus-admin[extname]',
+				assetFileNames: (assetInfo) => {
+					if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+						return 'vitrus-admin[extname]';
+					}
+					return '[name][extname]';
+				},
 			},
 		},
 	},
