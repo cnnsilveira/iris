@@ -226,8 +226,8 @@ class Admin {
 			#wpadminbar { display: none !important; }
 			html.wp-toolbar { padding-top: 0 !important; }
 			#adminmenumain, #adminmenuback, #adminmenuwrap { display: none; }
-			#wpcontent, #wpfooter { margin-left: 0 !important; }
-			#wpbody-content { padding-bottom: 0; }
+			#wpcontent, #wpfooter { margin-left: 0 !important; padding-left: 0 !important; }
+			#wpbody-content { padding: 0 !important; }
 			#wpfooter { display: none; }
 			#wpbody-content > .wrap, #wpbody-content > #screen-meta,
 			#wpbody-content > #screen-meta-links { margin: 0; padding: 0; }
