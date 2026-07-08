@@ -1,11 +1,11 @@
 // Vitrus chat page — design-system layout. Tokens from _ds-tokens; fonts self-hosted.
 #vitrus-chat-page-root {
-  // Neutralize WordPress admin bare-element rules (e.g.
-  // `p, .wp-die-message { font-size: 13px }`, `li`, `td`) that leak in and
-  // override our sizing through inheritance. These element selectors
-  // (specificity 0,1,0,1) beat WP core (0,0,0,1) so text inherits our
-  // component sizes, while staying below our component rules (0,1,1,1),
-  // which still win wherever they set an explicit size.
+  // Neutralize WordPress admin + legacy reset bare-element rules (font-size
+  // `p{13px}`, line-height 1.6/1.3, the old "Inter" font-family) that leak in
+  // and override our sizing/spacing through the cascade. These element
+  // selectors (specificity 0,1,0,1) beat WP core (0,0,0,1) and the shared
+  // reset, while staying below our component rules (0,1,1,x), which still win
+  // wherever they set an explicit value.
   p,
   ul,
   ol,
@@ -18,15 +18,24 @@
   td,
   th {
     font-size: inherit;
+    line-height: inherit;
   }
 
-  // WP admin sets `font-family` on button/input/textarea/select (the old
-  // "Inter" stack). Force them to inherit the shell's Hanken Grotesk.
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: inherit;
+  }
+
   button,
   input,
   textarea,
   select {
     font-family: inherit;
+    line-height: inherit;
   }
 
   .vitrus-chat-shell {
@@ -37,6 +46,10 @@
     background: var(--vt-bg);
     color: var(--vt-text);
     font-family: "Hanken Grotesk", system-ui, sans-serif;
+    // The mockup relies on the font's natural `normal` line-height for all
+    // chrome; the legacy reset forces 1.6, inflating every text box. Reset
+    // the base here — content elements set their own line-height below.
+    line-height: normal;
     -webkit-font-smoothing: antialiased;
 
     // Headings inherit the theme text color, overriding the legacy

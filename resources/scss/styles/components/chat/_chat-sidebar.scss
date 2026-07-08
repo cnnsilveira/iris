@@ -47,7 +47,7 @@
         flex: 1; min-width: 0;
         border: none; background: none;
         margin: 0; padding: 0;
-        min-height: 0; height: auto; line-height: 1.5;
+        min-height: 0; height: auto;
         font-size: 13px; color: var(--vt-text);
         &::placeholder { color: var(--vt-faint); }
         &:focus { outline: none; box-shadow: none; }
@@ -80,7 +80,15 @@
     }
     &__row-title { flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     &__row-actions {
-      display: flex; gap: 2px; opacity: 0; transition: opacity 0.15s;
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex; align-items: center; gap: 2px;
+      padding-left: 16px;
+      opacity: 0; transition: opacity 0.15s;
+      // Masks the row title behind the actions on hover (hover bg = surface).
+      background: linear-gradient(to right, transparent, var(--vt-surface) 45%);
       button {
         width: 24px; height: 24px; border-radius: 6px; color: var(--vt-faint);
         display: flex; align-items: center; justify-content: center;
