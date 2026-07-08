@@ -57,9 +57,12 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const [activeModel, setActiveModel] = useState("Select a model");
   const [convIdToDelete, setConvIdToDelete] = useState<string | null>(null);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingHeader, setEditingHeader] = useState(false);
+  const [headerTitle, setHeaderTitle] = useState("");
 
   const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const headerInputRef = useRef<HTMLInputElement>(null);
 
   const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
   const nonce = window.vitrusSettings?.nonce || "";
@@ -132,6 +135,28 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const lastMsg = messages[messages.length - 1];
   const canRegenerate = !isTyping && !!lastMsg && lastMsg.role === "assistant" && lastMsg.content !== "";
 
+  // The header owns its own inline rename (separate from the sidebar's row
+  // rename), so editing from the header edits in place in the header. Drop any
+  // in-progress header rename when the active conversation changes.
+  useEffect(() => { setEditingHeader(false); }, [activeConversationId]);
+
+  useEffect(() => {
+    if (!editingHeader) return;
+    headerInputRef.current?.focus();
+    headerInputRef.current?.select();
+  }, [editingHeader]);
+
+  const startHeaderRename = () => {
+    if (!activeConv) return;
+    setHeaderTitle(activeConv.title);
+    setEditingHeader(true);
+  };
+
+  const saveHeaderRename = () => {
+    if (activeConv && headerTitle.trim()) renameConversation(activeConv.id, headerTitle.trim());
+    setEditingHeader(false);
+  };
+
   const renderComposer = (opts?: { placeholder?: string; showLabel?: boolean }) => (
     <div className="vitrus-cp__composer">
       {opts?.showLabel !== false && <div className="vitrus-cp__composer-label">MESSAGE VITRUS</div>}
@@ -194,7 +219,18 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
         <main className="vitrus-cp">
           <header className="vitrus-cp__header">
             <div className="vitrus-cp__header-info">
-              <span className="vitrus-cp__header-title">{activeConv ? activeConv.title : "New conversation"}</span>
+              {editingHeader && activeConv ? (
+                <input
+                  ref={headerInputRef}
+                  className="vitrus-cp__header-rename"
+                  value={headerTitle}
+                  onChange={(e) => setHeaderTitle(e.target.value)}
+                  onBlur={saveHeaderRename}
+                  onKeyDown={(e) => { if (e.key === "Enter") saveHeaderRename(); else if (e.key === "Escape") setEditingHeader(false); }}
+                />
+              ) : (
+                <span className="vitrus-cp__header-title">{activeConv ? activeConv.title : "New conversation"}</span>
+              )}
               <span className="vitrus-cp__header-sub">Vitrus · {activeModel}</span>
             </div>
             {activeConv && (
@@ -202,7 +238,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
                 <ActionMenu
                   triggerClassName="vitrus-cp__header-btn"
                   items={[
-                    { label: "Rename", onClick: () => setEditingId(activeConv.id) },
+                    { label: "Rename", onClick: startHeaderRename },
                     { label: "Delete", danger: true, onClick: () => setConvIdToDelete(activeConv.id) },
                   ]}
                 />

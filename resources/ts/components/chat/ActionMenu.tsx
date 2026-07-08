@@ -39,11 +39,19 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({ items, triggerClassName,
       setOpen(false);
     };
     const onEsc = (e: KeyboardEvent) => { if (e.key === "Escape") setOpen(false); };
+    // The menu is fixed-positioned from a one-time measurement, so any scroll
+    // (capture catches the inner sidebar list too) or resize would detach it
+    // from its trigger — close instead of trying to re-track.
+    const onReflow = () => setOpen(false);
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onEsc);
+    window.addEventListener("scroll", onReflow, true);
+    window.addEventListener("resize", onReflow);
     return () => {
       document.removeEventListener("mousedown", onDown);
       document.removeEventListener("keydown", onEsc);
+      window.removeEventListener("scroll", onReflow, true);
+      window.removeEventListener("resize", onReflow);
     };
   }, [open]);
 

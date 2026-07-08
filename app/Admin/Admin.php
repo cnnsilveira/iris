@@ -197,7 +197,7 @@ class Admin {
 					'isSettingsPage' => ( $hook_suffix === self::$settings_hook ),
 					'currentUser'    => array(
 						'name'      => $current_user->display_name,
-						'avatarUrl' => get_avatar_url( $current_user->ID, array( 'size' => 60 ) ),
+						'avatarUrl' => (string) get_avatar_url( $current_user->ID, array( 'size' => 60 ) ),
 						'role'      => ! empty( $user_roles ) ? ucfirst( (string) $user_roles[0] ) : '',
 					),
 				)
