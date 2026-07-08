@@ -2,13 +2,18 @@ import React, { useRef, useState, useEffect } from "react";
 import type { Conversation } from "@/hooks/useChat";
 import type { VitrusUser } from "@/types/vitrus";
 import { groupConversationsByDate } from "@/lib/conversationGroups";
+import { ActionMenu } from "@/components/chat/ActionMenu";
 
 interface ChatSidebarProps {
   conversations: Conversation[];
   activeConversationId: string | null;
   currentUser?: VitrusUser;
+  /** Conversation currently being renamed (controlled by the parent). */
+  editingId: string | null;
   onSelect: (id: string) => void;
   onNewChat: () => void;
+  onStartRename: (id: string) => void;
+  onStopRename: () => void;
   onRename: (id: string, title: string) => void;
   onRequestDelete: (id: string) => void;
   onOpenSettings: () => void;
@@ -29,28 +34,31 @@ const Mark: React.FC = () => (
  * @since v0.2.0
  */
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
-  conversations, activeConversationId, currentUser,
-  onSelect, onNewChat, onRename, onRequestDelete, onOpenSettings,
+  conversations, activeConversationId, currentUser, editingId,
+  onSelect, onNewChat, onStartRename, onStopRename, onRename, onRequestDelete, onOpenSettings,
 }) => {
   const [query, setQuery] = useState("");
-  const [editingId, setEditingId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState("");
   const editRef = useRef<HTMLInputElement>(null);
 
+  // When a rename begins — from a row menu here or from the chat header —
+  // seed the input with the current title and focus it.
   useEffect(() => {
-    if (editingId && editRef.current) { editRef.current.focus(); editRef.current.select(); }
+    if (!editingId) return;
+    const conv = conversations.find((c) => c.id === editingId);
+    setEditingTitle(conv?.title ?? "");
+    editRef.current?.focus();
+    editRef.current?.select();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [editingId]);
 
   const q = query.trim().toLowerCase();
   const filtered = q ? conversations.filter((c) => c.title.toLowerCase().includes(q)) : conversations;
   const groups = groupConversationsByDate(filtered);
 
-  const startRename = (id: string, title: string, e: React.MouseEvent) => {
-    e.stopPropagation(); setEditingId(id); setEditingTitle(title);
-  };
   const saveRename = (id: string) => {
     if (editingTitle.trim()) onRename(id, editingTitle.trim());
-    setEditingId(null);
+    onStopRename();
   };
 
   const initials = (currentUser?.name || "?")
@@ -99,19 +107,20 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
                     value={editingTitle}
                     onChange={(e) => setEditingTitle(e.target.value)}
                     onBlur={() => saveRename(conv.id)}
-                    onKeyDown={(e) => { if (e.key === "Enter") saveRename(conv.id); else if (e.key === "Escape") setEditingId(null); }}
+                    onKeyDown={(e) => { if (e.key === "Enter") saveRename(conv.id); else if (e.key === "Escape") onStopRename(); }}
                     onClick={(e) => e.stopPropagation()}
                   />
                 ) : (
                   <>
                     <span className="vitrus-sb__row-title">{conv.title}</span>
                     <span className="vitrus-sb__row-actions">
-                      <button title="Rename" onClick={(e) => startRename(conv.id, conv.title, e)}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04a1 1 0 0 0 0-1.41l-2.34-2.34a1 1 0 0 0-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z" fill="currentColor"/></svg>
-                      </button>
-                      <button title="Delete" onClick={(e) => { e.stopPropagation(); onRequestDelete(conv.id); }}>
-                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M6 19a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" fill="currentColor"/></svg>
-                      </button>
+                      <ActionMenu
+                        triggerClassName="vitrus-sb__row-menu-btn"
+                        items={[
+                          { label: "Rename", onClick: () => onStartRename(conv.id) },
+                          { label: "Delete", danger: true, onClick: () => onRequestDelete(conv.id) },
+                        ]}
+                      />
                     </span>
                   </>
                 )}

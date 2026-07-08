@@ -4,6 +4,7 @@ import DOMPurify from "dompurify";
 import { useChat } from "@/hooks/useChat";
 import { useTheme } from "@/hooks/useTheme";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
+import { ActionMenu } from "@/components/chat/ActionMenu";
 
 interface ChatPageProps {
   onOpenSettings: () => void;
@@ -55,6 +56,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const [input, setInput] = useState("");
   const [activeModel, setActiveModel] = useState("Select a model");
   const [convIdToDelete, setConvIdToDelete] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -179,8 +181,11 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
           conversations={conversations}
           activeConversationId={activeConversationId}
           currentUser={currentUser}
+          editingId={editingId}
           onSelect={setActiveConversationId}
           onNewChat={startNew}
+          onStartRename={setEditingId}
+          onStopRename={() => setEditingId(null)}
           onRename={renameConversation}
           onRequestDelete={setConvIdToDelete}
           onOpenSettings={onOpenSettings}
@@ -192,6 +197,17 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
               <span className="vitrus-cp__header-title">{activeConv ? activeConv.title : "New conversation"}</span>
               <span className="vitrus-cp__header-sub">Vitrus · {activeModel}</span>
             </div>
+            {activeConv && (
+              <div className="vitrus-cp__header-actions">
+                <ActionMenu
+                  triggerClassName="vitrus-cp__header-btn"
+                  items={[
+                    { label: "Rename", onClick: () => setEditingId(activeConv.id) },
+                    { label: "Delete", danger: true, onClick: () => setConvIdToDelete(activeConv.id) },
+                  ]}
+                />
+              </div>
+            )}
           </header>
 
           <div className="vitrus-cp__body" ref={bodyRef}>
@@ -199,7 +215,6 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
               <div className="vitrus-cp__loading"><div className="vitrus-cp__spinner" /></div>
             ) : messages.length === 0 ? (
               <div className="vitrus-cp__welcome">
-                <div className="vitrus-cp__welcome-badge"><Mark size={26} /></div>
                 <h1 className="vitrus-cp__welcome-title">Hi, I'm Vitrus.</h1>
                 <p className="vitrus-cp__welcome-sub">Ask anything. I'll take it from here.</p>
                 {renderComposer({ placeholder: "Ask Vitrus anything…", showLabel: false })}

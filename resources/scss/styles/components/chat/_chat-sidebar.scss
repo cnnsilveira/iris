@@ -89,6 +89,8 @@
       opacity: 0; transition: opacity 0.15s;
       // Masks the row title behind the actions on hover (hover bg = surface).
       background: linear-gradient(to right, transparent, var(--vt-surface) 45%);
+      // Stay visible while the overflow menu is open, even off-hover.
+      &:has(.vitrus-menu__trigger[aria-expanded="true"]) { opacity: 1; }
       button {
         width: 24px; height: 24px; border-radius: 6px; color: var(--vt-faint);
         display: flex; align-items: center; justify-content: center;
