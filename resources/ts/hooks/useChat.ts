@@ -401,6 +401,88 @@ export function useChat(isDrawer = false) {
     }
   };
 
+  const regenerateLast = async () => {
+    if (isTyping) return;
+    const conv = conversations.find((c) => c.id === activeConversationId);
+    if (!conv || conv.messages.length < 2) return;
+    if (conv.messages[conv.messages.length - 1].role !== "assistant") return;
+
+    setError(null);
+    setIsTyping(true);
+
+    const convId = conv.id;
+    const assistantMsgId = `assistant-${Date.now()}`;
+    const trimmed = conv.messages.slice(0, -1); // drop the previous assistant reply
+    const workingConv: Conversation = {
+      ...conv,
+      messages: [...trimmed, { role: "assistant", content: "", id: assistantMsgId }],
+      updatedAt: Date.now(),
+    };
+
+    setConversations((prev) => prev.map((c) => (c.id === convId ? workingConv : c)));
+    await saveConversationToServer(workingConv);
+
+    try {
+      const apiMessages = trimmed.map((m) => ({ role: m.role, content: m.content }));
+      const response = await fetch(`${restUrl}chat`, {
+        method: "POST",
+        headers: getHeaders(),
+        body: JSON.stringify({ messages: apiMessages }),
+      });
+      if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+      const reader = response.body?.getReader();
+      if (!reader) throw new Error("Response body is not readable.");
+      const decoder = new TextDecoder();
+      let responseText = "";
+      let done = false;
+
+      while (!done) {
+        const { value, done: doneReading } = await reader.read();
+        done = doneReading;
+        if (!value) continue;
+        const lines = decoder.decode(value, { stream: true }).split("\n");
+        for (const line of lines) {
+          const cleaned = line.trim();
+          if (cleaned === "data: [DONE]") { done = true; break; }
+          if (!cleaned.startsWith("data: ")) continue;
+          let dataJson;
+          try { dataJson = JSON.parse(cleaned.substring(6)); } catch { continue; }
+          if (dataJson?.error) throw new Error(dataJson.error.message || "API Error");
+          const token = dataJson.choices?.[0]?.delta?.content;
+          if (token) {
+            responseText += token;
+            setConversations((prev) =>
+              prev.map((c) =>
+                c.id === convId
+                  ? { ...c, messages: c.messages.map((m) => (m.id === assistantMsgId ? { ...m, content: responseText } : m)) }
+                  : c,
+              ),
+            );
+          }
+        }
+      }
+
+      const finalConv: Conversation = {
+        ...workingConv,
+        messages: workingConv.messages.map((m) => (m.id === assistantMsgId ? { ...m, content: responseText } : m)),
+      };
+      await saveConversationToServer(finalConv);
+    } catch (err: unknown) {
+      const displayError = err instanceof Error ? err.message : "An unknown networking error occurred.";
+      setError(displayError);
+      setConversations((prev) =>
+        prev.map((c) =>
+          c.id === convId
+            ? { ...c, messages: c.messages.map((m) => (m.id === assistantMsgId ? { ...m, content: `⚠️ **Error connecting to AI assistant:** ${displayError}` } : m)) }
+            : c,
+        ),
+      );
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   // Extract messages of the active conversation for consumption
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
   const messages = activeConversation ? activeConversation.messages : [];
@@ -417,6 +499,7 @@ export function useChat(isDrawer = false) {
     startNewChat,
     renameConversation,
     deleteConversation,
+    regenerateLast,
     clearHistory,
   };
 }
