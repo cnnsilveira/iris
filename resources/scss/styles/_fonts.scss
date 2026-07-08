@@ -1,6 +1,6 @@
 // ---------------------------------------------------------------------------
 // Vitrus — self-hosted fonts (no external requests; GDPR-consistent)
-// Paths are resolved by Vite relative to this file (resources/scss/styles/)
+// Paths resolve relative to the entry stylesheet (resources/scss/main.scss), not this partial — @font-face url()s are not rebased per-partial by Sass/Vite.
 // and emitted next to vitrus-admin.css in assets/dist/.
 // ---------------------------------------------------------------------------
 
