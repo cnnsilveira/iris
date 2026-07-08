@@ -419,7 +419,9 @@ export function useChat(isDrawer = false) {
       updatedAt: Date.now(),
     };
 
-    setConversations((prev) => prev.map((c) => (c.id === convId ? workingConv : c)));
+    setConversations((prev) =>
+      prev.map((c) => (c.id === convId ? workingConv : c)).sort((a, b) => b.updatedAt - a.updatedAt),
+    );
     await saveConversationToServer(workingConv);
 
     try {
@@ -471,13 +473,16 @@ export function useChat(isDrawer = false) {
     } catch (err: unknown) {
       const displayError = err instanceof Error ? err.message : "An unknown networking error occurred.";
       setError(displayError);
-      setConversations((prev) =>
-        prev.map((c) =>
-          c.id === convId
-            ? { ...c, messages: c.messages.map((m) => (m.id === assistantMsgId ? { ...m, content: `⚠️ **Error connecting to AI assistant:** ${displayError}` } : m)) }
-            : c,
+      const errorConv: Conversation = {
+        ...workingConv,
+        messages: workingConv.messages.map((m) =>
+          m.id === assistantMsgId
+            ? { ...m, content: `⚠️ **Error connecting to AI assistant:** ${displayError}` }
+            : m,
         ),
-      );
+      };
+      setConversations((prev) => prev.map((c) => (c.id === convId ? errorConv : c)));
+      await saveConversationToServer(errorConv);
     } finally {
       setIsTyping(false);
     }
