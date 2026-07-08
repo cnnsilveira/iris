@@ -49,6 +49,7 @@ class Admin {
 		add_action( 'admin_menu', array( __CLASS__, 'register_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( __CLASS__, 'enqueue_scripts' ) );
 		add_action( 'admin_footer', array( __CLASS__, 'render_chat_root' ) );
+		add_action( 'admin_head', array( __CLASS__, 'print_chat_immersion_css' ) );
 
 		// Schedule a model sync whenever the API key is saved.
 		add_action( 'add_option_vitrus_api_key', array( __CLASS__, 'schedule_model_sync' ) );
@@ -183,6 +184,9 @@ class Admin {
 				true
 			);
 
+			$current_user = wp_get_current_user();
+			$user_roles   = (array) $current_user->roles;
+
 			wp_localize_script(
 				'vitrus-admin',
 				'vitrusSettings',
@@ -191,9 +195,49 @@ class Admin {
 					'restUrl'        => esc_url_raw( rest_url( 'vitrus/v1/' ) ),
 					'siteHash'       => md5( get_site_url() ),
 					'isSettingsPage' => ( $hook_suffix === self::$settings_hook ),
+					'currentUser'    => array(
+						'name'      => $current_user->display_name,
+						'avatarUrl' => get_avatar_url( $current_user->ID, array( 'size' => 60 ) ),
+						'role'      => ! empty( $user_roles ) ? ucfirst( (string) $user_roles[0] ) : '',
+					),
 				)
 			);
 		}
+	}
+
+	/**
+	 * Print full-screen immersion CSS on the Chat page.
+	 *
+	 * Hides the WordPress admin bar and menu so the Chat page reads as a
+	 * standalone application (Gutenberg fullscreen style). Adding the
+	 * `vitrus-show-wpmenu` class to <body> (via the React reveal toggle)
+	 * restores the admin menu.
+	 *
+	 * @since 0.2.0
+	 * @return void
+	 */
+	public static function print_chat_immersion_css() {
+		$screen = get_current_screen();
+		if ( null === $screen || 'toplevel_page_vitrus' !== $screen->id ) {
+			return;
+		}
+		?>
+		<style id="vitrus-immersion">
+			#wpadminbar { display: none !important; }
+			html.wp-toolbar { padding-top: 0 !important; }
+			#adminmenumain, #adminmenuback, #adminmenuwrap { display: none; }
+			#wpcontent, #wpfooter { margin-left: 0 !important; }
+			#wpbody-content { padding-bottom: 0; }
+			#wpfooter { display: none; }
+			#wpbody-content > .wrap, #wpbody-content > #screen-meta,
+			#wpbody-content > #screen-meta-links { margin: 0; padding: 0; }
+			body.vitrus-show-wpmenu #adminmenumain,
+			body.vitrus-show-wpmenu #adminmenuback,
+			body.vitrus-show-wpmenu #adminmenuwrap { display: block; }
+			body.vitrus-show-wpmenu #wpcontent { margin-left: 160px !important; }
+			#vitrus-chat-page-root { min-height: 100vh; }
+		</style>
+		<?php
 	}
 
 	/**
