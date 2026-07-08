@@ -209,7 +209,7 @@
       box-shadow: var(--vt-shadow);
     }
     &__composer-label { font-size: 10px; font-weight: 600; letter-spacing: 0.12em; color: var(--vt-faint); margin-bottom: 11px; }
-    &__composer-row { display: flex; align-items: flex-end; gap: 12px; }
+    &__composer-row { display: flex; align-items: center; gap: 12px; }
     &__textarea {
       flex: 1; min-width: 0;
       border: none; background: none; padding: 0; resize: none;
