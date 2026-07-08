@@ -8,6 +8,18 @@
     color: var(--vt-text);
     font-family: "Hanken Grotesk", system-ui, sans-serif;
     -webkit-font-smoothing: antialiased;
+
+    // Headings inherit the theme text color, overriding the legacy
+    // _reset.scss `h1-h6` rule that hardcodes the old near-white token
+    // (which renders invisible on the light theme's white surfaces).
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: inherit;
+    }
   }
 
   .vitrus-cp {
