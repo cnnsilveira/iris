@@ -1,5 +1,12 @@
 // Vitrus chat page — design-system layout. Tokens from _ds-tokens; fonts self-hosted.
 #vitrus-chat-page-root {
+  // Chrome ignores the ::-webkit-scrollbar pseudo-elements (below) whenever
+  // the standard scrollbar-width/scrollbar-color are set — and the shared
+  // reset sets both. Reset them to `auto` so the WebKit rules (which match
+  // the mockup's content-box thumb) take effect again.
+  scrollbar-width: auto;
+  scrollbar-color: auto;
+
   // Neutralize WordPress admin + legacy reset bare-element rules (font-size
   // `p{13px}`, line-height 1.6/1.3, the old "Inter" font-family) that leak in
   // and override our sizing/spacing through the cascade. These element
