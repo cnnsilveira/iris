@@ -16,17 +16,6 @@
       padding: 16px 16px 12px;
     }
 
-    &__wp {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 30px;
-      height: 30px;
-      border-radius: 8px;
-      color: var(--vt-muted);
-      &:hover { background: var(--vt-surface); color: var(--vt-text); }
-    }
-
     &__brand { display: flex; align-items: baseline; gap: 6px; flex: 1; min-width: 0; }
     &__logo {
       display: flex; align-items: center; justify-content: center;
@@ -36,11 +25,6 @@
     }
     &__name { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; color: var(--vt-text); }
     &__tag { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: var(--vt-faint); }
-    &__reveal {
-      width: 28px; height: 28px; border-radius: 7px; color: var(--vt-faint);
-      display: flex; align-items: center; justify-content: center;
-      &:hover { background: var(--vt-surface); color: var(--vt-text); }
-    }
 
     &__actions { padding: 4px 12px 8px; }
     &__new {

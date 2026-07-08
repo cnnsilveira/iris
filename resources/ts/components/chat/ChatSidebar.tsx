@@ -12,8 +12,6 @@ interface ChatSidebarProps {
   onRename: (id: string, title: string) => void;
   onRequestDelete: (id: string) => void;
   onOpenSettings: () => void;
-  onExit: () => void;
-  onToggleWpMenu: () => void;
 }
 
 const Mark: React.FC = () => (
@@ -24,14 +22,15 @@ const Mark: React.FC = () => (
 );
 
 /**
- * Left sidebar: brand + WP exit, new chat (⌘N), search, date-grouped
- * history with inline rename / delete, and the current-user profile footer.
+ * Left sidebar: brand, new chat (⌘N), search, date-grouped history with
+ * inline rename / delete, and the current-user profile footer. Global
+ * controls (WordPress exit, theme) live in the top bar, not here.
  *
  * @since v0.2.0
  */
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   conversations, activeConversationId, currentUser,
-  onSelect, onNewChat, onRename, onRequestDelete, onOpenSettings, onExit, onToggleWpMenu,
+  onSelect, onNewChat, onRename, onRequestDelete, onOpenSettings,
 }) => {
   const [query, setQuery] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -60,21 +59,11 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   return (
     <aside className="vitrus-sb">
       <div className="vitrus-sb__head">
-        <button className="vitrus-sb__wp" onClick={onExit} title="Exit to WordPress">
-          <svg width="18" height="18" viewBox="0 0 122.5 122.5" fill="currentColor" aria-hidden="true">
-            <path d="M8.7 61.3a52.6 52.6 0 0 0 29.6 47.3L13.2 39.9a52.4 52.4 0 0 0-4.5 21.4zm88-2.7c0-6.5-2.3-11-4.3-14.5-2.7-4.3-5.2-8-5.2-12.3 0-4.8 3.7-9.3 8.9-9.3h.7A52.4 52.4 0 0 0 17.5 32.1h3.4c5.5 0 14-.7 14-.7 2.9-.2 3.2 4 .4 4.3 0 0-2.9.4-6 .5l19.1 56.9 11.5-34.4-8.2-22.5c-2.8-.1-5.5-.5-5.5-.5-2.8-.1-2.5-4.5.3-4.3 0 0 8.7.7 13.8.7 5.5 0 14-.7 14-.7 2.9-.2 3.2 4 .4 4.3 0 0-2.9.4-6 .5l19 56.5 5.3-17.6c2.4-7.3 3.4-12.6 3.4-17.2z"/>
-            <path d="M62.2 66 46.4 111.8a52.6 52.6 0 0 0 32.3-.8l-.4-.7zm45.3-29.9a52.4 52.4 0 0 1-19.7 70.5l16-46.3c3-7.5 4-13.5 4-18.8 0-1.9-.1-3.7-.3-5.4z"/>
-            <path d="M61.3 0a61.3 61.3 0 1 0 .1 122.7A61.3 61.3 0 0 0 61.3 0zm0 119.8a58.6 58.6 0 1 1 .1-117.2 58.6 58.6 0 0 1-.1 117.2z"/>
-          </svg>
-        </button>
         <div className="vitrus-sb__brand">
           <span className="vitrus-sb__logo"><Mark /></span>
           <span className="vitrus-sb__name">Vitrus</span>
           <span className="vitrus-sb__tag">COPILOT</span>
         </div>
-        <button className="vitrus-sb__reveal" onClick={onToggleWpMenu} title="Toggle WordPress menu">
-          <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round"/></svg>
-        </button>
       </div>
 
       <div className="vitrus-sb__actions">
