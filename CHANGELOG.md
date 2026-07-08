@@ -13,12 +13,18 @@ All notable changes to the Vitrus WordPress plugin will be documented in this fi
   - **Environment variable:** `IRIS_OPENROUTER_API_KEY` → `VITRUS_OPENROUTER_API_KEY`.
   - **Frontend:** mount container IDs (`#iris-*` → `#vitrus-*`), BEM class prefix (`iris-*` → `vitrus-*`), design tokens (`$iris-*` / `--iris-*` → `vitrus`), localized global `window.irisSettings` → `window.vitrusSettings`, build output `iris-admin.js/.css` → `vitrus-admin.js/.css`, and browser `localStorage` keys.
 - **Default Token Limit Upgrade:** Upgraded the default `max_tokens` (Max Output Tokens) limit value from `1024` to `4096` in the REST API controllers and settings dashboard UI config to provide reasoning-heavy models with sufficient space to complete both their thinking process and actual response content.
+- **Chat Page Redesign — "Vitrus Copilot" Design System:** Rebuilt the admin Chat page around the new visual identity — OKLCH design tokens, Newsreader (serif) headings with a Hanken Grotesk (sans) body, a left navigation sidebar, and bubble-less assistant turns — replacing the previous right-sidebar, violet-gradient layout. The Newsreader and Hanken Grotesk fonts are now **self-hosted** in the plugin (no external Google Fonts requests). The floating drawer and Settings page are unchanged. Styling is hardened against WordPress admin CSS bleed (font size, line-height, font-family, and scrollbar) so the page renders at the intended scale.
 
 ### Fixed
 - **Duplicate Typing Animation Dots:** Fixed a bug where a new prompt caused historical empty chat bubbles to display animated typing dots by verifying that only the very last message in the feed displays the typing dots.
 - **Empty API Response Handlers:** Added a check for empty API responses. Shows a warning recommending that the user increase their token limit if generation stopped due to token limit length (`finish_reason: "length"`), and returns a generic warning for other empty streams.
 - **History Action Button Hover:** Fixed a nested SASS nesting bug in `_chat-page.scss` where parent references (`&`) compiled into duplicate `#vitrus-chat-page-root` selectors, which prevented the rename and delete action icons from displaying when hovering over conversation items.
 ### Added
+- **Immersive Full-Screen Chat:** The Chat page now hides the WordPress admin bar and menu (Gutenberg-style) for a distraction-free experience, with a top bar offering a WordPress-exit button, a persisted **light/dark theme toggle**, and a control to reveal the WordPress menu again.
+- **Message Timestamps:** Chat turns now display the time each message was sent (derived from the message id, so existing conversations show times too).
+- **Conversation Search & Date Grouping:** The sidebar now filters conversations by title and groups them by **Today / Yesterday / Earlier**, and shows the current WordPress user (avatar, name, role) in its footer.
+- **Overflow Action Menus:** Rename and Delete are available from a three-dots (⋯) menu in both the chat header (for the active conversation) and each sidebar row.
+- **Regenerate Response:** Added a **Regenerate** action to re-run the assistant's last reply in place.
 - **Delete Chat Confirmation Modal:** Added a custom, glassmorphic deletion confirmation popup modal that overlays the Chat page when clicking a conversation's trash icon, replacing the unstyled browser-native `window.confirm` popup.
 
 ## [0.2.0-alpha] - 2026-06-22
