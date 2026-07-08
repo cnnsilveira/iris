@@ -59,8 +59,8 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   return (
     <aside className="vitrus-sb">
       <div className="vitrus-sb__head">
+        <span className="vitrus-sb__logo"><Mark /></span>
         <div className="vitrus-sb__brand">
-          <span className="vitrus-sb__logo"><Mark /></span>
           <span className="vitrus-sb__name">Vitrus</span>
           <span className="vitrus-sb__tag">COPILOT</span>
         </div>

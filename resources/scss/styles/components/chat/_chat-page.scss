@@ -20,6 +20,15 @@
     font-size: inherit;
   }
 
+  // WP admin sets `font-family` on button/input/textarea/select (the old
+  // "Inter" stack). Force them to inherit the shell's Hanken Grotesk.
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+  }
+
   .vitrus-chat-shell {
     display: flex;
     flex-direction: column;
@@ -48,7 +57,7 @@
   // the conversation header and the sidebar navigation.
   .vitrus-topbar {
     flex-shrink: 0;
-    height: 52px;
+    height: 60px;
     display: flex;
     align-items: center;
     justify-content: space-between;

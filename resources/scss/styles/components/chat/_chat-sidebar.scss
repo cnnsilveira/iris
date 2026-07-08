@@ -7,13 +7,12 @@
     display: flex;
     flex-direction: column;
     background: var(--vt-sidebar);
-    border-right: 1px solid var(--vt-border);
 
     &__head {
       display: flex;
       align-items: center;
-      gap: 8px;
-      padding: 16px 16px 12px;
+      gap: 11px;
+      padding: 20px 20px 14px;
     }
 
     &__brand { display: flex; align-items: baseline; gap: 6px; flex: 1; min-width: 0; }
@@ -26,7 +25,7 @@
     &__name { font-weight: 600; font-size: 16px; letter-spacing: -0.01em; color: var(--vt-text); }
     &__tag { font-size: 10px; font-weight: 600; letter-spacing: 0.08em; color: var(--vt-faint); }
 
-    &__actions { padding: 4px 12px 8px; }
+    &__actions { padding: 2px 12px 8px; }
     &__new {
       width: 100%;
       display: flex; align-items: center; gap: 9px;
@@ -45,7 +44,10 @@
       border-radius: 10px;
       color: var(--vt-faint);
       input {
-        flex: 1; min-width: 0; border: none; background: none; padding: 0;
+        flex: 1; min-width: 0;
+        border: none; background: none;
+        margin: 0; padding: 0;
+        min-height: 0; height: auto; line-height: 1.5;
         font-size: 13px; color: var(--vt-text);
         &::placeholder { color: var(--vt-faint); }
         &:focus { outline: none; box-shadow: none; }
@@ -95,7 +97,7 @@
 
     &__foot {
       display: flex; align-items: center; gap: 11px;
-      margin: 0 8px; padding: 13px 10px;
+      margin: 0 8px; padding: 13px 14px;
       border-top: 1px solid var(--vt-border);
     }
     &__avatar {
