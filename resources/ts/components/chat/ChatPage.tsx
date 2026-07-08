@@ -1,161 +1,102 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { marked } from "marked";
 import DOMPurify from "dompurify";
 import { useChat } from "@/hooks/useChat";
+import { useTheme } from "@/hooks/useTheme";
+import { ChatSidebar } from "@/components/chat/ChatSidebar";
 
 interface ChatPageProps {
   onOpenSettings: () => void;
 }
 
+const Mark: React.FC<{ size?: number }> = ({ size = 15 }) => (
+  <svg width={size} height={size * 0.78} viewBox="0 0 500 391" aria-hidden="true">
+    <path d="M302.443 389.107H262.959L460.381 0H500L302.443 389.107Z" fill="currentColor" />
+    <path d="M198.772 390.659L0 0H82.4784L198.637 231.169H200.459L317.765 0.0674947H400.715L200.121 390.659H198.772Z" fill="currentColor" />
+  </svg>
+);
+
 /**
- * ChatPage Component.
- *
- * Renders the main Gemini/ChatGPT style chat interface inside the admin panel.
- * Features a main message pane and a collapsible right sidebar for conversation history.
+ * Main admin Chat page: immersive full-screen shell with the design-system
+ * sidebar, bubble-less assistant turns, and the "Message Vitrus" composer.
  *
  * @since v0.2.0
- *
- * @param {ChatPageProps} props Component props.
- * @returns {React.ReactElement} The rendered React component layout.
  */
 export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const {
-    conversations,
-    activeConversationId,
-    setActiveConversationId,
-    messages,
-    isTyping,
-    loading,
-    sendMessage,
-    startNewChat,
-    renameConversation,
-    deleteConversation,
-  } = useChat(false); // main page chat instance
+    conversations, activeConversationId, setActiveConversationId,
+    messages, isTyping, loading, sendMessage, startNewChat,
+    renameConversation, deleteConversation, regenerateLast,
+  } = useChat(false);
+
+  const { theme, toggleTheme } = useTheme();
 
   const [input, setInput] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeModel, setActiveModel] = useState("Select a model...");
-  const [editingConvId, setEditingConvId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState("");
+  const [activeModel, setActiveModel] = useState("Select a model");
   const [convIdToDelete, setConvIdToDelete] = useState<string | null>(null);
 
-  const chatBodyRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const editInputRef = useRef<HTMLInputElement>(null);
 
   const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
   const nonce = window.vitrusSettings?.nonce || "";
+  const currentUser = window.vitrusSettings?.currentUser;
 
-  // Fetch active model from settings
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const headers: Record<string, string> = {};
         if (nonce) headers["X-WP-Nonce"] = nonce;
-        const response = await fetch(`${restUrl}settings`, { headers });
-        if (response.ok) {
-          const settings = await response.json();
-          if (settings.model) {
-            setActiveModel(settings.model.split("/").pop() || settings.model);
-          }
+        const res = await fetch(`${restUrl}settings`, { headers });
+        if (res.ok) {
+          const s = await res.json();
+          if (s.model) setActiveModel(s.model.split("/").pop() || s.model);
         }
-      } catch (e) {
-        console.error("Error fetching settings for chat page", e);
-      }
+      } catch (e) { console.error("Error fetching settings for chat page", e); }
     };
     fetchSettings();
   }, [restUrl, nonce]);
 
-  // Focus editing input when active
   useEffect(() => {
-    if (editingConvId && editInputRef.current) {
-      editInputRef.current.focus();
-      editInputRef.current.select();
-    }
-  }, [editingConvId]);
-
-  // Auto scroll to bottom
-  useEffect(() => {
-    scrollToBottom();
+    if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
   }, [messages]);
 
-  const scrollToBottom = () => {
-    if (chatBodyRef.current) {
-      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
-    }
-  };
+  const startNew = useCallback(() => { startNewChat(); }, [startNewChat]);
 
-  const handleSend = async (textToSend?: string) => {
-    const query = (textToSend || input).trim();
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "n" || e.key === "N")) { e.preventDefault(); startNew(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [startNew]);
+
+  const handleSend = async (text?: string) => {
+    const query = (text ?? input).trim();
     if (!query || isTyping) return;
-
-    if (!textToSend) {
-      setInput("");
-    }
-
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
-
+    if (!text) setInput("");
+    if (textareaRef.current) textareaRef.current.style.height = "auto";
     await sendMessage(query);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
   const handleTextareaInput = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
-    }
+    const el = textareaRef.current;
+    if (el) { el.style.height = "auto"; el.style.height = `${Math.min(el.scrollHeight, 160)}px`; }
   };
 
-  const handleRenameStart = (id: string, currentTitle: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setEditingConvId(id);
-    setEditingTitle(currentTitle);
-  };
-
-  const handleRenameSave = async (id: string) => {
-    if (editingTitle.trim()) {
-      await renameConversation(id, editingTitle.trim());
-    }
-    setEditingConvId(null);
-  };
-
-  const handleRenameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string) => {
-    if (e.key === "Enter") {
-      handleRenameSave(id);
-    } else if (e.key === "Escape") {
-      setEditingConvId(null);
-    }
-  };
-
-  const handleDeleteClick = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setConvIdToDelete(id);
-  };
-
-  const handleConfirmDelete = () => {
-    if (convIdToDelete) {
-      deleteConversation(convIdToDelete);
-      setConvIdToDelete(null);
-    }
-  };
+  const handleExit = () => { window.location.href = "index.php"; };
+  const toggleWpMenu = () => { document.body.classList.toggle("vitrus-show-wpmenu"); };
+  const handleCopy = (content: string) => { void navigator.clipboard?.writeText(content); };
 
   const renderMarkdown = (content: string) => {
     try {
-      const rawHtml = marked.parse(content, { async: false }) as string;
-      const cleanHtml = DOMPurify.sanitize(rawHtml);
-      return { __html: cleanHtml };
-    } catch (e) {
-      return { __html: DOMPurify.sanitize(content) };
-    }
+      const raw = marked.parse(content, { async: false }) as string;
+      return { __html: DOMPurify.sanitize(raw) };
+    } catch { return { __html: DOMPurify.sanitize(content) }; }
   };
 
   const promptSuggestions = [
@@ -165,350 +106,118 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   ];
 
   const activeConv = conversations.find((c) => c.id === activeConversationId);
+  const lastMsg = messages[messages.length - 1];
+  const canRegenerate = !isTyping && !!lastMsg && lastMsg.role === "assistant" && lastMsg.content !== "";
+
+  const composer = (
+    <div className="vitrus-cp__composer">
+      <div className="vitrus-cp__composer-label">MESSAGE VITRUS</div>
+      <div className="vitrus-cp__composer-row">
+        <textarea
+          ref={textareaRef}
+          className="vitrus-cp__textarea"
+          placeholder="Ask a follow-up…"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onInput={handleTextareaInput}
+          onKeyDown={handleKeyDown}
+          rows={1}
+          disabled={isTyping}
+        />
+        <button className="vitrus-cp__send" onClick={() => handleSend()} disabled={!input.trim() || isTyping} title="Send">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"/></svg>
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="vitrus-chat-page">
-      {/* Main Chat Area */}
-      <div className="vitrus-chat-page__main">
-        {/* Header */}
-        <header className="vitrus-chat-page__header">
-          <div className="vitrus-chat-page__header-title-group">
-            <h1 className="vitrus-chat-page__header-title">
-              {activeConv ? activeConv.title : "New Conversation"}
-            </h1>
-            <span className="vitrus-chat-page__header-meta">
-              Model: {activeModel}
-            </span>
-          </div>
+    <div className="vitrus-chat-shell" data-vitrus-theme={theme}>
+      <ChatSidebar
+        conversations={conversations}
+        activeConversationId={activeConversationId}
+        currentUser={currentUser}
+        onSelect={setActiveConversationId}
+        onNewChat={startNew}
+        onRename={renameConversation}
+        onRequestDelete={setConvIdToDelete}
+        onOpenSettings={onOpenSettings}
+        onExit={handleExit}
+        onToggleWpMenu={toggleWpMenu}
+      />
 
-          <div className="vitrus-chat-page__header-actions">
-            <button
-              className={`vitrus-chat-page__sidebar-toggle ${sidebarOpen ? "vitrus-chat-page__sidebar-toggle--active" : ""}`}
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                width="20"
-                height="20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H14V5H19V19ZM12 19H5V5H12V19Z"
-                  fill="currentColor"
-                />
-              </svg>
+      <main className="vitrus-cp">
+        <header className="vitrus-cp__header">
+          <div className="vitrus-cp__header-info">
+            <span className="vitrus-cp__header-title">{activeConv ? activeConv.title : "New conversation"}</span>
+            <span className="vitrus-cp__header-sub">Vitrus · {activeModel}</span>
+          </div>
+          <div className="vitrus-cp__header-actions">
+            <button className="vitrus-cp__icon-btn" onClick={toggleTheme} title="Toggle theme">
+              {theme === "dark" ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round"/></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.7"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"/></svg>
+              )}
             </button>
           </div>
         </header>
 
-        {/* Message Feed */}
-        <div className="vitrus-chat-page__body" ref={chatBodyRef}>
+        <div className="vitrus-cp__body" ref={bodyRef}>
           {loading ? (
-            <div className="vitrus-chat-page__loading">
-              <div className="vitrus-chat-page__spinner"></div>
-              <p>Loading history...</p>
-            </div>
+            <div className="vitrus-cp__loading"><div className="vitrus-cp__spinner" /></div>
           ) : messages.length === 0 ? (
-            <div className="vitrus-chat-page__empty-state">
-              <div className="vitrus-chat-page__welcome-logo">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  width="64"
-                  height="64"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <defs>
-                    <linearGradient id="vitrus-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#7e22ce" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-                    fill="url(#vitrus-grad)"
-                  />
-                </svg>
-              </div>
-              <h2 className="vitrus-chat-page__welcome-title">How can Vitrus help you?</h2>
-              <p className="vitrus-chat-page__welcome-subtitle">
-                Ask me about theme configuration, custom plugin logic, database
-                performance, or standard WordPress core practices.
-              </p>
-              <div className="vitrus-chat-page__suggestions">
-                {promptSuggestions.map((suggestion, idx) => (
-                  <button
-                    key={idx}
-                    className="vitrus-chat-page__suggestion-card"
-                    onClick={() => handleSend(suggestion)}
-                  >
-                    <span className="vitrus-chat-page__suggestion-text">
-                      {suggestion}
-                    </span>
-                    <span className="vitrus-chat-page__suggestion-arrow">→</span>
-                  </button>
+            <div className="vitrus-cp__welcome">
+              <div className="vitrus-cp__welcome-badge"><Mark size={26} /></div>
+              <h1 className="vitrus-cp__welcome-title">Hi, I'm Vitrus.</h1>
+              <p className="vitrus-cp__welcome-sub">Ask anything. I'll take it from here.</p>
+              {composer}
+              <div className="vitrus-cp__chips">
+                {promptSuggestions.map((s, i) => (
+                  <button key={i} className="vitrus-cp__chip" onClick={() => handleSend(s)}>{s}</button>
                 ))}
               </div>
             </div>
           ) : (
-            <div className="vitrus-chat-page__messages">
-              {messages.map((msg, idx) => (
-                <div
-                  key={msg.id}
-                  className={`vitrus-chat-page__message vitrus-chat-page__message--${msg.role}`}
-                >
-                  <div className="vitrus-chat-page__avatar-wrapper">
-                    {msg.role === "user" ? (
-                      <div className="vitrus-chat-page__avatar vitrus-chat-page__avatar--user">
-                        U
+            <div className="vitrus-cp__feed">
+              {messages.map((msg, idx) => msg.role === "assistant" ? (
+                <div key={msg.id} className="vitrus-cp__turn vitrus-cp__turn--ai">
+                  <div className="vitrus-cp__turn-meta"><span className="vitrus-cp__turn-mark"><Mark size={14} /></span>VITRUS</div>
+                  {msg.content === "" && isTyping && idx === messages.length - 1 ? (
+                    <div className="vitrus-cp__typing"><span /><span /><span /></div>
+                  ) : (
+                    <>
+                      <div className="vitrus-cp__md" dangerouslySetInnerHTML={renderMarkdown(msg.content)} />
+                      <div className="vitrus-cp__turn-actions">
+                        <button onClick={() => handleCopy(msg.content)}>Copy</button>
+                        {idx === messages.length - 1 && canRegenerate && (
+                          <button onClick={() => regenerateLast()}>Regenerate</button>
+                        )}
                       </div>
-                    ) : (
-                      <div className="vitrus-chat-page__avatar vitrus-chat-page__avatar--ai">
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          width="18"
-                          height="18"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-                            fill="currentColor"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  <div className="vitrus-chat-page__bubble">
-                    {msg.content === "" && isTyping && idx === messages.length - 1 ? (
-                      <div className="vitrus-chat-page__typing">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                      </div>
-                    ) : (
-                      <div
-                        className="vitrus-chat-page__message-content"
-                        dangerouslySetInnerHTML={renderMarkdown(msg.content)}
-                      />
-                    )}
-                  </div>
+                    </>
+                  )}
+                </div>
+              ) : (
+                <div key={msg.id} className="vitrus-cp__turn vitrus-cp__turn--user">
+                  <span className="vitrus-cp__turn-you">YOU</span>
+                  <div className="vitrus-cp__bubble">{msg.content}</div>
                 </div>
               ))}
             </div>
           )}
         </div>
 
-        {/* Input Bar */}
-        <footer className="vitrus-chat-page__footer">
-          <div className="vitrus-chat-page__input-container">
-            <textarea
-              ref={textareaRef}
-              className="vitrus-chat-page__textarea"
-              placeholder="Message Vitrus..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onInput={handleTextareaInput}
-              onKeyDown={handleKeyDown}
-              rows={1}
-              disabled={isTyping}
-            />
-            <button
-              className="vitrus-chat-page__send-button"
-              onClick={() => handleSend()}
-              disabled={!input.trim() || isTyping}
-              title="Send Message"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                width="18"
-                height="18"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="vitrus-chat-page__footer-note">
-            Vitrus answers using the active OpenRouter model.
-          </div>
-        </footer>
-      </div>
-
-      {/* Right Sidebar (Collapsible) */}
-      <aside
-        className={`vitrus-chat-page__sidebar ${sidebarOpen ? "vitrus-chat-page__sidebar--open" : ""}`}
-      >
-        {/* Sidebar Header */}
-        <div className="vitrus-chat-page__sidebar-header">
-          <button
-            className="vitrus-chat-page__new-chat-btn"
-            onClick={startNewChat}
-            title="Start a new conversation thread"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              width="18"
-              height="18"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
-                fill="currentColor"
-              />
-            </svg>
-            New Chat
-          </button>
-        </div>
-
-        {/* Conversations List */}
-        <div className="vitrus-chat-page__sidebar-list">
-          {conversations.length === 0 ? (
-            <div className="vitrus-chat-page__sidebar-empty">
-              No conversations yet.
-            </div>
-          ) : (
-            conversations.map((conv) => (
-              <div
-                key={conv.id}
-                className={`vitrus-chat-page__history-item ${activeConversationId === conv.id ? "vitrus-chat-page__history-item--active" : ""}`}
-                onClick={() => setActiveConversationId(conv.id)}
-              >
-                <svg
-                  className="vitrus-chat-page__history-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  width="16"
-                  height="16"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"
-                    fill="currentColor"
-                  />
-                </svg>
-
-                {editingConvId === conv.id ? (
-                  <input
-                    ref={editInputRef}
-                    type="text"
-                    className="vitrus-chat-page__rename-input"
-                    value={editingTitle}
-                    onChange={(e) => setEditingTitle(e.target.value)}
-                    onBlur={() => handleRenameSave(conv.id)}
-                    onKeyDown={(e) => handleRenameKeyDown(e, conv.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <span className="vitrus-chat-page__history-title">
-                    {conv.title}
-                  </span>
-                )}
-
-                {editingConvId !== conv.id && (
-                  <div className="vitrus-chat-page__history-actions">
-                    <button
-                      className="vitrus-chat-page__history-action-btn"
-                      onClick={(e) => handleRenameStart(conv.id, conv.title, e)}
-                      title="Rename"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        width="14"
-                        height="14"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      className="vitrus-chat-page__history-action-btn"
-                      onClick={(e) => handleDeleteClick(conv.id, e)}
-                      title="Delete"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        width="14"
-                        height="14"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                )}
-              </div>
-            ))
-          )}
-        </div>
-
-        {/* Sidebar Footer */}
-        <div className="vitrus-chat-page__sidebar-footer">
-          <div className="vitrus-chat-page__sidebar-footer-brand">
-            <span className="vitrus-chat-page__sidebar-logo-text">Vitrus Copilot</span>
-          </div>
-          <button
-            className="vitrus-chat-page__settings-btn"
-            onClick={onOpenSettings}
-            title="Open settings page"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              width="20"
-              height="20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
-        </div>
-      </aside>
+        {messages.length > 0 && <footer className="vitrus-cp__footer">{composer}</footer>}
+      </main>
 
       {convIdToDelete && (
-        <div
-          className="vitrus-chat-page__modal-overlay"
-          onClick={() => setConvIdToDelete(null)}
-        >
-          <div
-            className="vitrus-chat-page__modal"
-            onClick={(e) => e.stopPropagation()}
-          >
-            <h3 className="vitrus-chat-page__modal-title">Delete Conversation</h3>
-            <p className="vitrus-chat-page__modal-message">
-              Are you sure you want to delete this conversation? This action cannot be undone.
-            </p>
-            <div className="vitrus-chat-page__modal-actions">
-              <button
-                className="vitrus-chat-page__modal-btn vitrus-chat-page__modal-btn--cancel"
-                onClick={() => setConvIdToDelete(null)}
-              >
-                Cancel
-              </button>
-              <button
-                className="vitrus-chat-page__modal-btn vitrus-chat-page__modal-btn--delete"
-                onClick={handleConfirmDelete}
-              >
-                Delete
-              </button>
+        <div className="vitrus-cp__overlay" onClick={() => setConvIdToDelete(null)}>
+          <div className="vitrus-cp__modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="vitrus-cp__modal-title">Delete conversation</h3>
+            <p className="vitrus-cp__modal-msg">Are you sure? This action cannot be undone.</p>
+            <div className="vitrus-cp__modal-actions">
+              <button className="vitrus-cp__modal-btn" onClick={() => setConvIdToDelete(null)}>Cancel</button>
+              <button className="vitrus-cp__modal-btn vitrus-cp__modal-btn--danger" onClick={() => { deleteConversation(convIdToDelete); setConvIdToDelete(null); }}>Delete</button>
             </div>
           </div>
         </div>
