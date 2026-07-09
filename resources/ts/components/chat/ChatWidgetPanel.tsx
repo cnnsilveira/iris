@@ -15,10 +15,13 @@ interface ChatWidgetPanelProps {
   input: string;
   bodyRef: React.RefObject<HTMLDivElement | null>;
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
+  canRegenerate: boolean;
   onToggleTheme: () => void;
   onNewChat: () => void;
   onOpenChatPage: () => void;
   onOpenSettings: () => void;
+  onCopy: (content: string) => void;
+  onRegenerate: () => void;
   onClose: () => void;
   onInputChange: (value: string) => void;
   onTextareaInput: () => void;
@@ -49,8 +52,8 @@ const SendIcon: React.FC = () => (
  * @return {React.ReactElement} The rendered panel.
  */
 export const ChatWidgetPanel: React.FC<ChatWidgetPanelProps> = ({
-  open, theme, messages, isTyping, input, bodyRef, textareaRef,
-  onToggleTheme, onNewChat, onOpenChatPage, onOpenSettings, onClose,
+  open, theme, messages, isTyping, input, bodyRef, textareaRef, canRegenerate,
+  onToggleTheme, onNewChat, onOpenChatPage, onOpenSettings, onCopy, onRegenerate, onClose,
   onInputChange, onTextareaInput, onKeyDown, onSend,
 }) => (
   <div
@@ -112,7 +115,15 @@ export const ChatWidgetPanel: React.FC<ChatWidgetPanelProps> = ({
               {msg.content === "" && isTyping && idx === messages.length - 1 ? (
                 <div className="vitrus-panel__typing"><span /><span /><span /></div>
               ) : (
-                <div className="vitrus-panel__md" dangerouslySetInnerHTML={renderMarkdown(msg.content)} />
+                <>
+                  <div className="vitrus-panel__md" dangerouslySetInnerHTML={renderMarkdown(msg.content)} />
+                  <div className="vitrus-panel__turn-actions">
+                    <button type="button" onClick={() => onCopy(msg.content)}>Copy</button>
+                    {idx === messages.length - 1 && canRegenerate && (
+                      <button type="button" onClick={onRegenerate}>Regenerate</button>
+                    )}
+                  </div>
+                </>
               )}
             </div>
           ) : (

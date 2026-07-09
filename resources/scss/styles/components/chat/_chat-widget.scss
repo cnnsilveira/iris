@@ -10,6 +10,7 @@
 // ---------------------------------------------------------------------------
 
 @use "../../markdown" as *;
+@use "../../chat-surface" as *;
 
 #vitrus-chat-root {
   // Height of the WordPress admin bar, which the panel must never cover.
@@ -17,41 +18,9 @@
   // ship on the front end unchanged.
   --vt-adminbar: 0px;
 
-  // -- WP / reset leak neutralizer ------------------------------------------
-  // _reset.scss scopes legacy typography and form styling to this root. Undo
-  // the parts that fight the design. This partial is @used after the reset in
-  // main.scss, so equal-specificity rules below win.
-  p,
-  ul,
-  ol,
-  li,
-  a,
-  span,
-  strong,
-  em,
-  blockquote,
-  td,
-  th {
-    font-size: inherit;
-    line-height: inherit;
-  }
-
-  h1,
-  h2,
-  h3,
-  h4,
-  h5,
-  h6 {
-    line-height: inherit;
-  }
-
-  button,
-  input,
-  textarea,
-  select {
-    font-family: inherit;
-    line-height: inherit;
-  }
+  // Reset neutralizer, ::selection, and the custom scrollbar. This partial is
+  // @used after _reset.scss in main.scss, so equal-specificity rules win.
+  @include vitrus-chat-surface;
 
   .vitrus-widget {
     font-family: "Hanken Grotesk", system-ui, sans-serif;
@@ -283,6 +252,10 @@
 
     &__md {
       @include vitrus-markdown(14.5px, 1.6, 13.5px, 23px, 19px, 17px);
+    }
+
+    &__turn-actions {
+      @include vitrus-turn-actions;
     }
 
     &__typing {

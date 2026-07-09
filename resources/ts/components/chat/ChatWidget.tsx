@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useChat } from "@/hooks/useChat";
 import { useTheme } from "@/hooks/useTheme";
 import { useAutosizeTextarea } from "@/hooks/useAutosizeTextarea";
+import { canRegenerate, copyMessage } from "@/lib/chat";
 import { ChatWidgetLauncher } from "@/components/chat/ChatWidgetLauncher";
 import { ChatWidgetPanel } from "@/components/chat/ChatWidgetPanel";
 
@@ -25,7 +26,7 @@ export const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(() => localStorage.getItem(openKey) === "1");
   const [input, setInput] = useState("");
 
-  const { messages, isTyping, sendMessage, startNewChat } = useChat(true);
+  const { messages, isTyping, sendMessage, startNewChat, regenerateLast } = useChat(true);
   const { theme, toggleTheme } = useTheme("vitrus_widget_theme");
 
   const bodyRef = useRef<HTMLDivElement>(null);
@@ -84,10 +85,13 @@ export const ChatWidget: React.FC = () => {
         input={input}
         bodyRef={bodyRef}
         textareaRef={textareaRef}
+        canRegenerate={canRegenerate(messages, isTyping)}
         onToggleTheme={toggleTheme}
         onNewChat={startNewChat}
         onOpenChatPage={() => { window.location.href = "admin.php?page=vitrus"; }}
         onOpenSettings={() => { window.location.href = "admin.php?page=vitrus-settings"; }}
+        onCopy={copyMessage}
+        onRegenerate={() => { void regenerateLast(); }}
         onClose={close}
         onInputChange={setInput}
         onTextareaInput={resizeTextarea}
