@@ -251,14 +251,9 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
               <div className="vitrus-cp__loading"><div className="vitrus-cp__spinner" /></div>
             ) : messages.length === 0 ? (
               <div className="vitrus-cp__welcome">
-                <h1 className="vitrus-cp__welcome-title">Hi, I'm Vitrus.</h1>
+                <h1 className="vitrus-cp__welcome-title">What's up?</h1>
                 <p className="vitrus-cp__welcome-sub">Ask anything. I'll take it from here.</p>
                 {renderComposer({ placeholder: "Ask Vitrus anything…", showLabel: false })}
-                <div className="vitrus-cp__chips">
-                  {promptSuggestions.map((s, i) => (
-                    <button key={i} className="vitrus-cp__chip" onClick={() => handleSend(s)}>{s}</button>
-                  ))}
-                </div>
               </div>
             ) : (
               <div className="vitrus-cp__feed">
