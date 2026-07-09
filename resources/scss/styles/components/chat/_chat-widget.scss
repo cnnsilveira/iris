@@ -22,6 +22,18 @@
   // @used after _reset.scss in main.scss, so equal-specificity rules win.
   @include vitrus-chat-surface;
 
+  // Until React has painted one frame in the resting state, keep the launcher
+  // out of sight — otherwise it appears at full size and then animates.
+  .vitrus-widget:not(.vitrus-widget--ready) .vitrus-launcher {
+    visibility: hidden;
+    transition: none;
+  }
+
+  // Entry animation, played once when the bundle finishes booting.
+  .vitrus-widget--ready .vitrus-launcher {
+    animation: vitrus-launcher-in 100ms ease-out;
+  }
+
   .vitrus-widget {
     font-family: "Hanken Grotesk", system-ui, sans-serif;
     line-height: normal;
@@ -382,6 +394,15 @@
         cursor: default;
       }
     }
+  }
+}
+
+@keyframes vitrus-launcher-in {
+  from {
+    transform: scale(0);
+  }
+  to {
+    transform: scale(1);
   }
 }
 

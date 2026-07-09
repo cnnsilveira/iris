@@ -26,8 +26,26 @@ export const ChatWidget: React.FC = () => {
   const [isOpen, setIsOpen] = useState(() => localStorage.getItem(openKey) === "1");
   const [input, setInput] = useState("");
 
-  const { messages, isTyping, sendMessage, startNewChat, regenerateLast } = useChat(true);
+  const { messages, isTyping, loading, sendMessage, startNewChat, regenerateLast } = useChat(true);
   const { theme, toggleTheme } = useTheme("vitrus_widget_theme");
+
+  // The bundle executes after the page has painted, so the widget would
+  // otherwise pop into place fully formed. Stay hidden until the conversation
+  // has loaded — animating an empty panel just moves the flicker around — then
+  // hold the resting state for one painted frame before releasing: the panel
+  // slides in, or the launcher scales up.
+  const [ready, setReady] = useState(false);
+  useEffect(() => {
+    if (loading || ready) return;
+    let inner = 0;
+    const outer = requestAnimationFrame(() => {
+      inner = requestAnimationFrame(() => setReady(true));
+    });
+    return () => {
+      cancelAnimationFrame(outer);
+      cancelAnimationFrame(inner);
+    };
+  }, [loading, ready]);
 
   const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -75,10 +93,10 @@ export const ChatWidget: React.FC = () => {
   };
 
   return (
-    <div className="vitrus-widget" data-vitrus-theme={theme}>
+    <div className={`vitrus-widget${ready ? " vitrus-widget--ready" : ""}`} data-vitrus-theme={theme}>
       <ChatWidgetLauncher open={isOpen} onClick={() => setIsOpen(true)} />
       <ChatWidgetPanel
-        open={isOpen}
+        open={isOpen && ready}
         theme={theme}
         messages={messages}
         isTyping={isTyping}
