@@ -1,11 +1,14 @@
 // ---------------------------------------------------------------------------
-// Vitrus Copilot design-system tokens (chat page only).
+// Vitrus Copilot design-system tokens.
 // Both palettes are defined; the active one is chosen by the
-// data-vitrus-theme attribute set by useTheme. Scoped under the chat page
-// root so the legacy drawer/settings tokens (_tokens.scss) are untouched.
+// data-vitrus-theme attribute set by useTheme. Scoped under the chat page and
+// floating widget roots so the legacy settings tokens (_tokens.scss) are
+// untouched. Each root carries its own data-vitrus-theme, so the two surfaces
+// can run different themes at once.
 // ---------------------------------------------------------------------------
 
-#vitrus-chat-page-root {
+#vitrus-chat-page-root,
+#vitrus-chat-root {
   [data-vitrus-theme="dark"] {
     --vt-bg: oklch(0.175 0.006 264);
     --vt-sidebar: oklch(0.15 0.006 264);
@@ -38,5 +41,31 @@
     --vt-active-marker: oklch(0.3 0.01 264);
     --vt-shadow: 0 14px 36px oklch(0.3 0.02 264 / 0.1);
     --vt-success: oklch(0.72 0.16 150);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Floating widget chrome.
+//
+// The launcher pill and the brand chip sit on --vt-badge, which stays dark in
+// both palettes, so their foreground colours must not flip with the theme.
+//
+// The z-indices slot the widget between the WordPress admin menu (#adminmenu,
+// 9990) and the admin bar (#wpadminbar, 99999), which the panel must never
+// cover.
+// ---------------------------------------------------------------------------
+
+#vitrus-chat-root {
+  --vt-on-badge: oklch(0.82 0 0);
+  --vt-on-badge-strong: oklch(1 0 0);
+  --vt-z-launcher: 99990;
+  --vt-z-panel: 99991;
+
+  [data-vitrus-theme="dark"] {
+    --vt-panel-shadow: -22px 0 55px oklch(0 0 0 / 0.2);
+  }
+
+  [data-vitrus-theme="light"] {
+    --vt-panel-shadow: -22px 0 55px oklch(0.3 0.02 264 / 0.12);
   }
 }

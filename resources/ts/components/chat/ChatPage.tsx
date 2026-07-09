@@ -1,21 +1,18 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
 import { useChat } from "@/hooks/useChat";
 import { useTheme } from "@/hooks/useTheme";
+import { useAutosizeTextarea } from "@/hooks/useAutosizeTextarea";
+import { renderMarkdown } from "@/lib/markdown";
+import { messageTime } from "@/lib/messageTime";
+import { canRegenerate as canRegenerateFn, copyMessage } from "@/lib/chat";
+import { WELCOME_SUB, WELCOME_TITLE } from "@/lib/copy";
+import { Mark } from "@/components/icons/Mark";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
 import { ActionMenu } from "@/components/chat/ActionMenu";
 
 interface ChatPageProps {
   onOpenSettings: () => void;
 }
-
-const Mark: React.FC<{ size?: number }> = ({ size = 15 }) => (
-  <svg width={size} height={size * 0.78} viewBox="0 0 500 391" aria-hidden="true">
-    <path d="M302.443 389.107H262.959L460.381 0H500L302.443 389.107Z" fill="currentColor" />
-    <path d="M198.772 390.659L0 0H82.4784L198.637 231.169H200.459L317.765 0.0674947H400.715L200.121 390.659H198.772Z" fill="currentColor" />
-  </svg>
-);
 
 /** WordPress "W" mark used by the exit-to-WordPress control. */
 const WordPressMark: React.FC = () => (
@@ -25,17 +22,6 @@ const WordPressMark: React.FC = () => (
     <path d="M61.3 0a61.3 61.3 0 1 0 .1 122.7A61.3 61.3 0 0 0 61.3 0zm0 119.8a58.6 58.6 0 1 1 .1-117.2 58.6 58.6 0 0 1-.1 117.2z" />
   </svg>
 );
-
-/**
- * Format the time a message was sent. Message ids embed their creation time
- * as `role-<Date.now()>`, so the send time is derived without any stored
- * timestamp field. Returns "" when the id carries no parseable time.
- */
-const messageTime = (id: string): string => {
-  const ms = Number.parseInt(id.split("-")[1] ?? "", 10);
-  if (!Number.isFinite(ms)) return "";
-  return new Date(ms).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", hour12: false });
-};
 
 /**
  * Main admin Chat page: immersive full-screen shell with a slim top bar
@@ -63,6 +49,8 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const headerInputRef = useRef<HTMLInputElement>(null);
+
+  const { resize: resizeTextarea, reset: resetTextarea } = useAutosizeTextarea(textareaRef);
 
   const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
   const nonce = window.vitrusSettings?.nonce || "";
@@ -101,7 +89,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
     const query = (text ?? input).trim();
     if (!query || isTyping) return;
     if (!text) setInput("");
-    if (textareaRef.current) textareaRef.current.style.height = "auto";
+    resetTextarea();
     await sendMessage(query);
   };
 
@@ -109,21 +97,9 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
     if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
-  const handleTextareaInput = () => {
-    const el = textareaRef.current;
-    if (el) { el.style.height = "auto"; el.style.height = `${Math.min(el.scrollHeight, 160)}px`; }
-  };
-
   const handleExit = () => { window.location.href = "index.php"; };
   const toggleWpMenu = () => { document.body.classList.toggle("vitrus-show-wpmenu"); };
-  const handleCopy = (content: string) => { void navigator.clipboard?.writeText(content); };
-
-  const renderMarkdown = (content: string) => {
-    try {
-      const raw = marked.parse(content, { async: false }) as string;
-      return { __html: DOMPurify.sanitize(raw) };
-    } catch { return { __html: DOMPurify.sanitize(content) }; }
-  };
+  const handleCopy = copyMessage;
 
   const promptSuggestions = [
     "Write a PHP function to filter the content of a WordPress post",
@@ -132,8 +108,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   ];
 
   const activeConv = conversations.find((c) => c.id === activeConversationId);
-  const lastMsg = messages[messages.length - 1];
-  const canRegenerate = !isTyping && !!lastMsg && lastMsg.role === "assistant" && lastMsg.content !== "";
+  const canRegenerate = canRegenerateFn(messages, isTyping);
 
   // The header owns its own inline rename (separate from the sidebar's row
   // rename), so editing from the header edits in place in the header. Drop any
@@ -167,7 +142,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
           placeholder={opts?.placeholder ?? "Ask a follow-up…"}
           value={input}
           onChange={(e) => setInput(e.target.value)}
-          onInput={handleTextareaInput}
+          onInput={resizeTextarea}
           onKeyDown={handleKeyDown}
           rows={1}
           disabled={isTyping}
@@ -251,8 +226,8 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
               <div className="vitrus-cp__loading"><div className="vitrus-cp__spinner" /></div>
             ) : messages.length === 0 ? (
               <div className="vitrus-cp__welcome">
-                <h1 className="vitrus-cp__welcome-title">What's up?</h1>
-                <p className="vitrus-cp__welcome-sub">Ask anything. I'll take it from here.</p>
+                <h1 className="vitrus-cp__welcome-title">{WELCOME_TITLE}</h1>
+                <p className="vitrus-cp__welcome-sub">{WELCOME_SUB}</p>
                 {renderComposer({ placeholder: "Ask Vitrus anything…", showLabel: false })}
               </div>
             ) : (

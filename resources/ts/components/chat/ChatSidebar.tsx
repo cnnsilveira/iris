@@ -2,6 +2,7 @@ import React, { useRef, useState, useEffect } from "react";
 import type { Conversation } from "@/hooks/useChat";
 import type { VitrusUser } from "@/types/vitrus";
 import { groupConversationsByDate } from "@/lib/conversationGroups";
+import { Mark } from "@/components/icons/Mark";
 import { ActionMenu } from "@/components/chat/ActionMenu";
 
 interface ChatSidebarProps {
@@ -18,13 +19,6 @@ interface ChatSidebarProps {
   onRequestDelete: (id: string) => void;
   onOpenSettings: () => void;
 }
-
-const Mark: React.FC = () => (
-  <svg width="13" height="10" viewBox="0 0 500 391" aria-hidden="true">
-    <path d="M302.443 389.107H262.959L460.381 0H500L302.443 389.107Z" fill="currentColor" />
-    <path d="M198.772 390.659L0 0H82.4784L198.637 231.169H200.459L317.765 0.0674947H400.715L200.121 390.659H198.772Z" fill="currentColor" />
-  </svg>
-);
 
 /**
  * Left sidebar: brand, new chat (⌘N), search, date-grouped history with
@@ -67,7 +61,7 @@ export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   return (
     <aside className="vitrus-sb">
       <div className="vitrus-sb__head">
-        <span className="vitrus-sb__logo"><Mark /></span>
+        <span className="vitrus-sb__logo"><Mark width={13} height={10} /></span>
         <div className="vitrus-sb__brand">
           <span className="vitrus-sb__name">Vitrus</span>
           <span className="vitrus-sb__tag">COPILOT</span>
