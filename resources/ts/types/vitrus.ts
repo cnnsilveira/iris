@@ -1,7 +1,7 @@
 /**
  * WordPress user info localized into the page for the sidebar profile.
  *
- * @since v0.2.0
+ * @since v0.3.0
  */
 export interface VitrusUser {
   /** Display name. */

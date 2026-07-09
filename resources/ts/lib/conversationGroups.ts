@@ -11,7 +11,7 @@ export interface ConversationGroup {
  * Empty buckets are omitted. Input order is preserved within a bucket
  * (conversations already arrive newest-first).
  *
- * @since v0.2.0
+ * @since v0.3.0
  */
 export function groupConversationsByDate(convs: Conversation[]): ConversationGroup[] {
   const now = new Date();

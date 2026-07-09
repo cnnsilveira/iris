@@ -7,7 +7,7 @@ export type VitrusTheme = "dark" | "light";
  * The consumer applies the returned theme as `data-vitrus-theme` on the
  * chat shell so the CSS token palette (_ds-tokens.scss) switches.
  *
- * @since v0.2.0
+ * @since v0.3.0
  *
  * @returns Current theme and a toggle function.
  */

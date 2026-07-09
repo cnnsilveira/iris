@@ -213,7 +213,7 @@ class Admin {
 	 * `vitrus-show-wpmenu` class to <body> (via the React reveal toggle)
 	 * restores the admin menu.
 	 *
-	 * @since 0.2.0
+	 * @since 0.3.0
 	 * @return void
 	 */
 	public static function print_chat_immersion_css() {

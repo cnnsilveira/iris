@@ -22,7 +22,7 @@ interface ActionMenuProps {
  * trigger, so it is never clipped by a scrolling ancestor (the sidebar list)
  * while still inheriting the theme tokens. Closes on outside-click or Escape.
  *
- * @since v0.2.0
+ * @since v0.3.0
  */
 export const ActionMenu: React.FC<ActionMenuProps> = ({ items, triggerClassName, title = "Actions" }) => {
   const [open, setOpen] = useState(false);

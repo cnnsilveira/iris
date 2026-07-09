@@ -31,7 +31,7 @@ const Mark: React.FC = () => (
  * inline rename / delete, and the current-user profile footer. Global
  * controls (WordPress exit, theme) live in the top bar, not here.
  *
- * @since v0.2.0
+ * @since v0.3.0
  */
 export const ChatSidebar: React.FC<ChatSidebarProps> = ({
   conversations, activeConversationId, currentUser, editingId,
