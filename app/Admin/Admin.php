@@ -176,12 +176,20 @@ class Admin {
 		}
 
 		if ( file_exists( $js_path ) ) {
+			/*
+			 * Deferred so the browser fetches the bundle while it parses the
+			 * document, rather than waiting for the footer. On WordPress < 6.3
+			 * the array is simply truthy, which keeps the old footer behaviour.
+			 */
 			wp_enqueue_script(
 				'vitrus-admin',
 				$dist_url . '/vitrus-admin.js',
 				array(),
 				$js_version,
-				true
+				array(
+					'in_footer' => true,
+					'strategy'  => 'defer',
+				)
 			);
 
 			$current_user = wp_get_current_user();
