@@ -43,13 +43,16 @@ export const ChatWidget: React.FC = () => {
 
   const close = useCallback(() => setIsOpen(false), []);
 
-  // Escape closes the panel, unless the user is mid-draft in the composer.
+  // Escape closes the panel, unless the user is mid-draft in the composer or
+  // the overflow menu is open — that Escape belongs to the menu, which closes
+  // itself.
   useEffect(() => {
     if (!isOpen) return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key !== "Escape") return;
       const drafting = document.activeElement === textareaRef.current && input.trim() !== "";
-      if (!drafting) close();
+      const menuOpen = !!document.querySelector(".vitrus-menu");
+      if (!drafting && !menuOpen) close();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -83,6 +86,8 @@ export const ChatWidget: React.FC = () => {
         textareaRef={textareaRef}
         onToggleTheme={toggleTheme}
         onNewChat={startNewChat}
+        onOpenChatPage={() => { window.location.href = "admin.php?page=vitrus"; }}
+        onOpenSettings={() => { window.location.href = "admin.php?page=vitrus-settings"; }}
         onClose={close}
         onInputChange={setInput}
         onTextareaInput={resizeTextarea}

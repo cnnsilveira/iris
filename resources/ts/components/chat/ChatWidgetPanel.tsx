@@ -5,6 +5,7 @@ import { renderMarkdown } from "@/lib/markdown";
 import { messageTime } from "@/lib/messageTime";
 import { WELCOME_SUB, WELCOME_TITLE } from "@/lib/copy";
 import { Mark } from "@/components/icons/Mark";
+import { ActionMenu } from "@/components/chat/ActionMenu";
 
 interface ChatWidgetPanelProps {
   open: boolean;
@@ -16,31 +17,14 @@ interface ChatWidgetPanelProps {
   textareaRef: React.RefObject<HTMLTextAreaElement | null>;
   onToggleTheme: () => void;
   onNewChat: () => void;
+  onOpenChatPage: () => void;
+  onOpenSettings: () => void;
   onClose: () => void;
   onInputChange: (value: string) => void;
   onTextareaInput: () => void;
   onKeyDown: (e: React.KeyboardEvent<HTMLTextAreaElement>) => void;
   onSend: () => void;
 }
-
-const MoonIcon: React.FC = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" />
-  </svg>
-);
-
-const SunIcon: React.FC = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.7" />
-    <path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" />
-  </svg>
-);
-
-const PlusIcon: React.FC = () => (
-  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" aria-hidden="true">
-    <path d="M12 5v14M5 12h14" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" />
-  </svg>
-);
 
 /** Chevron pointing right: collapses the panel back to the right edge. */
 const ChevronIcon: React.FC = () => (
@@ -66,7 +50,8 @@ const SendIcon: React.FC = () => (
  */
 export const ChatWidgetPanel: React.FC<ChatWidgetPanelProps> = ({
   open, theme, messages, isTyping, input, bodyRef, textareaRef,
-  onToggleTheme, onNewChat, onClose, onInputChange, onTextareaInput, onKeyDown, onSend,
+  onToggleTheme, onNewChat, onOpenChatPage, onOpenSettings, onClose,
+  onInputChange, onTextareaInput, onKeyDown, onSend,
 }) => (
   <div
     className={`vitrus-panel${open ? " vitrus-panel--open" : ""}`}
@@ -85,25 +70,15 @@ export const ChatWidgetPanel: React.FC<ChatWidgetPanelProps> = ({
         </span>
       </div>
       <div className="vitrus-panel__actions">
-        <button
-          type="button"
-          className="vitrus-panel__action"
-          onClick={onToggleTheme}
-          title="Toggle theme"
-          aria-label="Toggle theme"
-        >
-          {theme === "dark" ? <MoonIcon /> : <SunIcon />}
-        </button>
-        <button
-          type="button"
-          className="vitrus-panel__action"
-          onClick={onNewChat}
-          disabled={messages.length === 0}
-          title="New conversation"
-          aria-label="New conversation"
-        >
-          <PlusIcon />
-        </button>
+        <ActionMenu
+          triggerClassName="vitrus-panel__action"
+          items={[
+            { label: "New chat", onClick: onNewChat },
+            { label: "Chat page", onClick: onOpenChatPage },
+            { label: theme === "dark" ? "Light mode" : "Dark mode", onClick: onToggleTheme },
+            { label: "Settings", onClick: onOpenSettings },
+          ]}
+        />
         <button
           type="button"
           className="vitrus-panel__action"

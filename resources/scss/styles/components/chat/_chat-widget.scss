@@ -341,10 +341,7 @@
 
     &__field {
       display: flex;
-      // The design centres a single-line <input>. We use a growing textarea,
-      // so the send button anchors to the bottom instead. Identical at rest:
-      // the 34px button sets the field height either way.
-      align-items: flex-end;
+      align-items: center;
       gap: 10px;
       background: var(--vt-surface);
       border-radius: 15px;
@@ -387,26 +384,28 @@
       }
     }
 
+    // Matches the Chat page's send button: it fades out entirely while the
+    // composer is empty rather than dimming.
     &__send {
       width: 34px;
       height: 34px;
       border-radius: 10px;
-      background: var(--vt-accent);
-      color: oklch(1 0 0);
+      background: var(--vt-badge);
+      color: #fff;
       border: 0;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
       flex-shrink: 0;
-      transition: filter 0.15s;
+      transition: 0.15s;
 
       &:hover:not(:disabled) {
-        filter: brightness(1.1);
+        filter: brightness(1.08);
       }
 
       &:disabled {
-        opacity: 0.45;
+        opacity: 0;
         cursor: default;
       }
     }
