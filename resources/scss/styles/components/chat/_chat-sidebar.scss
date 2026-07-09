@@ -28,18 +28,20 @@
       justify-content: center;
       width: 30px;
       height: 30px;
-      border-radius: 8px;
-      background: var(--vt-badge);
-      border: 1px solid var(--vt-border);
-      color: #fff;
+      color: var(--vt-text);
       align-self: center;
+
+	  svg {
+		width: 25px;
+    	height: 20px;
+	  }
     }
-    &__name {
+	&__name {
       font-weight: 600;
       font-size: 16px;
       letter-spacing: -0.01em;
       color: var(--vt-text);
-    }
+	}
     &__tag {
       font-size: 10px;
       font-weight: 600;
@@ -175,8 +177,6 @@
       gap: 2px;
       padding-left: 16px;
       opacity: 0;
-      transition: opacity 0.15s;
-      background: linear-gradient(to right, transparent, var(--vt-surface) 45%);
       &:has(.vitrus-menu__trigger[aria-expanded="true"]) {
         opacity: 1;
       }
