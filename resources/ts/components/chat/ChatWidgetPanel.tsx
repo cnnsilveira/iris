@@ -65,10 +65,9 @@ export const ChatWidgetPanel: React.FC<ChatWidgetPanelProps> = ({
     <div className="vitrus-panel__header">
       <div className="vitrus-panel__brand">
         <span className="vitrus-panel__brand-mark">
-          <Mark width={13} height={10} />
+          <Mark width={20} height={20} />
         </span>
         <span className="vitrus-panel__brand-name">
-          <span className="vitrus-panel__name">Vitrus</span>
           <span className="vitrus-panel__kicker">COPILOT</span>
         </span>
       </div>

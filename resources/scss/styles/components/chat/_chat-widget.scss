@@ -135,15 +135,12 @@
     &__brand {
       display: flex;
       align-items: center;
-      gap: 10px;
     }
 
     &__brand-mark {
       width: 30px;
       height: 30px;
-      border-radius: 8px;
-      background: var(--vt-badge);
-      color: var(--vt-on-badge-strong);
+      color: var(--vt-text);
       display: flex;
       align-items: center;
       justify-content: center;
@@ -154,13 +151,6 @@
       display: flex;
       align-items: baseline;
       gap: 6px;
-    }
-
-    &__name {
-      font-weight: 600;
-      font-size: 15px;
-      letter-spacing: -0.01em;
-      color: var(--vt-text);
     }
 
     &__kicker {
@@ -255,6 +245,7 @@
       font-weight: 600;
       letter-spacing: 0.13em;
       color: var(--vt-faint);
+	  display: none;
     }
 
     &__time {
