@@ -1,0 +1,85 @@
+// ---------------------------------------------------------------------------
+// Shared foundations for both chat surfaces (the Chat page and the floating
+// widget): the WordPress/reset style-leak neutralizer, the selection colour,
+// and the custom scrollbar.
+//
+// Include at the top of a surface's root block.
+// ---------------------------------------------------------------------------
+
+@mixin vitrus-chat-surface {
+  scrollbar-width: auto;
+  scrollbar-color: auto;
+
+  ::selection {
+    background: oklch(0.62 0.16 255 / 0.22);
+  }
+
+  // _reset.scss scopes legacy typography and form styling to these roots.
+  // Undo the parts that fight the design system.
+  p,
+  ul,
+  ol,
+  li,
+  a,
+  span,
+  strong,
+  em,
+  blockquote,
+  td,
+  th {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: inherit;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    line-height: inherit;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.5 0.01 264 / 0.28);
+    border-radius: 5px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    &:hover {
+      background-color: oklch(0.5 0.01 264 / 0.28);
+    }
+  }
+}
+
+// Copy / Regenerate row beneath an assistant reply.
+@mixin vitrus-turn-actions {
+  display: flex;
+  gap: 7px;
+  margin-top: 16px;
+  button {
+    font-size: 11px;
+    color: var(--vt-muted);
+    border: 1px solid var(--vt-border);
+    border-radius: 7px;
+    padding: 5px 11px;
+    &:hover {
+      background: var(--vt-surface);
+      color: var(--vt-text);
+    }
+  }
+}

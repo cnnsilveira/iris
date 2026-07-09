@@ -4,6 +4,7 @@ import { useTheme } from "@/hooks/useTheme";
 import { useAutosizeTextarea } from "@/hooks/useAutosizeTextarea";
 import { renderMarkdown } from "@/lib/markdown";
 import { messageTime } from "@/lib/messageTime";
+import { canRegenerate as canRegenerateFn, copyMessage } from "@/lib/chat";
 import { WELCOME_SUB, WELCOME_TITLE } from "@/lib/copy";
 import { Mark } from "@/components/icons/Mark";
 import { ChatSidebar } from "@/components/chat/ChatSidebar";
@@ -98,7 +99,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
 
   const handleExit = () => { window.location.href = "index.php"; };
   const toggleWpMenu = () => { document.body.classList.toggle("vitrus-show-wpmenu"); };
-  const handleCopy = (content: string) => { void navigator.clipboard?.writeText(content); };
+  const handleCopy = copyMessage;
 
   const promptSuggestions = [
     "Write a PHP function to filter the content of a WordPress post",
@@ -107,8 +108,7 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   ];
 
   const activeConv = conversations.find((c) => c.id === activeConversationId);
-  const lastMsg = messages[messages.length - 1];
-  const canRegenerate = !isTyping && !!lastMsg && lastMsg.role === "assistant" && lastMsg.content !== "";
+  const canRegenerate = canRegenerateFn(messages, isTyping);
 
   // The header owns its own inline rename (separate from the sidebar's row
   // rename), so editing from the header edits in place in the header. Drop any
