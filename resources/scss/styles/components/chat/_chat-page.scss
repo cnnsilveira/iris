@@ -1,745 +1,638 @@
-@use "../../tokens" as *;
-@use "sass:color";
-
+// Vitrus chat page — design-system layout. Tokens from _ds-tokens; fonts self-hosted.
 #vitrus-chat-page-root {
-  .vitrus-chat-page {
+  scrollbar-width: auto;
+  scrollbar-color: auto;
+
+  ::selection {
+	background: oklch(0.62 0.16 255 / 0.22);
+  }
+
+  p,
+  ul,
+  ol,
+  li,
+  a,
+  span,
+  strong,
+  em,
+  blockquote,
+  td,
+  th {
+    font-size: inherit;
+    line-height: inherit;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    line-height: inherit;
+  }
+
+  button,
+  input,
+  textarea,
+  select {
+    font-family: inherit;
+    line-height: inherit;
+  }
+
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: oklch(0.5 0.01 264 / 0.28);
+    border-radius: 5px;
+    border: 3px solid transparent;
+    background-clip: content-box;
+    &:hover {
+      background-color: oklch(0.5 0.01 264 / 0.28);
+    }
+  }
+
+  .vitrus-chat-shell {
     display: flex;
-    position: relative;
-    height: calc(100vh - 100px);
-    margin: 20px 20px 20px 2px;
-    background: $vitrus-bg-primary;
-    border: 1px solid $vitrus-border;
-    border-radius: $vitrus-radius-lg;
-    box-shadow: $vitrus-shadow-lg;
-    overflow: hidden;
-    color: $vitrus-text-primary;
-    font-family: $vitrus-font-family;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    background: var(--vt-bg);
+    color: var(--vt-text);
+    font-family: "Hanken Grotesk", system-ui, sans-serif;
+    line-height: normal;
+    -webkit-font-smoothing: antialiased;
 
-    @media (max-width: 782px) {
-      height: calc(100vh - 46px - 20px);
-      margin: 10px;
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: inherit;
     }
-    
-    // Main Chat Panel
-    &__main {
-      flex: 1;
+  }
+
+  .vitrus-topbar {
+    flex-shrink: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    background: var(--vt-sidebar);
+    border-bottom: 1px solid var(--vt-border);
+
+    &__group {
       display: flex;
-      flex-direction: column;
-      height: 100%;
-      background: $vitrus-bg-primary;
-      position: relative;
-    }
-    
-    // Header
-    &__header {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: $vitrus-space-base $vitrus-space-lg;
-      border-bottom: 1px solid $vitrus-border;
-      background: $vitrus-bg-secondary;
+      gap: 4px;
+    }
+    &__btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      color: var(--vt-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        background: var(--vt-surface);
+        color: var(--vt-text);
+      }
+    }
+  }
+
+  .vitrus-chat-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+  }
+
+  .vitrus-menu {
+    position: fixed;
+    z-index: 100001;
+    transform: translateX(-100%);
+    min-width: 156px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--vt-surface);
+    border: 1px solid var(--vt-border);
+    border-radius: 11px;
+    box-shadow: var(--vt-shadow);
+
+    &__item {
+      text-align: left;
+      padding: 8px 11px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--vt-text);
+      &:hover {
+        background: var(--vt-raised);
+      }
+      &--danger {
+        color: oklch(0.62 0.19 25);
+        &:hover {
+          background: oklch(0.62 0.19 25 / 0.12);
+        }
+      }
     }
 
-    &__header-title-group {
+    &__trigger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--vt-muted);
+      &:hover {
+        color: var(--vt-text);
+      }
+    }
+  }
+
+  .vitrus-cp {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--vt-bg);
+
+    &__header {
+      height: 56px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--vt-border);
+    }
+    &__header-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
+      min-width: 0;
     }
-
     &__header-title {
-      font-size: $vitrus-font-md;
-      font-weight: $vitrus-weight-semibold;
-      color: $vitrus-text-primary;
-      margin: 0;
-      line-height: $vitrus-line-height-tight;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--vt-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
-    &__header-meta {
-      font-size: $vitrus-font-xs;
-      color: $vitrus-text-secondary;
+    &__header-rename {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--vt-text);
+      border: 1px solid var(--vt-accent);
+      border-radius: 6px;
+      background: var(--vt-bg);
+      padding: 3px 8px;
+      min-width: 0;
+      max-width: 320px;
+      &:focus {
+        outline: none;
+      }
     }
-
+    &__header-sub {
+      font-size: 11px;
+      color: var(--vt-faint);
+    }
     &__header-actions {
       display: flex;
       align-items: center;
-      gap: $vitrus-space-md;
+      gap: 8px;
+      flex-shrink: 0;
     }
-
-    &__sidebar-toggle {
-      background: none;
-      border: none;
-      color: $vitrus-text-secondary;
-      cursor: pointer;
-      padding: $vitrus-space-xs;
-      border-radius: $vitrus-radius-sm;
-      transition: all $vitrus-transition-fast;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
+    &__header-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       &:hover {
-        color: $vitrus-text-primary;
-        background: $vitrus-bg-surface-hover;
-      }
-      
-      &--active {
-        color: $vitrus-accent;
+        background: var(--vt-surface);
       }
     }
 
-    // Message Feed body
     &__body {
       flex: 1;
+      overflow-x: hidden;
       overflow-y: auto;
-      padding: $vitrus-space-lg;
-      background: $vitrus-bg-primary;
-      display: flex;
-      flex-direction: column;
+      padding: 38px 32px 8px;
     }
 
     &__loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       height: 100%;
-      color: $vitrus-text-secondary;
-      gap: $vitrus-space-md;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
     &__spinner {
-      width: 28px;
-      height: 28px;
-      border: 3px solid $vitrus-border;
-      border-top-color: $vitrus-accent;
-      border-radius: $vitrus-radius-full;
-      animation: vitrus-spin 0.8s linear infinite;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--vt-border-strong);
+      border-top-color: var(--vt-accent);
+      animation: vitrus-spin 0.7s linear infinite;
     }
 
-    // Empty Welcome State
-    &__empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      max-width: 650px;
-      margin: auto;
-      text-align: center;
-      padding: $vitrus-space-xl 0;
-    }
-
-    &__welcome-logo {
-      margin-bottom: $vitrus-space-lg;
-      filter: drop-shadow(0 0 15px rgba(130, 143, 255, 0.2));
-      animation: vitrus-float 4s ease-in-out infinite;
-    }
-
-    &__welcome-title {
-      font-size: $vitrus-font-xl;
-      font-weight: $vitrus-weight-bold;
-      color: $vitrus-text-primary;
-      margin: 0 0 $vitrus-space-sm 0;
-    }
-
-    &__welcome-subtitle {
-      font-size: $vitrus-font-base;
-      color: $vitrus-text-secondary;
-      margin: 0 0 $vitrus-space-2xl 0;
-      line-height: $vitrus-line-height;
-    }
-
-    &__suggestions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: $vitrus-space-md;
-      width: 100%;
-
-      @media (min-width: 600px) {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    &__suggestion-card {
-      background: $vitrus-bg-secondary;
-      border: 1px solid $vitrus-border;
-      border-radius: $vitrus-radius-md;
-      padding: $vitrus-space-md $vitrus-space-base;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all $vitrus-transition-fast;
-      color: $vitrus-text-primary;
-
-      &:hover {
-        background: $vitrus-bg-surface-hover;
-        border-color: $vitrus-border-focus;
-        transform: translateY(-2px);
-        box-shadow: $vitrus-shadow-sm;
-      }
-    }
-
-    &__suggestion-text {
-      font-size: $vitrus-font-sm;
-      font-weight: $vitrus-weight-medium;
-      color: $vitrus-text-secondary;
-      line-height: 1.4;
-      flex: 1;
-      padding-right: $vitrus-space-sm;
-    }
-
-    &__suggestion-arrow {
-      color: $vitrus-accent;
-      font-weight: $vitrus-weight-bold;
-      opacity: 0.7;
-      transition: transform $vitrus-transition-fast;
-    }
-
-    &__suggestion-card:hover &__suggestion-arrow {
-      transform: translateX(3px);
-      opacity: 1;
-    }
-
-    // Message container
-    &__messages {
-      display: flex;
-      flex-direction: column;
-      gap: $vitrus-space-xl;
-      max-width: 800px;
-      width: 100%;
+    // ---- feed --------------------------------------------------------------
+    &__feed {
+      max-width: 720px;
       margin: 0 auto;
-    }
-
-    &__message {
       display: flex;
-      gap: $vitrus-space-base;
-      
-      &--user {
-        flex-direction: row-reverse;
-        
-        .vitrus-chat-page__bubble {
-          background: $vitrus-bg-secondary;
-          border: 1px solid $vitrus-border;
-          border-radius: $vitrus-radius-lg $vitrus-radius-sm $vitrus-radius-lg $vitrus-radius-lg;
-        }
-      }
-      
-      &--assistant {
-        .vitrus-chat-page__bubble {
-          background: $vitrus-bg-secondary;
-          border: 1px solid $vitrus-border;
-          border-radius: $vitrus-radius-sm $vitrus-radius-lg $vitrus-radius-lg $vitrus-radius-lg;
-        }
-      }
+      flex-direction: column;
+      gap: 34px;
     }
 
-    &__avatar-wrapper {
-      flex-shrink: 0;
-    }
-
-    &__avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: $vitrus-radius-full;
+    &__turn-meta {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: $vitrus-font-sm;
-      font-weight: $vitrus-weight-semibold;
-      
-      &--user {
-        background: $vitrus-bg-surface;
-        color: $vitrus-text-primary;
-        border: 1px solid $vitrus-border;
-      }
-      
-      &--ai {
-        background: linear-gradient(135deg, $vitrus-accent 0%, #a78bfa 100%);
-        color: #fff;
-        box-shadow: $vitrus-shadow-sm;
-      }
+      gap: 9px;
+      margin-bottom: 13px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--vt-faint);
+    }
+    &__turn-mark {
+      display: inline-flex;
+      color: var(--vt-text);
+    }
+    &__turn-time {
+      font-weight: 400;
+      letter-spacing: 0;
+      color: var(--vt-faint);
     }
 
-    &__bubble {
-      max-width: 80%;
-      padding: $vitrus-space-md $vitrus-space-base;
-      line-height: $vitrus-line-height;
-    }
-
-    &__message-content {
-      font-size: $vitrus-font-base;
-      color: $vitrus-text-primary;
-
-      p:first-child {
-        margin-top: 0;
+    &__md {
+      font-size: 16.5px;
+      line-height: 1.65;
+      color: var(--vt-text);
+      p {
+        margin: 0 0 12px;
       }
       p:last-child {
         margin-bottom: 0;
       }
-
-      code {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 2px 5px;
-        border-radius: $vitrus-radius-sm;
-        font-family: $vitrus-font-mono;
-        font-size: $vitrus-font-sm;
+      h1,
+      h2,
+      h3,
+      h4 {
+        font-family: "Newsreader", serif;
+        font-weight: 500;
+        margin: 18px 0 10px;
+        line-height: 1.2;
       }
-
+      h1 {
+        font-size: 26px;
+      }
+      h2 {
+        font-size: 22px;
+      }
+      h3 {
+        font-size: 19px;
+      }
+      ul,
+      ol {
+        margin: 12px 0;
+        padding-left: 4px;
+        list-style: none;
+      }
+      li {
+        position: relative;
+        padding-left: 24px;
+        margin-bottom: 8px;
+        font-size: 15.5px;
+        color: var(--vt-muted);
+        line-height: 1.5;
+      }
+      ul li::before {
+        content: "";
+        position: absolute;
+        left: 2px;
+        top: 11px;
+        width: 13px;
+        height: 1.5px;
+        background: var(--vt-faint);
+        transform: rotate(-32deg);
+      }
+      ol {
+        counter-reset: v;
+      }
+      ol li {
+        counter-increment: v;
+      }
+      ol li::before {
+        content: counter(v);
+        position: absolute;
+        left: 0;
+        top: 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--vt-accent);
+      }
+      a {
+        color: var(--vt-accent);
+        text-decoration: underline;
+      }
+      strong {
+        font-weight: 600;
+        color: var(--vt-text);
+      }
+      code {
+        font-family: "Red Hat Mono", ui-monospace, "SF Mono", Consolas, monospace;
+        font-size: .78em;
+        background: var(--vt-surface);
+        border: 1px solid var(--vt-border);
+        border-radius: 5px;
+        padding: .3em .4em;
+		margin: 0 3px;
+      }
       pre {
-        background: $vitrus-bg-secondary;
-        border: 1px solid $vitrus-border;
-        border-radius: $vitrus-radius-md;
-        padding: $vitrus-space-base;
+        background: var(--vt-surface);
+        border: 1px solid var(--vt-border);
+        border-radius: 12px;
+        padding: 15px 17px;
         overflow-x: auto;
-        margin: $vitrus-space-md 0;
-        
+        margin: 14px 0;
         code {
           background: none;
+          border: none;
           padding: 0;
-          border-radius: 0;
-          font-size: $vitrus-font-sm;
-          color: $vitrus-text-primary;
-          display: block;
+          font-size: 1em;
+    	  margin: 0;
         }
       }
-
-      ul, ol {
-        margin: $vitrus-space-sm 0;
-        padding-left: $vitrus-space-xl;
+      blockquote {
+        border-left: 2px solid var(--vt-border-strong);
+        margin: 14px 0;
+        padding: 2px 0 2px 16px;
+        color: var(--vt-muted);
       }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 14px 0;
+        font-size: 14px;
+        border: 1px solid var(--vt-border);
+        border-radius: 12px;
+        overflow: hidden;
+      }
+      th,
+      td {
+        text-align: left;
+        padding: 10px 14px;
+        border-bottom: 1px solid var(--vt-border);
+      }
+      th {
+        background: var(--vt-surface);
+        font-weight: 600;
+      }
+      tr:last-child td {
+        border-bottom: none;
+      }
+    }
 
-      a {
-        color: $vitrus-accent;
-        text-decoration: none;
+    &__turn-actions {
+      display: flex;
+      gap: 7px;
+      margin-top: 16px;
+      button {
+        font-size: 11px;
+        color: var(--vt-muted);
+        border: 1px solid var(--vt-border);
+        border-radius: 7px;
+        padding: 5px 11px;
         &:hover {
-          text-decoration: underline;
+          background: var(--vt-surface);
+          color: var(--vt-text);
         }
       }
+    }
+
+    &__turn--user {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    &__turn-you {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--vt-faint);
+      margin-right: 2px;
+    }
+    &__bubble {
+      max-width: 74%;
+      background: var(--vt-surface);
+      border-radius: 13px;
+      padding: 13px 17px;
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--vt-text);
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     &__typing {
       display: flex;
-      align-items: center;
-      gap: 4px;
-      height: 20px;
-
+      gap: 5px;
+      padding: 4px 0;
       span {
         width: 6px;
         height: 6px;
-        background-color: $vitrus-text-secondary;
         border-radius: 50%;
-        display: inline-block;
-        animation: vitrus-typing 1.4s infinite ease-in-out both;
-
-        &:nth-child(1) { animation-delay: -0.32s; }
-        &:nth-child(2) { animation-delay: -0.16s; }
+        background: var(--vt-faint);
+        animation: vitrus-dot 1.3s infinite;
+      }
+      span:nth-child(2) {
+        animation-delay: 0.18s;
+      }
+      span:nth-child(3) {
+        animation-delay: 0.36s;
       }
     }
 
-    // Input area
+    // ---- composer ----------------------------------------------------------
     &__footer {
-      padding: $vitrus-space-base $vitrus-space-lg;
-      background: $vitrus-bg-primary;
-      border-top: 1px solid $vitrus-border;
+      padding: 12px 32px 26px;
     }
-
-    &__input-container {
-      max-width: 800px;
+    &__composer {
+      max-width: 720px;
       margin: 0 auto;
-      position: relative;
-      background: $vitrus-bg-secondary;
-      border: 1px solid $vitrus-border;
-      border-radius: $vitrus-radius-lg;
-      display: flex;
-      align-items: flex-end;
-      padding: $vitrus-space-sm $vitrus-space-md;
-      transition: border-color $vitrus-transition-fast;
-
-      &:focus-within {
-        border-color: $vitrus-border-focus;
-        box-shadow: 0 0 0 1px $vitrus-border-focus;
-      }
+      background: var(--vt-surface);
+      border: 1px solid var(--vt-border);
+      border-radius: 16px;
+      padding: 14px 14px 14px 20px;
+      box-shadow: var(--vt-shadow);
     }
-
+    &__composer-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--vt-faint);
+      margin-bottom: 11px;
+    }
+    &__composer-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
     &__textarea {
       flex: 1;
-      background: transparent;
+      min-width: 0;
       border: none;
-      outline: none;
+      background: none;
+      padding: 0;
       resize: none;
-      color: $vitrus-text-primary;
-      font-size: $vitrus-font-base;
+      font-family: inherit;
+      font-size: 15px;
       line-height: 1.5;
-      max-height: $vitrus-chat-input-max-height;
-      padding: $vitrus-space-xs 0;
-      margin-right: 40px;
-
+      color: var(--vt-text);
+      max-height: 160px;
       &::placeholder {
-        color: $vitrus-text-muted;
+        color: var(--vt-faint);
+      }
+      &:focus {
+        outline: none;
+        box-shadow: none;
       }
     }
-
-    &__send-button {
-      position: absolute;
-      right: $vitrus-space-md;
-      bottom: $vitrus-space-md;
-      background: $vitrus-accent;
+    &__send {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+	  background: var(--vt-badge);
       color: #fff;
-      border: none;
-      border-radius: $vitrus-radius-md;
-      width: 32px;
-      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      transition: all $vitrus-transition-fast;
-	  margin: auto;
-      top: 0;
-	  bottom: 0;
-
+      transition: .15s;
       &:hover:not(:disabled) {
-        background: $vitrus-accent-hover;
-        transform: scale(1.05);
+        filter: brightness(1.08);
       }
-
       &:disabled {
-        background: $vitrus-bg-surface;
-        color: $vitrus-text-muted;
-        cursor: not-allowed;
+        opacity: 0;
+        cursor: default;
       }
     }
 
-    &__footer-note {
-      text-align: center;
-      font-size: $vitrus-font-xs;
-      color: $vitrus-text-muted;
-      margin-top: $vitrus-space-sm;
-    }
-
-    // Right Sidebar (Collapsible)
-    &__sidebar {
-      width: 0;
-      background: $vitrus-bg-secondary;
-      border-left: 0 solid $vitrus-border;
-      display: flex;
-      flex-direction: column;
+    // ---- welcome / onboarding ---------------------------------------------
+    &__welcome {
       height: 100%;
-      transition: width $vitrus-transition-drawer, border-left-width $vitrus-transition-drawer;
-      overflow: hidden;
-      flex-shrink: 0;
-
-      &--open {
-        width: 260px;
-        border-left: 1px solid $vitrus-border;
-      }
-    }
-
-    &__sidebar-header {
-      padding: $vitrus-space-base;
-      border-bottom: 1px solid $vitrus-border;
-    }
-
-    &__new-chat-btn {
-      width: 100%;
-      background: $vitrus-accent-subtle;
-      border: 1px dashed rgba($vitrus-accent, 0.4);
-      color: $vitrus-accent;
-      border-radius: $vitrus-radius-md;
-      padding: $vitrus-space-md;
-      font-size: $vitrus-font-sm;
-      font-weight: $vitrus-weight-medium;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: $vitrus-space-sm;
-      transition: all $vitrus-transition-fast;
-
-      &:hover {
-        background: rgba($vitrus-accent, 0.18);
-        border-color: $vitrus-accent;
-        color: $vitrus-accent-hover;
-      }
-    }
-
-    &__sidebar-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: $vitrus-space-base $vitrus-space-sm;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-    }
-
-    &__sidebar-empty {
-      font-size: $vitrus-font-sm;
-      color: $vitrus-text-muted;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
       text-align: center;
-      padding: $vitrus-space-xl 0;
+      .vitrus-cp__composer {
+        width: 100%;
+        max-width: 600px;
+        margin-top: 8px;
+      }
     }
-
-    &__history-item {
+    &__welcome-title {
+      font-family: "Newsreader", serif;
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    &__welcome-sub {
+      font-size: 14px;
+      color: var(--vt-muted);
+      margin-bottom: 28px;
+    }
+    &__chips {
       display: flex;
-      align-items: center;
-      padding: $vitrus-space-md $vitrus-space-base;
-      border-radius: $vitrus-radius-md;
-      cursor: pointer;
-      position: relative;
-      transition: all $vitrus-transition-fast;
-      color: $vitrus-text-secondary;
-      gap: $vitrus-space-sm;
-      
-      &:hover {
-        background: $vitrus-bg-surface;
-        color: $vitrus-text-primary;
-      }
-
-      &--active {
-        background: $vitrus-bg-surface-hover;
-        color: $vitrus-text-primary;
-        font-weight: $vitrus-weight-medium;
-      }
-    }
-
-    &__history-icon {
-      flex-shrink: 0;
-      opacity: 0.6;
-    }
-
-    &__history-title {
-      font-size: $vitrus-font-sm;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
-      padding-right: 40px; // space for hover action buttons
-    }
-
-    &__rename-input {
-      flex: 1;
-      background: $vitrus-bg-primary;
-      border: 1px solid $vitrus-border-focus;
-      border-radius: $vitrus-radius-sm;
-      color: $vitrus-text-primary;
-      font-size: $vitrus-font-sm;
-      padding: 2px 6px;
-      outline: none;
-      width: 100%;
-    }
-
-    &__history-actions {
-      position: absolute;
-      right: $vitrus-space-base;
-      display: none;
-      align-items: center;
-      gap: $vitrus-space-xs;
-      padding-left: $vitrus-space-md;
-    }
-
-    &__history-item:hover {
-      .vitrus-chat-page__history-actions {
-        display: flex;
-      }
-    }
-
-    &__history-action-btn {
-      background: none;
-      border: none;
-      color: $vitrus-text-secondary;
-      cursor: pointer;
-      padding: 5px;
-      border-radius: $vitrus-radius-sm;
-      transition: all $vitrus-transition-fast;
-      display: flex;
-      align-items: center;
+      flex-wrap: wrap;
+      gap: 10px;
       justify-content: center;
-
-      &:hover {
-        color: $vitrus-text-primary;
-        background: rgba(255, 255, 255, 0.05);
-      }
+      max-width: 600px;
+      margin-top: 22px;
     }
 
-    &__sidebar-footer {
-      padding: $vitrus-space-base;
-      border-top: 1px solid $vitrus-border;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: $vitrus-bg-secondary;
-    }
-
-    &__sidebar-footer-brand {
-      display: flex;
-      align-items: center;
-      gap: $vitrus-space-sm;
-    }
-
-    &__sidebar-logo-text {
-      font-size: $vitrus-font-sm;
-      font-weight: $vitrus-weight-semibold;
-      background: linear-gradient(135deg, $vitrus-accent 0%, #a78bfa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    &__settings-btn {
-      background: none;
-      border: none;
-      color: $vitrus-text-secondary;
-      cursor: pointer;
-      padding: $vitrus-space-xs;
-      border-radius: $vitrus-radius-sm;
-      transition: all $vitrus-transition-fast;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        color: $vitrus-text-primary;
-        transform: rotate(30deg);
-        background: $vitrus-bg-surface-hover;
-      }
-    }
-
-    // Modal Overlay
-    &__modal-overlay {
+    // ---- delete modal ------------------------------------------------------
+    &__overlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100vw;
-      height: 100vh;
-      background: $vitrus-bg-glass;
-      backdrop-filter: blur(4px);
+      inset: 0;
+      z-index: 100000;
+      background: oklch(0 0 0 / 0.5);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 100000;
-      animation: vitrus-fade-in $vitrus-transition-fast;
     }
-
-    // Modal Card
     &__modal {
-      background: $vitrus-bg-secondary;
-      border: 1px solid $vitrus-border;
-      border-radius: $vitrus-radius-lg;
-      padding: $vitrus-space-lg;
+      width: 100%;
       max-width: 400px;
-      width: 90%;
-      box-shadow: $vitrus-shadow-lg;
-      animation: vitrus-scale-up $vitrus-transition-fast;
-      display: flex;
-      flex-direction: column;
-      gap: $vitrus-space-md;
+      background: var(--vt-surface);
+      border: 1px solid var(--vt-border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--vt-shadow);
     }
-
     &__modal-title {
-      font-size: $vitrus-font-lg;
-      font-weight: $vitrus-weight-semibold;
-      color: $vitrus-text-primary;
-      margin: 0;
+      font-family: "Newsreader", serif;
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 8px;
     }
-
-    &__modal-message {
-      font-size: $vitrus-font-base;
-      color: $vitrus-text-secondary;
-      line-height: $vitrus-line-height;
-      margin: 0;
+    &__modal-msg {
+      font-size: 14px;
+      color: var(--vt-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
     }
-
     &__modal-actions {
       display: flex;
       justify-content: flex-end;
-      gap: $vitrus-space-md;
-      margin-top: $vitrus-space-sm;
+      gap: 10px;
     }
-
     &__modal-btn {
-      padding: $vitrus-space-sm $vitrus-space-base;
-      font-size: $vitrus-font-sm;
-      font-weight: $vitrus-weight-medium;
-      border-radius: $vitrus-radius-md;
-      cursor: pointer;
-      transition: all $vitrus-transition-fast;
-
-      &--cancel {
-        background: transparent;
-        border: 1px solid $vitrus-border;
-        color: $vitrus-text-primary;
-
-        &:hover {
-          background: $vitrus-bg-surface-hover;
-          border-color: $vitrus-border-focus;
-        }
-      }
-
-      &--delete {
-        background: $vitrus-error;
-        border: 1px solid $vitrus-error;
-        color: #fff;
-
-        &:hover {
-          background: color.adjust($vitrus-error, $lightness: 8%);
-          border-color: color.adjust($vitrus-error, $lightness: 8%);
-        }
-      }
-    }
-  }
-
-  // Adjustments on Settings view inside AdminApp
-  .vitrus-settings {
-    // Styling the back button next to logo
-    &__back-btn {
-      background: none;
-      border: none;
-      color: $vitrus-text-secondary;
-      cursor: pointer;
-      padding: $vitrus-space-xs;
-      border-radius: $vitrus-radius-sm;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: $vitrus-space-md;
-      transition: all $vitrus-transition-fast;
-
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 9px;
+      background: var(--vt-raised);
+      color: var(--vt-text);
       &:hover {
-        color: $vitrus-text-primary;
-        background: $vitrus-bg-surface-hover;
+        background: var(--vt-border-strong);
+      }
+      &--danger {
+        background: oklch(0.55 0.2 25);
+        color: #fff;
+        &:hover {
+          filter: brightness(1.08);
+          background: oklch(0.55 0.2 25);
+        }
       }
     }
   }
-}
-
-// Global Keyframes for animations
-@keyframes vitrus-typing {
-  0%, 100% { transform: scale(1); opacity: 0.4; }
-  50% { transform: scale(1.4); opacity: 1; }
 }
 
 @keyframes vitrus-spin {
-  to { transform: rotate(360deg); }
+  to {
+    transform: rotate(360deg);
+  }
 }
-
-@keyframes vitrus-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-@keyframes vitrus-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
-
-@keyframes vitrus-scale-up {
-  from { transform: scale(0.95); opacity: 0; }
-  to { transform: scale(1); opacity: 1; }
-}
-
-// Override WP default bottom padding on Vitrus screens to prevent vertical page scrollbar
-body.toplevel_page_vitrus {
-  #wpbody-content {
-    padding-bottom: 0;
+@keyframes vitrus-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
   }
 }

@@ -185,23 +185,6 @@
       width: 100%;
     }
 
-    &__suggestion-chip {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid $vitrus-border;
-      border-radius: $vitrus-radius-md;
-      padding: $vitrus-space-sm $vitrus-space-md;
-      font-size: $vitrus-font-sm;
-      color: $vitrus-text-secondary;
-      text-align: left;
-      transition: all $vitrus-transition-fast;
-
-      &:hover {
-        background: $vitrus-accent-subtle;
-        color: $vitrus-accent;
-        border-color: rgba(130, 143, 255, 0.2);
-      }
-    }
-
     // Message history lists
     &__messages {
       display: flex;

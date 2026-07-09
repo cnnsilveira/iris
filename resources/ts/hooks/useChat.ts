@@ -187,6 +187,101 @@ export function useChat(isDrawer = false) {
     return words.slice(0, 4).join(" ") + "...";
   };
 
+  /**
+   * Stream an assistant reply from the chat endpoint for the given API messages.
+   *
+   * Owns the single copy of the SSE handling shared by {@link sendMessage} and
+   * {@link regenerateLast}: request, HTTP-error parsing, the token loop,
+   * `finish_reason` tracking, and the empty-response fallback. `onToken` is
+   * called with the cumulative text each time it grows (and once with the
+   * fallback text when the model returns nothing), so callers only own where
+   * that text lands in state. Returns the final assistant text.
+   *
+   * @throws {Error} On a non-OK response, an in-stream API error, or an
+   *                 unreadable body — callers surface it as the turn's error.
+   */
+  const streamAssistantReply = async (
+    apiMessages: Array<{ role: string; content: string }>,
+    onToken: (text: string) => void,
+  ): Promise<string> => {
+    const response = await fetch(`${restUrl}chat`, {
+      method: "POST",
+      headers: getHeaders(),
+      body: JSON.stringify({ messages: apiMessages }),
+    });
+
+    if (!response.ok) {
+      let errorMessage = `HTTP error! Status: ${response.status}`;
+      try {
+        const jsonErr = await response.json();
+        if (jsonErr?.message) {
+          errorMessage = jsonErr.message;
+        }
+      } catch (e) {
+        // Ignore — fall back to the status-code message.
+      }
+      throw new Error(errorMessage);
+    }
+
+    const reader = response.body?.getReader();
+    if (!reader) {
+      throw new Error("Response body is not readable.");
+    }
+
+    const decoder = new TextDecoder();
+    let responseText = "";
+    let lastFinishReason: string | null = null;
+    let done = false;
+
+    while (!done) {
+      const { value, done: doneReading } = await reader.read();
+      done = doneReading;
+      if (!value) continue;
+
+      const lines = decoder.decode(value, { stream: true }).split("\n");
+      for (const line of lines) {
+        const cleaned = line.trim();
+        if (cleaned === "data: [DONE]") {
+          done = true;
+          break;
+        }
+        if (!cleaned.startsWith("data: ")) continue;
+
+        let dataJson;
+        try {
+          dataJson = JSON.parse(cleaned.substring(6));
+        } catch {
+          continue;
+        }
+
+        if (dataJson?.error) {
+          throw new Error(dataJson.error.message || "API Error");
+        }
+
+        const finishReason = dataJson.choices?.[0]?.finish_reason;
+        if (finishReason) {
+          lastFinishReason = finishReason;
+        }
+
+        const token = dataJson.choices?.[0]?.delta?.content;
+        if (token) {
+          responseText += token;
+          onToken(responseText);
+        }
+      }
+    }
+
+    if (!responseText.trim()) {
+      responseText =
+        lastFinishReason === "length"
+          ? "Ops! The model couldn't complete the response due to the Max Output Tokens limit. You can adjust it at Settings -> Advanced Parameters -> [Max Output Tokens](admin.php?page=vitrus-settings)"
+          : "Ops! Something went wrong...";
+      onToken(responseText);
+    }
+
+    return responseText;
+  };
+
   const sendMessage = async (content: string) => {
     const cleanContent = content.trim();
     if (!cleanContent || isTyping) return;
@@ -248,124 +343,25 @@ export function useChat(isDrawer = false) {
     await saveConversationToServer(currentConv);
 
     try {
-      // Get all messages up to the user's latest query (role + content format for API)
+      // All messages up to the user's latest query (assistant placeholder excluded).
       const apiMessages = currentConv.messages
-        .slice(0, -1) // Exclude the assistant placeholder
-        .map((m) => ({
-          role: m.role,
-          content: m.content,
-        }));
+        .slice(0, -1)
+        .map((m) => ({ role: m.role, content: m.content }));
 
-      const response = await fetch(`${restUrl}chat`, {
-        method: "POST",
-        headers: getHeaders(),
-        body: JSON.stringify({
-          messages: apiMessages,
-        }),
-      });
-
-      if (!response.ok) {
-        let errorMessage = `HTTP error! Status: ${response.status}`;
-        try {
-          const jsonErr = await response.json();
-          if (jsonErr?.message) {
-            errorMessage = jsonErr.message;
-          }
-        } catch (e) {
-          // Ignore
-        }
-        throw new Error(errorMessage);
-      }
-
-      const reader = response.body?.getReader();
-      if (!reader) {
-        throw new Error("Response body is not readable.");
-      }
-
-      const decoder = new TextDecoder();
-      let responseText = "";
-      let lastFinishReason: string | null = null;
-      let done = false;
-
-      while (!done) {
-        const { value, done: doneReading } = await reader.read();
-        done = doneReading;
-
-        if (value) {
-          const chunk = decoder.decode(value, { stream: true });
-          const lines = chunk.split("\n");
-
-          for (const line of lines) {
-            const cleanedLine = line.trim();
-            if (cleanedLine === "data: [DONE]") {
-              done = true;
-              break;
-            }
-            if (cleanedLine.startsWith("data: ")) {
-              let dataJson;
-              try {
-                dataJson = JSON.parse(cleanedLine.substring(6));
-              } catch (e) {
-                continue;
-              }
-
-              if (dataJson?.error) {
-                throw new Error(dataJson.error.message || "API Error");
-              }
-
-              const finishReason = dataJson.choices?.[0]?.finish_reason;
-              if (finishReason) {
-                lastFinishReason = finishReason;
-              }
-
-              const token = dataJson.choices?.[0]?.delta?.content;
-              if (token) {
-                responseText += token;
-
-                // Update UI state
-                setConversations((prev) =>
-                  prev.map((c) =>
-                    c.id === currentConvId
-                      ? {
-                          ...c,
-                          messages: c.messages.map((m) =>
-                            m.id === assistantMsgId
-                              ? { ...m, content: responseText }
-                              : m,
-                          ),
-                        }
-                      : c,
-                  ),
-                );
-              }
-            }
-          }
-        }
-      }
-
-      if (!responseText.trim()) {
-        if (lastFinishReason === "length") {
-          responseText = "Ops! The model couldn't complete the response due to the Max Output Tokens limit. You can adjust it at Settings -> Advanced Parameters -> [Max Output Tokens](admin.php?page=vitrus-settings)";
-        } else {
-          responseText = "Ops! Something went wrong...";
-        }
-
-        // Update UI state with the fallback message
+      const responseText = await streamAssistantReply(apiMessages, (text) => {
         setConversations((prev) =>
           prev.map((c) =>
             c.id === currentConvId
               ? {
                   ...c,
                   messages: c.messages.map((m) =>
-                    m.id === assistantMsgId
-                      ? { ...m, content: responseText }
-                      : m,
+                    m.id === assistantMsgId ? { ...m, content: text } : m,
                   ),
                 }
               : c,
           ),
         );
-      }
+      });
 
       // Stream succeeded, save completed conversation to server
       const finalConv = {
@@ -401,6 +397,65 @@ export function useChat(isDrawer = false) {
     }
   };
 
+  const regenerateLast = async () => {
+    if (isTyping) return;
+    const conv = conversations.find((c) => c.id === activeConversationId);
+    if (!conv || conv.messages.length < 2) return;
+    if (conv.messages[conv.messages.length - 1].role !== "assistant") return;
+
+    setError(null);
+    setIsTyping(true);
+
+    const convId = conv.id;
+    const assistantMsgId = `assistant-${Date.now()}`;
+    const trimmed = conv.messages.slice(0, -1); // drop the previous assistant reply
+    const workingConv: Conversation = {
+      ...conv,
+      messages: [...trimmed, { role: "assistant", content: "", id: assistantMsgId }],
+      updatedAt: Date.now(),
+    };
+
+    setConversations((prev) =>
+      prev.map((c) => (c.id === convId ? workingConv : c)).sort((a, b) => b.updatedAt - a.updatedAt),
+    );
+    await saveConversationToServer(workingConv);
+
+    try {
+      const apiMessages = trimmed.map((m) => ({ role: m.role, content: m.content }));
+
+      const responseText = await streamAssistantReply(apiMessages, (text) => {
+        setConversations((prev) =>
+          prev.map((c) =>
+            c.id === convId
+              ? { ...c, messages: c.messages.map((m) => (m.id === assistantMsgId ? { ...m, content: text } : m)) }
+              : c,
+          ),
+        );
+      });
+
+      const finalConv: Conversation = {
+        ...workingConv,
+        messages: workingConv.messages.map((m) => (m.id === assistantMsgId ? { ...m, content: responseText } : m)),
+      };
+      await saveConversationToServer(finalConv);
+    } catch (err: unknown) {
+      const displayError = err instanceof Error ? err.message : "An unknown networking error occurred.";
+      setError(displayError);
+      const errorConv: Conversation = {
+        ...workingConv,
+        messages: workingConv.messages.map((m) =>
+          m.id === assistantMsgId
+            ? { ...m, content: `⚠️ **Error connecting to AI assistant:** ${displayError}` }
+            : m,
+        ),
+      };
+      setConversations((prev) => prev.map((c) => (c.id === convId ? errorConv : c)));
+      await saveConversationToServer(errorConv);
+    } finally {
+      setIsTyping(false);
+    }
+  };
+
   // Extract messages of the active conversation for consumption
   const activeConversation = conversations.find((c) => c.id === activeConversationId);
   const messages = activeConversation ? activeConversation.messages : [];
@@ -417,6 +472,7 @@ export function useChat(isDrawer = false) {
     startNewChat,
     renameConversation,
     deleteConversation,
+    regenerateLast,
     clearHistory,
   };
 }
