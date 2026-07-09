@@ -1,0 +1,53 @@
+// ---------------------------------------------------------------------------
+// Floating overflow menu opened by a three-dots trigger (ActionMenu.tsx).
+//
+// Shared by the Chat page and the floating widget. The menu is portaled into
+// the nearest [data-vitrus-theme] ancestor, so it always resolves the --vt-*
+// tokens of the surface that opened it — hence the two root scopes below.
+// ---------------------------------------------------------------------------
+
+#vitrus-chat-page-root,
+#vitrus-chat-root {
+  .vitrus-menu {
+    position: fixed;
+    z-index: 100001;
+    transform: translateX(-100%);
+    min-width: 156px;
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    background: var(--vt-surface);
+    border: 1px solid var(--vt-border);
+    border-radius: 11px;
+    box-shadow: var(--vt-shadow);
+
+    &__item {
+      text-align: left;
+      padding: 8px 11px;
+      border-radius: 7px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--vt-text);
+      &:hover {
+        background: var(--vt-raised);
+      }
+      &--danger {
+        color: oklch(0.62 0.19 25);
+        &:hover {
+          background: oklch(0.62 0.19 25 / 0.12);
+        }
+      }
+    }
+
+    &__trigger {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--vt-muted);
+      &:hover {
+        color: var(--vt-text);
+      }
+    }
+  }
+}

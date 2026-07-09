@@ -18,9 +18,11 @@ interface ActionMenuProps {
 /**
  * Reusable "three-dots" overflow control that opens a floating action menu.
  *
- * The menu is portaled into the chat shell and fixed-positioned from the
- * trigger, so it is never clipped by a scrolling ancestor (the sidebar list)
- * while still inheriting the theme tokens. Closes on outside-click or Escape.
+ * The menu is portaled into the nearest themed surface (the Chat page shell or
+ * the floating widget) and fixed-positioned from the trigger, so it is never
+ * clipped by a scrolling ancestor (the sidebar list, the widget panel) while
+ * still inheriting that surface's theme tokens. Closes on outside-click or
+ * Escape.
  *
  * @since v0.3.0
  */
@@ -60,7 +62,7 @@ export const ActionMenu: React.FC<ActionMenuProps> = ({ items, triggerClassName,
     if (!open && btnRef.current) {
       const r = btnRef.current.getBoundingClientRect();
       setPos({ top: r.bottom + 6, left: r.right });
-      setContainer((btnRef.current.closest(".vitrus-chat-shell") as HTMLElement) ?? document.body);
+      setContainer((btnRef.current.closest("[data-vitrus-theme]") as HTMLElement) ?? document.body);
     }
     setOpen((o) => !o);
   };
