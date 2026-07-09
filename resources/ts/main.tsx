@@ -10,7 +10,7 @@ import React from "react";
 import { createRoot } from "react-dom/client";
 import { ChatPage } from "./components/chat/ChatPage";
 import { SettingsDashboard } from "./components/settings/SettingsDashboard";
-import { ChatDrawer } from "./components/chat/ChatDrawer";
+import { ChatWidget } from "./components/chat/ChatWidget";
 import "../scss/main.scss";
 
 // Conditionally mount Chat Page
@@ -37,12 +37,12 @@ if (settingsPageContainer) {
   );
 }
 
-// Conditionally mount Chat Drawer
+// Conditionally mount the floating Copilot widget
 const chatContainer = document.getElementById("vitrus-chat-root");
 if (chatContainer) {
   createRoot(chatContainer).render(
     <React.StrictMode>
-      <ChatDrawer />
+      <ChatWidget />
     </React.StrictMode>,
   );
 }
