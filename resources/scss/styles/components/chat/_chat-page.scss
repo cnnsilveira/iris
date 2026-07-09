@@ -3,6 +3,10 @@
   scrollbar-width: auto;
   scrollbar-color: auto;
 
+  ::selection {
+	background: oklch(0.62 0.16 255 / 0.22);
+  }
+
   p,
   ul,
   ol,
@@ -342,12 +346,13 @@
         color: var(--vt-text);
       }
       code {
-        font-family: ui-monospace, "SF Mono", Consolas, monospace;
-        font-size: 0.9em;
+        font-family: "Red Hat Mono", ui-monospace, "SF Mono", Consolas, monospace;
+        font-size: .78em;
         background: var(--vt-surface);
         border: 1px solid var(--vt-border);
         border-radius: 5px;
-        padding: 0.1em 0.4em;
+        padding: .3em .4em;
+		margin: 0 3px;
       }
       pre {
         background: var(--vt-surface);
@@ -360,6 +365,8 @@
           background: none;
           border: none;
           padding: 0;
+          font-size: 1em;
+    	  margin: 0;
         }
       }
       blockquote {
@@ -503,16 +510,17 @@
       width: 38px;
       height: 38px;
       border-radius: 10px;
-      background: var(--vt-accent);
+	  background: var(--vt-badge);
       color: #fff;
       display: flex;
       align-items: center;
       justify-content: center;
+      transition: .15s;
       &:hover:not(:disabled) {
         filter: brightness(1.08);
       }
       &:disabled {
-        opacity: 0.45;
+        opacity: 0;
         cursor: default;
       }
     }
@@ -534,13 +542,13 @@
     }
     &__welcome-title {
       font-family: "Newsreader", serif;
-      font-size: 40px;
+      font-size: 28px;
       font-weight: 500;
       letter-spacing: -0.01em;
       margin-bottom: 12px;
     }
     &__welcome-sub {
-      font-size: 16px;
+      font-size: 14px;
       color: var(--vt-muted);
       margin-bottom: 28px;
     }
@@ -551,18 +559,6 @@
       justify-content: center;
       max-width: 600px;
       margin-top: 22px;
-    }
-    &__chip {
-      font-size: 13px;
-      color: var(--vt-text);
-      border: 1px solid var(--vt-border);
-      border-radius: 10px;
-      padding: 10px 16px;
-      background: var(--vt-surface);
-      text-align: left;
-      &:hover {
-        background: var(--vt-raised);
-      }
     }
 
     // ---- delete modal ------------------------------------------------------
