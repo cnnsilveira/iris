@@ -8,6 +8,8 @@
 // Defaults reproduce the Chat page exactly; the widget overrides the scale.
 // ---------------------------------------------------------------------------
 
+@use "tokens" as *;
+
 @mixin vitrus-markdown(
   $font-size: 16.5px,
   $line-height: 1.65,
@@ -91,7 +93,7 @@
     color: var(--vt-text);
   }
   code {
-    font-family: "Red Hat Mono", ui-monospace, "SF Mono", Consolas, monospace;
+    font-family: $vitrus-font-mono;
     font-size: .78em;
     background: var(--vt-surface);
     border: 1px solid var(--vt-border);

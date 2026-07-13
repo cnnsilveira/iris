@@ -25,6 +25,7 @@ All notable changes to the Vitrus WordPress plugin will be documented in this fi
 - **Empty API Response Handlers:** Added a check for empty API responses. Shows a warning recommending that the user increase their token limit if generation stopped due to token limit length (`finish_reason: "length"`), and returns a generic warning for other empty streams.
 - **History Action Button Hover:** Fixed a nested SASS nesting bug in `_chat-page.scss` where parent references (`&`) compiled into duplicate `#vitrus-chat-page-root` selectors, which prevented the rename and delete action icons from displaying when hovering over conversation items.
 ### Added
+- **Self-Hosted Red Hat Mono:** Downloaded and self-hosted the "Red Hat Mono" font (weights 400, 500, 600, and 700) within the plugin, replacing any external resource dependencies for code blocks and elements to preserve GDPR compliance.
 - **Immersive Full-Screen Chat:** The Chat page now hides the WordPress admin bar and menu (Gutenberg-style) for a distraction-free experience, with a top bar offering a WordPress-exit button, a persisted **light/dark theme toggle**, and a control to reveal the WordPress menu again.
 - **Message Timestamps:** Chat turns now display the time each message was sent (derived from the message id, so existing conversations show times too).
 - **Conversation Search & Date Grouping:** The sidebar now filters conversations by title and groups them by **Today / Yesterday / Earlier**, and shows the current WordPress user (avatar, name, role) in its footer.
