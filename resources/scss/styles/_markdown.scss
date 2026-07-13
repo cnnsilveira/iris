@@ -1,0 +1,147 @@
+// ---------------------------------------------------------------------------
+// Rendered-markdown typography for AI replies.
+//
+// Shared by the Chat page and the floating widget so both surfaces render an
+// assistant reply identically, only at different scales. Colours come from the
+// --vt-* tokens, so the block themes itself.
+//
+// Defaults reproduce the Chat page exactly; the widget overrides the scale.
+// ---------------------------------------------------------------------------
+
+@use "tokens" as *;
+
+@mixin vitrus-markdown(
+  $font-size: 16.5px,
+  $line-height: 1.65,
+  $li-font-size: 15.5px,
+  $h1-size: 26px,
+  $h2-size: 22px,
+  $h3-size: 19px
+) {
+  font-size: $font-size;
+  line-height: $line-height;
+  color: var(--vt-text);
+  p {
+    margin: 0 0 12px;
+  }
+  p:last-child {
+    margin-bottom: 0;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: "Newsreader", serif;
+    font-weight: 500;
+    margin: 18px 0 10px;
+    line-height: 1.2;
+  }
+  h1 {
+    font-size: $h1-size;
+  }
+  h2 {
+    font-size: $h2-size;
+  }
+  h3 {
+    font-size: $h3-size;
+  }
+  ul,
+  ol {
+    margin: 12px 0;
+    padding-left: 4px;
+    list-style: none;
+  }
+  li {
+    position: relative;
+    padding-left: 24px;
+    margin-bottom: 8px;
+    font-size: $li-font-size;
+    color: var(--vt-muted);
+    line-height: 1.5;
+  }
+  ul li::before {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 11px;
+    width: 13px;
+    height: 1.5px;
+    background: var(--vt-faint);
+    transform: rotate(-32deg);
+  }
+  ol {
+    counter-reset: v;
+  }
+  ol li {
+    counter-increment: v;
+  }
+  ol li::before {
+    content: counter(v);
+    position: absolute;
+    left: 0;
+    top: 0;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--vt-accent);
+  }
+  a {
+    color: var(--vt-accent);
+    text-decoration: underline;
+  }
+  strong {
+    font-weight: 600;
+    color: var(--vt-text);
+  }
+  code {
+    font-family: $vitrus-font-mono;
+    font-size: .78em;
+    background: var(--vt-surface);
+    border: 1px solid var(--vt-border);
+    border-radius: 5px;
+    padding: .3em .4em;
+    margin: 0 3px;
+  }
+  pre {
+    background: var(--vt-surface);
+    border: 1px solid var(--vt-border);
+    border-radius: 12px;
+    padding: 15px 17px;
+    overflow-x: auto;
+    margin: 14px 0;
+    code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 1em;
+      margin: 0;
+    }
+  }
+  blockquote {
+    border-left: 2px solid var(--vt-border-strong);
+    margin: 14px 0;
+    padding: 2px 0 2px 16px;
+    color: var(--vt-muted);
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0;
+    font-size: 14px;
+    border: 1px solid var(--vt-border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  th,
+  td {
+    text-align: left;
+    padding: 10px 14px;
+    border-bottom: 1px solid var(--vt-border);
+  }
+  th {
+    background: var(--vt-surface);
+    font-weight: 600;
+  }
+  tr:last-child td {
+    border-bottom: none;
+  }
+}

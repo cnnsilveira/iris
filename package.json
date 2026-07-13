@@ -1,8 +1,8 @@
 {
-	"name": "iris",
-	"version": "0.2.0-alpha",
+	"name": "vitrus",
+	"version": "0.3.0",
 	"private": true,
-	"description": "Iris – WordPress AI Assistant frontend.",
+	"description": "Vitrus – WordPress AI Assistant frontend.",
 	"license": "GPL-2.0-or-later",
 	"scripts": {
 		"dev": "vite --config vite.config.ts",

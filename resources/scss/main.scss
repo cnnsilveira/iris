@@ -1,14 +1,15 @@
 // ---------------------------------------------------------------------------
-// Iris – Main Stylesheet
+// Vitrus – Main Stylesheet
 // Imports the design system foundation (tokens + reset) and all
 // component-level styles.
 // ---------------------------------------------------------------------------
 
 // Foundation — @use rules must come first per Sass spec.
+@use "styles/fonts";
 @use "styles/reset";
+@use "styles/ds-tokens";
 @use "styles/components/settings/settings";
-@use "styles/components/chat/chat-drawer";
+@use "styles/components/chat/action-menu";
+@use "styles/components/chat/chat-widget";
 @use "styles/components/chat/chat-page";
-
-// Google Fonts
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap");
+@use "styles/components/chat/chat-sidebar";

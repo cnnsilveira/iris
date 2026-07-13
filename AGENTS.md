@@ -1,15 +1,15 @@
-# AGENTS.md — Iris WordPress Plugin
+# AGENTS.md — Vitrus WordPress Plugin
 
 > Canonical agent instruction file. All AI agents (Claude, Gemini, Copilot, etc.) MUST follow these rules when modifying this codebase.
 
 ## Identity
 
-- **Name:** Iris
+- **Name:** Vitrus
 - **Type:** WordPress plugin (GPL-2.0-or-later)
-- **Namespace:** `Iris\`
-- **Text Domain:** `iris`
+- **Namespace:** `Vitrus\`
+- **Text Domain:** `vitrus`
 - **Min PHP:** 7.4 | **Min WP:** 6.0
-- **Version:** Read from `package.json` → `version`. When updating, change **all three** in lockstep: `package.json`, `iris.php` header, and `IRIS_VERSION` in `app/Plugin.php`.
+- **Version:** Read from `package.json` → `version`. When updating, change **all three** in lockstep: `package.json`, `vitrus.php` header, and `VITRUS_VERSION` in `app/Plugin.php`.
 
 ## Tech Stack
 
@@ -26,32 +26,38 @@
 ## Directory Structure
 
 ```
-iris/
-├── app/                        # PHP classes — PSR-4 root (Iris\)
+vitrus/
+├── app/                        # PHP classes — PSR-4 root (Vitrus\)
 │   ├── Admin/                  # Admin hooks, settings, asset enqueuing
 │   ├── Api/                    # REST controllers & route registration
-│   ├── Chat/                   # Chat/streaming logic, OpenRouter client
+│   ├── Chat/                   # Chat/streaming logic, OpenRouter client, debug logger
 │   ├── Models/                 # Model sync, caching, WP-Cron tasks
 │   └── Plugin.php              # Bootstrapper (always at root of app/)
 ├── resources/
+│   ├── fonts/                  # WOFF2 font assets
 │   ├── ts/                     # React + TypeScript source
 │   │   ├── components/
+│   │   │   ├── admin/          # Admin layout components
 │   │   │   ├── chat/           # Chat feature components
-│   │   │   ├── settings/       # Settings feature components
-│   │   │   └── shared/         # Reusable cross-feature components
-│   │   ├── contexts/           # React Context providers
+│   │   │   ├── icons/          # Custom SVG icon components
+│   │   │   └── settings/       # Settings feature components
 │   │   ├── hooks/              # Custom React hooks
+│   │   ├── lib/                # Shared utilities and helpers
 │   │   ├── types/              # Shared TypeScript type definitions
 │   │   └── main.tsx            # Vite entry point
 │   └── scss/
 │       ├── styles/
-│       │   ├── _tokens.scss    # Design tokens
+│       │   ├── _chat-surface.scss # Shared chat surface styles
+│       │   ├── _ds-tokens.scss # Design system token mappings
+│       │   ├── _fonts.scss     # Font face definitions
+│       │   ├── _markdown.scss  # Markdown rendering styles
+│       │   ├── _tokens.scss    # Local design tokens
 │       │   ├── _reset.scss     # Scoped CSS reset
 │       │   └── components/     # Component-level SCSS partials
 │       └── main.scss           # SCSS entry point
 ├── assets/dist/                # Build output (gitignored)
 ├── bin/                        # Utility scripts (release.py)
-├── iris.php                    # Plugin bootstrap file
+├── vitrus.php                  # Plugin bootstrap file
 ├── uninstall.php               # Cleanup on delete
 ├── composer.json
 ├── package.json
@@ -74,8 +80,8 @@ iris/
 
 ### Naming & Autoloading (PSR-4)
 
-- Namespace: `Iris\<SubNamespace>` maps to `app/<SubNamespace>/`.
-- Class name === filename (PascalCase). Example: `Iris\Api\ChatController` → `app/Api/ChatController.php`.
+- Namespace: `Vitrus\<SubNamespace>` maps to `app/<SubNamespace>/`.
+- Class name === filename (PascalCase). Example: `Vitrus\Api\ChatController` → `app/Api/ChatController.php`.
 - One class per file. No procedural code in `app/` (except `Plugin.php::init()`).
 
 ### Coding Standards
@@ -104,7 +110,7 @@ Every class, method, and non-trivial property MUST have a docblock:
 ```
 
 - Use the **current target version** literally in `@since` tags (e.g., `@since 0.2.0`). Ask the project owner for the current target version if unknown.
-- Include `@package Iris` in file-level docblocks.
+- Include `@package Vitrus` in file-level docblocks.
 
 ### Error Handling
 
@@ -121,7 +127,7 @@ if ( is_wp_error( $result ) ) {
 
 ### REST API
 
-- Base namespace: `iris/v1`.
+- Base namespace: `vitrus/v1`.
 - Split endpoints into domain controllers: `ChatController`, `SettingsController`, `ModelsController`, etc.
 - Each controller class exposes a static `init()` method that hooks into `rest_api_init`.
 - All routes MUST enforce:
@@ -132,20 +138,20 @@ if ( is_wp_error( $result ) ) {
 ### Database / Storage
 
 - Use **`wp_options`** (`get_option` / `update_option` / `delete_option`) for all persistent storage.
-- Prefix all option keys with `iris_` (e.g., `iris_api_key`, `iris_model_list`).
+- Prefix all option keys with `vitrus_` (e.g., `vitrus_api_key`, `vitrus_model_list`).
 - Use **transients** for ephemeral/cached data only.
 - On uninstall, every option and transient must be cleaned in `uninstall.php`.
 
 ### Hooks
 
-- Prefix all custom hooks with `iris_` (e.g., `iris_sync_models_event`).
+- Prefix all custom hooks with `vitrus_` (e.g., `vitrus_sync_models_event`).
 - Prefer `add_action` / `add_filter` inside the class `init()` method.
 - Never use anonymous closures as hook callbacks — always use named static methods for traceability.
 
 ### Activation / Deactivation
 
-- Activation logic goes in `iris_activate()` in `iris.php`.
-- Deactivation cleanup goes in `iris_deactivate()` in `iris.php`.
+- Activation logic goes in `vitrus_activate()` in `vitrus.php`.
+- Deactivation cleanup goes in `vitrus_deactivate()` in `vitrus.php`.
 - Deletion cleanup goes in `uninstall.php`.
 - Multisite network-wide activation is intentionally blocked with `wp_die()`.
 
@@ -170,8 +176,8 @@ if ( is_wp_error( $result ) ) {
 
 ### Styling (SCSS / BEM)
 
-- All styles MUST be nested under `#iris-admin-root` to prevent collision with WP admin styles.
-- Use strict **BEM** naming: `.iris-<block>__<element>--<modifier>`.
+- All styles MUST be nested under `#vitrus-admin-root` to prevent collision with WP admin styles.
+- Use strict **BEM** naming: `.vitrus-<block>__<element>--<modifier>`.
 - Design tokens live in `_tokens.scss`. Never hardcode colors, font sizes, or spacing — use token variables.
 - Imports: add new partials to `main.scss` via `@use` / `@forward`.
 
@@ -185,7 +191,7 @@ if ( is_wp_error( $result ) ) {
 
 - Entry point: `resources/ts/main.tsx`.
 - Output: `assets/dist/` (gitignored).
-- Output filenames: `iris-admin.js`, `iris-admin.css`.
+- Output filenames: `vitrus-admin.js`, `vitrus-admin.css`.
 - Run `npm run build` to verify before committing.
 
 ---
@@ -263,7 +269,7 @@ Testing is **encouraged but not mandatory** during the alpha phase.
 
 ## Anti-Patterns (never do these)
 
-- ❌ Add classes to the global namespace — always use `Iris\` or a sub-namespace.
+- ❌ Add classes to the global namespace — always use `Vitrus\` or a sub-namespace.
 - ❌ Use `echo` for JSON responses — use `wp_send_json_success()` / `wp_send_json_error()` or `rest_ensure_response()`.
 - ❌ Register scripts/styles outside `wp_enqueue_scripts` / `admin_enqueue_scripts` hooks.
 - ❌ Use `$_GET`, `$_POST`, `$_REQUEST` directly — use `WP_REST_Request` params or `sanitize_*` wrappers.

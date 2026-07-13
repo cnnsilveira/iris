@@ -1,13 +1,13 @@
-# Iris - The Premium WordPress AI Assistant
+# Vitrus - The Premium WordPress AI Assistant
 
-Iris is a robust WordPress AI Assistant plugin leveraging the OpenRouter API. It provides a sleek, real-time streaming assistant to help administrators manage their sites, draft content, and troubleshoot issues directly from the WordPress Admin dashboard.
+Vitrus is a robust WordPress AI Assistant plugin leveraging the OpenRouter API. It provides a sleek, real-time streaming assistant to help administrators manage their sites, draft content, and troubleshoot issues directly from the WordPress Admin dashboard.
 
 ---
 
 ## Key Features
 
 1. **Admin settings panel:** Register a dedicated menu page to manage configurations securely.
-2. **OpenRouter key masking:** Protects keys on the frontend while routing them server-side, with full support for constant overrides (`IRIS_OPENROUTER_API_KEY`) in `wp-config.php`.
+2. **OpenRouter key masking:** Protects keys on the frontend while routing them server-side, with full support for constant overrides (`VITRUS_OPENROUTER_API_KEY`) in `wp-config.php`.
 3. **Dynamic model sync & search:** Search through all available OpenRouter models via a dynamic settings interface, featuring a toggle to filter for **Free models only**.
 4. **Floating chat drawer:** A beautiful, globally-accessible drawer injected on admin screens for administrators, featuring a violet/slate glassmorphic custom design.
 5. **Real-time SSE proxy streaming:** Streams completion chunks character-by-character from OpenRouter using optimized PHP cURL streaming.
@@ -30,7 +30,7 @@ Iris is a robust WordPress AI Assistant plugin leveraging the OpenRouter API. It
 1. Clone or copy the plugin into your `wp-content/plugins/` directory.
 2. Navigate to the plugin root:
    ```bash
-   cd wp-content/plugins/iris
+   cd wp-content/plugins/vitrus
    ```
 3. Install PHP dependencies and autoloader:
    ```bash
@@ -49,7 +49,7 @@ Iris is a robust WordPress AI Assistant plugin leveraging the OpenRouter API. It
      ```bash
      npm run build
      ```
-6. Activate the **Iris** plugin inside the WordPress Admin "Plugins" screen.
+6. Activate the **Vitrus** plugin inside the WordPress Admin "Plugins" screen.
 
 ---
 
@@ -75,38 +75,53 @@ The plugin maintains strict adherence to WordPress Coding Standards (WPCS) for P
 ## Class Directory Layout
 
 ```
-iris/
-├── app/                         # PHP Source Files (PSR-4 Namespaced under Iris\)
+vitrus/
+├── app/                         # PHP Source Files (PSR-4 Namespaced under Vitrus\)
 │   ├── Admin/                   # Admin hooks, settings, asset enqueuing
 │   │   └── Admin.php
 │   ├── Api/                     # REST controllers & route registration
 │   │   ├── ChatController.php
 │   │   ├── ModelsController.php
 │   │   └── SettingsController.php
-│   ├── Chat/                    # Chat/streaming logic, OpenRouter client
+│   ├── Chat/                    # Chat/streaming logic, OpenRouter client, debug logger
+│   │   ├── DebugLogger.php
 │   │   └── OpenRouterClient.php
 │   ├── Models/                  # Model sync, caching, WP-Cron tasks
 │   │   └── ModelManager.php
 │   └── Plugin.php               # Bootstrapper Orchestrator (at root of app/)
 ├── resources/                   # Frontend source files
+│   ├── fonts/                   # WOFF2 font assets
 │   ├── ts/                      # React + TSX development source code
-│   │   ├── components/
-│   │   │   ├── chat/            # Chat feature components
-│   │   │   └── settings/        # Settings feature components
+│   │   ├── components/          # React components
+│   │   │   ├── admin/           # Admin layout components
+│   │   │   ├── chat/            # Chat interface components
+│   │   │   ├── icons/           # Custom SVG icon components
+│   │   │   └── settings/        # Settings dashboard components
+│   │   ├── hooks/               # Custom React hooks
+│   │   ├── lib/                 # Utility functions and helper modules
+│   │   ├── types/               # TypeScript type definitions
 │   │   └── main.tsx             # Vite entry point
-│   └── scss/                    # SASS styling stylesheets
+│   └── scss/                    # SCSS styling stylesheets
 │       ├── styles/
-│       │   ├── _tokens.scss     # Design tokens
-│       │   ├── _reset.scss      # Scoped CSS reset
-│       │   └── components/      # Component-level SCSS partials
-│       │       ├── chat/        # Chat component styles
-│       │       └── settings/    # Settings component styles
+│       │   ├── _chat-surface.scss # Scoped chat surface variables & layouts
+│       │   ├── _ds-tokens.scss    # WordPress design system token bridges
+│       │   ├── _fonts.scss        # Font face declarations
+│       │   ├── _markdown.scss     # Markdown block styles
+│       │   ├── _reset.scss        # Scoped CSS reset
+│       │   ├── _tokens.scss       # Local design tokens (colors, variables)
+│       │   └── components/        # Component-specific styles
+│       │       ├── chat/          # Chat layout and widgets
+│       │       └── settings/      # Settings panels
 │       └── main.scss            # SCSS entry point
 ├── assets/
 │   └── dist/                    # Transpiled and minified build targets (JS/CSS)
-├── iris.php                     # Global bootstrap file
+├── vitrus.php                   # Global bootstrap file
 ├── uninstall.php                # Option database purger
-└── composer.json                # Composer settings
+├── composer.json                # Composer settings
+├── package.json                 # Node package configuration
+├── phpcs.xml                    # PHP CodeSniffer settings
+├── tsconfig.json                # TypeScript configuration
+└── vite.config.ts               # Vite bundler configuration
 ```
 
 ---

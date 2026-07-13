@@ -1,15 +1,14 @@
 // ---------------------------------------------------------------------------
-// Iris Scoped CSS Reset
-// Nested inside the Iris root selectors to prevent WordPress admin
+// Vitrus Scoped CSS Reset
+// Nested inside the Vitrus root selectors to prevent WordPress admin
 // styles from interfering with the plugin UI.  Keeps specificity low
 // while overriding the most common inherited declarations.
 // ---------------------------------------------------------------------------
 
 @use "tokens" as *;
 
-#iris-chat-page-root,
-#iris-settings-page-root,
-#iris-chat-root {
+#vitrus-chat-page-root,
+#vitrus-chat-root {
   // -- Box-model reset ----------------------------------------------------
   *,
   *::before,
@@ -20,11 +19,11 @@
   }
 
   // -- Typography reset ---------------------------------------------------
-  font-family: $iris-font-family;
-  font-size: $iris-font-base;
-  font-weight: $iris-weight-normal;
-  line-height: $iris-line-height;
-  color: $iris-text-primary;
+  font-family: $vitrus-font-family;
+  font-size: $vitrus-font-base;
+  font-weight: $vitrus-weight-normal;
+  line-height: $vitrus-line-height;
+  color: $vitrus-text-primary;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
@@ -35,10 +34,10 @@
   h4,
   h5,
   h6 {
-    font-family: $iris-font-family;
-    font-weight: $iris-weight-semibold;
-    line-height: $iris-line-height-tight;
-    color: $iris-text-primary;
+    font-family: $vitrus-font-family;
+    font-weight: $vitrus-weight-semibold;
+    line-height: $vitrus-line-height-tight;
+    color: $vitrus-text-primary;
     margin: 0;
     padding: 0;
   }
@@ -46,24 +45,24 @@
   p {
     margin: 0;
     padding: 0;
-    line-height: $iris-line-height;
+    line-height: $vitrus-line-height;
   }
 
   a {
-    color: $iris-accent;
+    color: $vitrus-accent;
     text-decoration: none;
-    transition: color $iris-transition-fast;
+    transition: color $vitrus-transition-fast;
 
     &:hover,
     &:focus {
-      color: $iris-accent-hover;
+      color: $vitrus-accent-hover;
       text-decoration: underline;
     }
   }
 
   button {
-    font-family: $iris-font-family;
-    font-size: $iris-font-base;
+    font-family: $vitrus-font-family;
+    font-size: $vitrus-font-base;
     cursor: pointer;
     border: none;
     background: none;
@@ -72,7 +71,7 @@
     line-height: inherit;
 
     &:focus-visible {
-      outline: 2px solid $iris-accent;
+      outline: 2px solid $vitrus-accent;
       outline-offset: 2px;
     }
   }
@@ -80,25 +79,25 @@
   input,
   textarea,
   select {
-    font-family: $iris-font-family;
-    font-size: $iris-font-base;
-    color: $iris-text-primary;
-    background-color: $iris-bg-surface;
-    border: 1px solid $iris-border;
-    border-radius: $iris-radius-sm;
-    padding: $iris-space-sm $iris-space-md;
+    font-family: $vitrus-font-family;
+    font-size: $vitrus-font-base;
+    color: $vitrus-text-primary;
+    background-color: $vitrus-bg-surface;
+    border: 1px solid $vitrus-border;
+    border-radius: $vitrus-radius-sm;
+    padding: $vitrus-space-sm $vitrus-space-md;
     transition:
-      border-color $iris-transition-fast,
-      box-shadow $iris-transition-fast;
+      border-color $vitrus-transition-fast,
+      box-shadow $vitrus-transition-fast;
 
     &:focus {
       outline: none;
-      border-color: $iris-border-focus;
-      box-shadow: 0 0 0 3px $iris-accent-subtle;
+      border-color: $vitrus-border-focus;
+      box-shadow: 0 0 0 3px $vitrus-accent-subtle;
     }
 
     &::placeholder {
-      color: $iris-text-muted;
+      color: $vitrus-text-muted;
     }
   }
 
@@ -121,20 +120,20 @@
 
   code,
   pre {
-    font-family: $iris-font-mono;
-    font-size: $iris-font-sm;
+    font-family: $vitrus-font-mono;
+    font-size: $vitrus-font-sm;
   }
 
   code {
-    background-color: $iris-bg-surface;
+    background-color: $vitrus-bg-surface;
     padding: 0.15em 0.4em;
-    border-radius: $iris-radius-sm;
+    border-radius: $vitrus-radius-sm;
   }
 
   pre {
-    background-color: $iris-bg-primary;
-    padding: $iris-space-base;
-    border-radius: $iris-radius-md;
+    background-color: $vitrus-bg-primary;
+    padding: $vitrus-space-base;
+    border-radius: $vitrus-radius-md;
     overflow-x: auto;
 
     code {
@@ -155,15 +154,15 @@
   }
 
   ::-webkit-scrollbar-thumb {
-    background-color: $iris-text-muted;
-    border-radius: $iris-radius-full;
+    background-color: $vitrus-text-muted;
+    border-radius: $vitrus-radius-full;
 
     &:hover {
-      background-color: $iris-text-secondary;
+      background-color: $vitrus-text-secondary;
     }
   }
 
   // Firefox
   scrollbar-width: thin;
-  scrollbar-color: $iris-text-muted transparent;
+  scrollbar-color: $vitrus-text-muted transparent;
 }

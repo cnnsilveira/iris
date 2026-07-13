@@ -3,6 +3,7 @@ import react from '@vitejs/plugin-react';
 import path from 'path';
 
 export default defineConfig({
+	base: './',
 	plugins: [react()],
 	resolve: {
 		alias: {
@@ -15,9 +16,14 @@ export default defineConfig({
 		rollupOptions: {
 			input: path.resolve(__dirname, 'resources/ts/main.tsx'),
 			output: {
-				entryFileNames: 'iris-admin.js',
-				chunkFileNames: 'iris-[name].js',
-				assetFileNames: 'iris-admin[extname]',
+				entryFileNames: 'vitrus-admin.js',
+				chunkFileNames: 'vitrus-[name].js',
+				assetFileNames: (assetInfo) => {
+					if (assetInfo.name && assetInfo.name.endsWith('.css')) {
+						return 'vitrus-admin[extname]';
+					}
+					return '[name][extname]';
+				},
 			},
 		},
 	},

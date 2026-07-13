@@ -4,10 +4,10 @@
  *
  * Handles fetching, syncing, and caching the available AI model list.
  *
- * @package Iris
+ * @package Vitrus
  */
 
-namespace Iris\Api;
+namespace Vitrus\Api;
 
 use WP_REST_Response;
 use WP_Error;
@@ -25,12 +25,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ModelsController {
 
 	/**
-	 * REST namespace for all Iris endpoints.
+	 * REST namespace for all Vitrus endpoints.
 	 *
 	 * @since 0.2.0
 	 * @var string
 	 */
-	const ROUTE_NAMESPACE = 'iris/v1';
+	const ROUTE_NAMESPACE = 'vitrus/v1';
 
 	/**
 	 * Register the rest_api_init hook.
@@ -89,8 +89,8 @@ class ModelsController {
 	public static function check_permissions() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
-				'iris_forbidden',
-				__( 'You do not have permission to access this resource.', 'iris' ),
+				'vitrus_forbidden',
+				__( 'You do not have permission to access this resource.', 'vitrus' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -105,7 +105,7 @@ class ModelsController {
 	 * @return WP_REST_Response The model catalogue.
 	 */
 	public static function handle_get_models() {
-		$models = get_option( 'iris_model_list', array() );
+		$models = get_option( 'vitrus_model_list', array() );
 
 		return new WP_REST_Response( $models, 200 );
 	}
@@ -117,12 +117,12 @@ class ModelsController {
 	 * @return WP_REST_Response Confirmation message.
 	 */
 	public static function handle_sync_models() {
-		if ( ! wp_next_scheduled( 'iris_sync_models_event' ) ) {
-			wp_schedule_single_event( time() + 5, 'iris_sync_models_event' );
+		if ( ! wp_next_scheduled( 'vitrus_sync_models_event' ) ) {
+			wp_schedule_single_event( time() + 5, 'vitrus_sync_models_event' );
 		}
 
 		return new WP_REST_Response(
-			array( 'message' => __( 'Model sync scheduled.', 'iris' ) ),
+			array( 'message' => __( 'Model sync scheduled.', 'vitrus' ) ),
 			200
 		);
 	}

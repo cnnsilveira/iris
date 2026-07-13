@@ -4,14 +4,14 @@
  *
  * Handles chat completion and streaming requests.
  *
- * @package Iris
+ * @package Vitrus
  */
 
-namespace Iris\Api;
+namespace Vitrus\Api;
 
 use WP_REST_Request;
 use WP_Error;
-use Iris\Chat\OpenRouterClient;
+use Vitrus\Chat\OpenRouterClient;
 
 // Prevent direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -26,12 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class ChatController {
 
 	/**
-	 * REST namespace for all Iris endpoints.
+	 * REST namespace for all Vitrus endpoints.
 	 *
 	 * @since 0.2.0
 	 * @var string
 	 */
-	const ROUTE_NAMESPACE = 'iris/v1';
+	const ROUTE_NAMESPACE = 'vitrus/v1';
 
 	/**
 	 * Register the rest_api_init hook.
@@ -113,8 +113,8 @@ class ChatController {
 	public static function check_permissions() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
-				'iris_forbidden',
-				__( 'You do not have permission to access this resource.', 'iris' ),
+				'vitrus_forbidden',
+				__( 'You do not have permission to access this resource.', 'vitrus' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -135,13 +135,13 @@ class ChatController {
 
 		if ( empty( $api_key ) ) {
 			wp_send_json_error(
-				array( 'message' => __( 'No API key configured.', 'iris' ) ),
+				array( 'message' => __( 'No API key configured.', 'vitrus' ) ),
 				400
 			);
 			return;
 		}
 
-		$settings = get_option( 'iris_settings', array() );
+		$settings = get_option( 'vitrus_settings', array() );
 		$messages = $request->get_param( 'messages' );
 
 		// Build optional system prompt preamble.
@@ -166,7 +166,7 @@ class ChatController {
 			'model'       => sanitize_text_field( $request->get_param( 'model' ) ?? $settings['model'] ?? '' ),
 			'messages'    => $messages,
 			'temperature' => (float) ( $request->get_param( 'temperature' ) ?? $settings['temperature'] ?? 0.7 ),
-			'max_tokens'  => (int) ( $request->get_param( 'max_tokens' ) ?? $settings['max_tokens'] ?? 1024 ),
+			'max_tokens'  => (int) ( $request->get_param( 'max_tokens' ) ?? $settings['max_tokens'] ?? 4096 ),
 		);
 
 		OpenRouterClient::stream_chat( $api_key, $body );
@@ -182,11 +182,11 @@ class ChatController {
 	 * @return string The API key, or an empty string.
 	 */
 	private static function get_api_key() {
-		if ( defined( 'IRIS_OPENROUTER_API_KEY' ) && IRIS_OPENROUTER_API_KEY ) {
-			return IRIS_OPENROUTER_API_KEY;
+		if ( defined( 'VITRUS_OPENROUTER_API_KEY' ) && VITRUS_OPENROUTER_API_KEY ) {
+			return VITRUS_OPENROUTER_API_KEY;
 		}
 
-		return get_option( 'iris_api_key', '' );
+		return get_option( 'vitrus_api_key', '' );
 	}
 
 	/**
@@ -261,7 +261,7 @@ class ChatController {
 				),
 				'validate_callback' => function ( $value ) {
 					if ( ! is_array( $value ) || empty( $value ) ) {
-						return new WP_Error( 'iris_invalid_messages', __( 'Messages must be a non-empty array.', 'iris' ) );
+						return new WP_Error( 'vitrus_invalid_messages', __( 'Messages must be a non-empty array.', 'vitrus' ) );
 					}
 					return true;
 				},
@@ -302,7 +302,7 @@ class ChatController {
 
 		$mock_id = 'mock-' . wp_rand( 1000, 9999 );
 
-		$text = "Hello! I'm **Iris**, your AI assistant for WordPress. "
+		$text = "Hello! I'm **Vitrus**, your AI assistant for WordPress. "
 			. "I'm currently running in _mock mode_ because no real API "
 			. "connection is active.\n\n"
 			. "Here's what I can help you with:\n\n"
@@ -315,7 +315,7 @@ class ChatController {
 			. "\$theme = wp_get_theme();\n"
 			. "echo \$theme->get( 'Name' );\n"
 			. "```\n\n"
-			. 'Configure your **OpenRouter API key** in the Iris settings '
+			. 'Configure your **OpenRouter API key** in the Vitrus settings '
 			. 'to start using real AI responses!';
 
 		// Split into small tokens for realistic streaming.
@@ -388,7 +388,7 @@ class ChatController {
 	 */
 	public static function handle_get_conversations() {
 		$user_id       = get_current_user_id();
-		$conversations = get_user_meta( $user_id, 'iris_conversations', true );
+		$conversations = get_user_meta( $user_id, 'vitrus_conversations', true );
 
 		if ( ! is_array( $conversations ) ) {
 			$conversations = array();
@@ -412,7 +412,7 @@ class ChatController {
 		$messages = $request->get_param( 'messages' );
 
 		if ( empty( $id ) ) {
-			return new WP_Error( 'iris_missing_id', __( 'Conversation ID is required.', 'iris' ), array( 'status' => 400 ) );
+			return new WP_Error( 'vitrus_missing_id', __( 'Conversation ID is required.', 'vitrus' ), array( 'status' => 400 ) );
 		}
 
 		// Ensure messages is a valid array.
@@ -432,7 +432,7 @@ class ChatController {
 			}
 		}
 
-		$conversations = get_user_meta( $user_id, 'iris_conversations', true );
+		$conversations = get_user_meta( $user_id, 'vitrus_conversations', true );
 		if ( ! is_array( $conversations ) ) {
 			$conversations = array();
 		}
@@ -468,7 +468,7 @@ class ChatController {
 			}
 		);
 
-		update_user_meta( $user_id, 'iris_conversations', $conversations );
+		update_user_meta( $user_id, 'vitrus_conversations', $conversations );
 
 		return rest_ensure_response( array( 'success' => true ) );
 	}
@@ -486,10 +486,10 @@ class ChatController {
 		$id      = sanitize_text_field( $request->get_param( 'id' ) );
 
 		if ( empty( $id ) ) {
-			return new WP_Error( 'iris_missing_id', __( 'Conversation ID is required.', 'iris' ), array( 'status' => 400 ) );
+			return new WP_Error( 'vitrus_missing_id', __( 'Conversation ID is required.', 'vitrus' ), array( 'status' => 400 ) );
 		}
 
-		$conversations = get_user_meta( $user_id, 'iris_conversations', true );
+		$conversations = get_user_meta( $user_id, 'vitrus_conversations', true );
 		if ( ! is_array( $conversations ) ) {
 			$conversations = array();
 		}
@@ -505,10 +505,10 @@ class ChatController {
 		}
 
 		if ( ! $found ) {
-			return new WP_Error( 'iris_not_found', __( 'Conversation not found.', 'iris' ), array( 'status' => 404 ) );
+			return new WP_Error( 'vitrus_not_found', __( 'Conversation not found.', 'vitrus' ), array( 'status' => 404 ) );
 		}
 
-		update_user_meta( $user_id, 'iris_conversations', $updated_conversations );
+		update_user_meta( $user_id, 'vitrus_conversations', $updated_conversations );
 
 		return rest_ensure_response( array( 'success' => true ) );
 	}
@@ -522,7 +522,7 @@ class ChatController {
 	 */
 	public static function handle_clear_conversations() {
 		$user_id = get_current_user_id();
-		delete_user_meta( $user_id, 'iris_conversations' );
+		delete_user_meta( $user_id, 'vitrus_conversations' );
 		return rest_ensure_response( array( 'success' => true ) );
 	}
 }

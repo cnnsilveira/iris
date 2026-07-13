@@ -1,156 +1,105 @@
-import React, { useState, useEffect, useRef } from "react";
-import { marked } from "marked";
-import DOMPurify from "dompurify";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useChat } from "@/hooks/useChat";
+import { useTheme } from "@/hooks/useTheme";
+import { useAutosizeTextarea } from "@/hooks/useAutosizeTextarea";
+import { renderMarkdown } from "@/lib/markdown";
+import { messageTime } from "@/lib/messageTime";
+import { canRegenerate as canRegenerateFn, copyMessage } from "@/lib/chat";
+import { WELCOME_SUB, WELCOME_TITLE } from "@/lib/copy";
+import { Mark } from "@/components/icons/Mark";
+import { ChatSidebar } from "@/components/chat/ChatSidebar";
+import { ActionMenu } from "@/components/chat/ActionMenu";
 
 interface ChatPageProps {
   onOpenSettings: () => void;
 }
 
+/** WordPress "W" mark used by the exit-to-WordPress control. */
+const WordPressMark: React.FC = () => (
+  <svg width="20" height="20" viewBox="0 0 122.5 122.5" fill="currentColor" aria-hidden="true">
+    <path d="M8.7 61.3a52.6 52.6 0 0 0 29.6 47.3L13.2 39.9a52.4 52.4 0 0 0-4.5 21.4zm88-2.7c0-6.5-2.3-11-4.3-14.5-2.7-4.3-5.2-8-5.2-12.3 0-4.8 3.7-9.3 8.9-9.3h.7A52.4 52.4 0 0 0 17.5 32.1h3.4c5.5 0 14-.7 14-.7 2.9-.2 3.2 4 .4 4.3 0 0-2.9.4-6 .5l19.1 56.9 11.5-34.4-8.2-22.5c-2.8-.1-5.5-.5-5.5-.5-2.8-.1-2.5-4.5.3-4.3 0 0 8.7.7 13.8.7 5.5 0 14-.7 14-.7 2.9-.2 3.2 4 .4 4.3 0 0-2.9.4-6 .5l19 56.5 5.3-17.6c2.4-7.3 3.4-12.6 3.4-17.2z" />
+    <path d="M62.2 66 46.4 111.8a52.6 52.6 0 0 0 32.3-.8l-.4-.7zm45.3-29.9a52.4 52.4 0 0 1-19.7 70.5l16-46.3c3-7.5 4-13.5 4-18.8 0-1.9-.1-3.7-.3-5.4z" />
+    <path d="M61.3 0a61.3 61.3 0 1 0 .1 122.7A61.3 61.3 0 0 0 61.3 0zm0 119.8a58.6 58.6 0 1 1 .1-117.2 58.6 58.6 0 0 1-.1 117.2z" />
+  </svg>
+);
+
 /**
- * ChatPage Component.
- *
- * Renders the main Gemini/ChatGPT style chat interface inside the admin panel.
- * Features a main message pane and a collapsible right sidebar for conversation history.
+ * Main admin Chat page: immersive full-screen shell with a slim top bar
+ * (WordPress exit + theme), the design-system sidebar, bubble-less assistant
+ * turns, and the "Message Vitrus" composer.
  *
  * @since v0.2.0
- *
- * @param {ChatPageProps} props Component props.
- * @returns {React.ReactElement} The rendered React component layout.
  */
 export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   const {
-    conversations,
-    activeConversationId,
-    setActiveConversationId,
-    messages,
-    isTyping,
-    loading,
-    sendMessage,
-    startNewChat,
-    renameConversation,
-    deleteConversation,
-  } = useChat(false); // main page chat instance
+    conversations, activeConversationId, setActiveConversationId,
+    messages, isTyping, loading, sendMessage, startNewChat,
+    renameConversation, deleteConversation, regenerateLast,
+  } = useChat(false);
+
+  const { theme, toggleTheme } = useTheme();
 
   const [input, setInput] = useState("");
-  const [sidebarOpen, setSidebarOpen] = useState(true);
-  const [activeModel, setActiveModel] = useState("Select a model...");
-  const [editingConvId, setEditingConvId] = useState<string | null>(null);
-  const [editingTitle, setEditingTitle] = useState("");
+  const [activeModel, setActiveModel] = useState("Select a model");
+  const [convIdToDelete, setConvIdToDelete] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editingHeader, setEditingHeader] = useState(false);
+  const [headerTitle, setHeaderTitle] = useState("");
 
-  const chatBodyRef = useRef<HTMLDivElement>(null);
+  const bodyRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-  const editInputRef = useRef<HTMLInputElement>(null);
+  const headerInputRef = useRef<HTMLInputElement>(null);
 
-  const restUrl = window.irisSettings?.restUrl || "/wp-json/iris/v1/";
-  const nonce = window.irisSettings?.nonce || "";
+  const { resize: resizeTextarea, reset: resetTextarea } = useAutosizeTextarea(textareaRef);
 
-  // Fetch active model from settings
+  const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
+  const nonce = window.vitrusSettings?.nonce || "";
+  const currentUser = window.vitrusSettings?.currentUser;
+
   useEffect(() => {
     const fetchSettings = async () => {
       try {
         const headers: Record<string, string> = {};
         if (nonce) headers["X-WP-Nonce"] = nonce;
-        const response = await fetch(`${restUrl}settings`, { headers });
-        if (response.ok) {
-          const settings = await response.json();
-          if (settings.model) {
-            setActiveModel(settings.model.split("/").pop() || settings.model);
-          }
+        const res = await fetch(`${restUrl}settings`, { headers });
+        if (res.ok) {
+          const s = await res.json();
+          if (s.model) setActiveModel(s.model.split("/").pop() || s.model);
         }
-      } catch (e) {
-        console.error("Error fetching settings for chat page", e);
-      }
+      } catch (e) { console.error("Error fetching settings for chat page", e); }
     };
     fetchSettings();
   }, [restUrl, nonce]);
 
-  // Focus editing input when active
   useEffect(() => {
-    if (editingConvId && editInputRef.current) {
-      editInputRef.current.focus();
-      editInputRef.current.select();
-    }
-  }, [editingConvId]);
-
-  // Auto scroll to bottom
-  useEffect(() => {
-    scrollToBottom();
+    if (bodyRef.current) bodyRef.current.scrollTop = bodyRef.current.scrollHeight;
   }, [messages]);
 
-  const scrollToBottom = () => {
-    if (chatBodyRef.current) {
-      chatBodyRef.current.scrollTop = chatBodyRef.current.scrollHeight;
-    }
-  };
+  const startNew = useCallback(() => { startNewChat(); }, [startNewChat]);
 
-  const handleSend = async (textToSend?: string) => {
-    const query = (textToSend || input).trim();
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.metaKey || e.ctrlKey) && (e.key === "n" || e.key === "N")) { e.preventDefault(); startNew(); }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [startNew]);
+
+  const handleSend = async (text?: string) => {
+    const query = (text ?? input).trim();
     if (!query || isTyping) return;
-
-    if (!textToSend) {
-      setInput("");
-    }
-
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
-
+    if (!text) setInput("");
+    resetTextarea();
     await sendMessage(query);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSend();
-    }
+    if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend(); }
   };
 
-  const handleTextareaInput = () => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = "auto";
-      textarea.style.height = `${Math.min(textarea.scrollHeight, 160)}px`;
-    }
-  };
-
-  const handleRenameStart = (id: string, currentTitle: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    setEditingConvId(id);
-    setEditingTitle(currentTitle);
-  };
-
-  const handleRenameSave = async (id: string) => {
-    if (editingTitle.trim()) {
-      await renameConversation(id, editingTitle.trim());
-    }
-    setEditingConvId(null);
-  };
-
-  const handleRenameKeyDown = (e: React.KeyboardEvent<HTMLInputElement>, id: string) => {
-    if (e.key === "Enter") {
-      handleRenameSave(id);
-    } else if (e.key === "Escape") {
-      setEditingConvId(null);
-    }
-  };
-
-  const handleDeleteClick = (id: string, e: React.MouseEvent) => {
-    e.stopPropagation();
-    if (window.confirm("Are you sure you want to delete this conversation?")) {
-      deleteConversation(id);
-    }
-  };
-
-  const renderMarkdown = (content: string) => {
-    try {
-      const rawHtml = marked.parse(content, { async: false }) as string;
-      const cleanHtml = DOMPurify.sanitize(rawHtml);
-      return { __html: cleanHtml };
-    } catch (e) {
-      return { __html: DOMPurify.sanitize(content) };
-    }
-  };
+  const handleExit = () => { window.location.href = "index.php"; };
+  const toggleWpMenu = () => { document.body.classList.toggle("vitrus-show-wpmenu"); };
+  const handleCopy = copyMessage;
 
   const promptSuggestions = [
     "Write a PHP function to filter the content of a WordPress post",
@@ -159,323 +108,180 @@ export const ChatPage: React.FC<ChatPageProps> = ({ onOpenSettings }) => {
   ];
 
   const activeConv = conversations.find((c) => c.id === activeConversationId);
+  const canRegenerate = canRegenerateFn(messages, isTyping);
+
+  // The header owns its own inline rename (separate from the sidebar's row
+  // rename), so editing from the header edits in place in the header. Drop any
+  // in-progress header rename when the active conversation changes.
+  useEffect(() => { setEditingHeader(false); }, [activeConversationId]);
+
+  useEffect(() => {
+    if (!editingHeader) return;
+    headerInputRef.current?.focus();
+    headerInputRef.current?.select();
+  }, [editingHeader]);
+
+  const startHeaderRename = () => {
+    if (!activeConv) return;
+    setHeaderTitle(activeConv.title);
+    setEditingHeader(true);
+  };
+
+  const saveHeaderRename = () => {
+    if (activeConv && headerTitle.trim()) renameConversation(activeConv.id, headerTitle.trim());
+    setEditingHeader(false);
+  };
+
+  const renderComposer = (opts?: { placeholder?: string; showLabel?: boolean }) => (
+    <div className="vitrus-cp__composer">
+      {opts?.showLabel !== false && <div className="vitrus-cp__composer-label">MESSAGE VITRUS</div>}
+      <div className="vitrus-cp__composer-row">
+        <textarea
+          ref={textareaRef}
+          className="vitrus-cp__textarea"
+          placeholder={opts?.placeholder ?? "Ask a follow-up…"}
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          onInput={resizeTextarea}
+          onKeyDown={handleKeyDown}
+          rows={1}
+          disabled={isTyping}
+        />
+        <button className="vitrus-cp__send" onClick={() => handleSend()} disabled={!input.trim() || isTyping} title="Send">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M12 19V5M5 12l7-7 7 7" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" /></svg>
+        </button>
+      </div>
+    </div>
+  );
 
   return (
-    <div className="iris-chat-page">
-      {/* Main Chat Area */}
-      <div className="iris-chat-page__main">
-        {/* Header */}
-        <header className="iris-chat-page__header">
-          <div className="iris-chat-page__header-title-group">
-            <h1 className="iris-chat-page__header-title">
-              {activeConv ? activeConv.title : "New Conversation"}
-            </h1>
-            <span className="iris-chat-page__header-meta">
-              Model: {activeModel}
-            </span>
-          </div>
-
-          <div className="iris-chat-page__header-actions">
-            <button
-              className={`iris-chat-page__sidebar-toggle ${sidebarOpen ? "iris-chat-page__sidebar-toggle--active" : ""}`}
-              onClick={() => setSidebarOpen(!sidebarOpen)}
-              title={sidebarOpen ? "Collapse Sidebar" : "Expand Sidebar"}
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                width="20"
-                height="20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M19 3H5C3.9 3 3 3.9 3 5V19C3 20.1 3.9 21 5 21H19C20.1 21 21 20.1 21 19V5C21 3.9 20.1 3 19 3ZM19 19H14V5H19V19ZM12 19H5V5H12V19Z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
-          </div>
-        </header>
-
-        {/* Message Feed */}
-        <div className="iris-chat-page__body" ref={chatBodyRef}>
-          {loading ? (
-            <div className="iris-chat-page__loading">
-              <div className="iris-chat-page__spinner"></div>
-              <p>Loading history...</p>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="iris-chat-page__empty-state">
-              <div className="iris-chat-page__welcome-logo">
-                <svg
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  width="64"
-                  height="64"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <defs>
-                    <linearGradient id="iris-grad" x1="0%" y1="0%" x2="100%" y2="100%">
-                      <stop offset="0%" stopColor="#7e22ce" />
-                      <stop offset="100%" stopColor="#3b82f6" />
-                    </linearGradient>
-                  </defs>
-                  <path
-                    d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-                    fill="url(#iris-grad)"
-                  />
-                </svg>
-              </div>
-              <h2 className="iris-chat-page__welcome-title">How can Iris help you?</h2>
-              <p className="iris-chat-page__welcome-subtitle">
-                Ask me about theme configuration, custom plugin logic, database
-                performance, or standard WordPress core practices.
-              </p>
-              <div className="iris-chat-page__suggestions">
-                {promptSuggestions.map((suggestion, idx) => (
-                  <button
-                    key={idx}
-                    className="iris-chat-page__suggestion-card"
-                    onClick={() => handleSend(suggestion)}
-                  >
-                    <span className="iris-chat-page__suggestion-text">
-                      {suggestion}
-                    </span>
-                    <span className="iris-chat-page__suggestion-arrow">→</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-          ) : (
-            <div className="iris-chat-page__messages">
-              {messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className={`iris-chat-page__message iris-chat-page__message--${msg.role}`}
-                >
-                  <div className="iris-chat-page__avatar-wrapper">
-                    {msg.role === "user" ? (
-                      <div className="iris-chat-page__avatar iris-chat-page__avatar--user">
-                        U
-                      </div>
-                    ) : (
-                      <div className="iris-chat-page__avatar iris-chat-page__avatar--ai">
-                        <svg
-                          viewBox="0 0 24 24"
-                          fill="none"
-                          width="18"
-                          height="18"
-                          xmlns="http://www.w3.org/2000/svg"
-                        >
-                          <path
-                            d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-                            fill="currentColor"
-                          />
-                        </svg>
-                      </div>
-                    )}
-                  </div>
-                  <div className="iris-chat-page__bubble">
-                    {msg.content === "" && isTyping ? (
-                      <div className="iris-chat-page__typing">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                      </div>
-                    ) : (
-                      <div
-                        className="iris-chat-page__message-content"
-                        dangerouslySetInnerHTML={renderMarkdown(msg.content)}
-                      />
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+    <div className="vitrus-chat-shell" data-vitrus-theme={theme}>
+      <div className="vitrus-topbar">
+        <div className="vitrus-topbar__group">
+          <button className="vitrus-topbar__btn" onClick={handleExit} title="Exit to WordPress">
+            <WordPressMark />
+          </button>
+          <button className="vitrus-topbar__btn" onClick={toggleWpMenu} title="Toggle WordPress menu">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" /></svg>
+          </button>
         </div>
-
-        {/* Input Bar */}
-        <footer className="iris-chat-page__footer">
-          <div className="iris-chat-page__input-container">
-            <textarea
-              ref={textareaRef}
-              className="iris-chat-page__textarea"
-              placeholder="Message Iris..."
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onInput={handleTextareaInput}
-              onKeyDown={handleKeyDown}
-              rows={1}
-              disabled={isTyping}
-            />
-            <button
-              className="iris-chat-page__send-button"
-              onClick={() => handleSend()}
-              disabled={!input.trim() || isTyping}
-              title="Send Message"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                width="18"
-                height="18"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
-          </div>
-          <div className="iris-chat-page__footer-note">
-            Iris answers using the active OpenRouter model.
-          </div>
-        </footer>
+        <div className="vitrus-topbar__group">
+          <button className="vitrus-topbar__btn" onClick={toggleTheme} title="Toggle theme">
+            {theme === "dark" ? (
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" stroke="currentColor" strokeWidth="1.7" strokeLinejoin="round" /></svg>
+            ) : (
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="4.5" stroke="currentColor" strokeWidth="1.7" /><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round" /></svg>
+            )}
+          </button>
+        </div>
       </div>
 
-      {/* Right Sidebar (Collapsible) */}
-      <aside
-        className={`iris-chat-page__sidebar ${sidebarOpen ? "iris-chat-page__sidebar--open" : ""}`}
-      >
-        {/* Sidebar Header */}
-        <div className="iris-chat-page__sidebar-header">
-          <button
-            className="iris-chat-page__new-chat-btn"
-            onClick={startNewChat}
-            title="Start a new conversation thread"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              width="18"
-              height="18"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"
-                fill="currentColor"
-              />
-            </svg>
-            New Chat
-          </button>
-        </div>
+      <div className="vitrus-chat-body">
+        <ChatSidebar
+          conversations={conversations}
+          activeConversationId={activeConversationId}
+          currentUser={currentUser}
+          editingId={editingId}
+          onSelect={setActiveConversationId}
+          onNewChat={startNew}
+          onStartRename={setEditingId}
+          onStopRename={() => setEditingId(null)}
+          onRename={renameConversation}
+          onRequestDelete={setConvIdToDelete}
+          onOpenSettings={onOpenSettings}
+        />
 
-        {/* Conversations List */}
-        <div className="iris-chat-page__sidebar-list">
-          {conversations.length === 0 ? (
-            <div className="iris-chat-page__sidebar-empty">
-              No conversations yet.
+        <main className="vitrus-cp">
+          <header className="vitrus-cp__header">
+            <div className="vitrus-cp__header-info">
+              {editingHeader && activeConv ? (
+                <input
+                  ref={headerInputRef}
+                  className="vitrus-cp__header-rename"
+                  value={headerTitle}
+                  onChange={(e) => setHeaderTitle(e.target.value)}
+                  onBlur={saveHeaderRename}
+                  onKeyDown={(e) => { if (e.key === "Enter") saveHeaderRename(); else if (e.key === "Escape") setEditingHeader(false); }}
+                />
+              ) : (
+                <span className="vitrus-cp__header-title">{activeConv ? activeConv.title : "New conversation"}</span>
+              )}
+              <span className="vitrus-cp__header-sub">Vitrus · {activeModel}</span>
             </div>
-          ) : (
-            conversations.map((conv) => (
-              <div
-                key={conv.id}
-                className={`iris-chat-page__history-item ${activeConversationId === conv.id ? "iris-chat-page__history-item--active" : ""}`}
-                onClick={() => setActiveConversationId(conv.id)}
-              >
-                <svg
-                  className="iris-chat-page__history-icon"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  width="16"
-                  height="16"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2z"
-                    fill="currentColor"
-                  />
-                </svg>
-
-                {editingConvId === conv.id ? (
-                  <input
-                    ref={editInputRef}
-                    type="text"
-                    className="iris-chat-page__rename-input"
-                    value={editingTitle}
-                    onChange={(e) => setEditingTitle(e.target.value)}
-                    onBlur={() => handleRenameSave(conv.id)}
-                    onKeyDown={(e) => handleRenameKeyDown(e, conv.id)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                ) : (
-                  <span className="iris-chat-page__history-title">
-                    {conv.title}
-                  </span>
-                )}
-
-                {editingConvId !== conv.id && (
-                  <div className="iris-chat-page__history-actions">
-                    <button
-                      className="iris-chat-page__history-action-btn"
-                      onClick={(e) => handleRenameStart(conv.id, conv.title, e)}
-                      title="Rename"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        width="14"
-                        height="14"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M3 17.25V21h3.75L17.81 9.94l-3.75-3.75L3 17.25zM20.71 7.04c.39-.39.39-1.02 0-1.41l-2.34-2.34c-.39-.39-1.02-.39-1.41 0l-1.83 1.83 3.75 3.75 1.83-1.83z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                    <button
-                      className="iris-chat-page__history-action-btn"
-                      onClick={(e) => handleDeleteClick(conv.id, e)}
-                      title="Delete"
-                    >
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        width="14"
-                        height="14"
-                        xmlns="http://www.w3.org/2000/svg"
-                      >
-                        <path
-                          d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                    </button>
-                  </div>
-                )}
+            {activeConv && (
+              <div className="vitrus-cp__header-actions">
+                <ActionMenu
+                  triggerClassName="vitrus-cp__header-btn"
+                  items={[
+                    { label: "Rename", onClick: startHeaderRename },
+                    { label: "Delete", danger: true, onClick: () => setConvIdToDelete(activeConv.id) },
+                  ]}
+                />
               </div>
-            ))
-          )}
-        </div>
+            )}
+          </header>
 
-        {/* Sidebar Footer */}
-        <div className="iris-chat-page__sidebar-footer">
-          <div className="iris-chat-page__sidebar-footer-brand">
-            <span className="iris-chat-page__sidebar-logo-text">Iris Copilot</span>
+          <div className="vitrus-cp__body" ref={bodyRef}>
+            {loading ? (
+              <div className="vitrus-cp__loading"><div className="vitrus-cp__spinner" /></div>
+            ) : messages.length === 0 ? (
+              <div className="vitrus-cp__welcome">
+                <h1 className="vitrus-cp__welcome-title">{WELCOME_TITLE}</h1>
+                <p className="vitrus-cp__welcome-sub">{WELCOME_SUB}</p>
+                {renderComposer({ placeholder: "Ask Vitrus anything…", showLabel: false })}
+              </div>
+            ) : (
+              <div className="vitrus-cp__feed">
+                {messages.map((msg, idx) => {
+                  const time = messageTime(msg.id);
+                  return msg.role === "assistant" ? (
+                    <div key={msg.id} className="vitrus-cp__turn vitrus-cp__turn--ai">
+                      <div className="vitrus-cp__turn-meta">
+                        <span className="vitrus-cp__turn-mark"><Mark size={14} /></span>
+                        <span>VITRUS</span>
+                        {time && <span className="vitrus-cp__turn-time">{time}</span>}
+                      </div>
+                      {msg.content === "" && isTyping && idx === messages.length - 1 ? (
+                        <div className="vitrus-cp__typing"><span /><span /><span /></div>
+                      ) : (
+                        <>
+                          <div className="vitrus-cp__md" dangerouslySetInnerHTML={renderMarkdown(msg.content)} />
+                          <div className="vitrus-cp__turn-actions">
+                            <button onClick={() => handleCopy(msg.content)}>Copy</button>
+                            {idx === messages.length - 1 && canRegenerate && (
+                              <button onClick={() => regenerateLast()}>Regenerate</button>
+                            )}
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  ) : (
+                    <div key={msg.id} className="vitrus-cp__turn vitrus-cp__turn--user">
+                      <span className="vitrus-cp__turn-you">YOU{time ? ` · ${time}` : ""}</span>
+                      <div className="vitrus-cp__bubble">{msg.content}</div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
-          <button
-            className="iris-chat-page__settings-btn"
-            onClick={onOpenSettings}
-            title="Open settings page"
-          >
-            <svg
-              viewBox="0 0 24 24"
-              fill="none"
-              width="20"
-              height="20"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"
-                fill="currentColor"
-              />
-            </svg>
-          </button>
+
+          {messages.length > 0 && <footer className="vitrus-cp__footer">{renderComposer()}</footer>}
+        </main>
+      </div>
+
+      {convIdToDelete && (
+        <div className="vitrus-cp__overlay" onClick={() => setConvIdToDelete(null)}>
+          <div className="vitrus-cp__modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="vitrus-cp__modal-title">Delete conversation</h3>
+            <p className="vitrus-cp__modal-msg">Are you sure? This action cannot be undone.</p>
+            <div className="vitrus-cp__modal-actions">
+              <button className="vitrus-cp__modal-btn" onClick={() => setConvIdToDelete(null)}>Cancel</button>
+              <button className="vitrus-cp__modal-btn vitrus-cp__modal-btn--danger" onClick={() => { deleteConversation(convIdToDelete); setConvIdToDelete(null); }}>Delete</button>
+            </div>
+          </div>
         </div>
-      </aside>
+      )}
     </div>
   );
 };

@@ -4,10 +4,10 @@
  *
  * Handles fetching and saving settings option configurations.
  *
- * @package Iris
+ * @package Vitrus
  */
 
-namespace Iris\Api;
+namespace Vitrus\Api;
 
 use WP_REST_Request;
 use WP_REST_Response;
@@ -26,12 +26,12 @@ if ( ! defined( 'ABSPATH' ) ) {
 class SettingsController {
 
 	/**
-	 * REST namespace for all Iris endpoints.
+	 * REST namespace for all Vitrus endpoints.
 	 *
 	 * @since 0.2.0
 	 * @var string
 	 */
-	const ROUTE_NAMESPACE = 'iris/v1';
+	const ROUTE_NAMESPACE = 'vitrus/v1';
 
 	/**
 	 * Register the rest_api_init hook.
@@ -78,8 +78,8 @@ class SettingsController {
 	public static function check_permissions() {
 		if ( ! current_user_can( 'manage_options' ) ) {
 			return new WP_Error(
-				'iris_forbidden',
-				__( 'You do not have permission to access this resource.', 'iris' ),
+				'vitrus_forbidden',
+				__( 'You do not have permission to access this resource.', 'vitrus' ),
 				array( 'status' => 403 )
 			);
 		}
@@ -94,12 +94,12 @@ class SettingsController {
 	 * @return WP_REST_Response The settings payload.
 	 */
 	public static function handle_get_settings() {
-		$settings = get_option( 'iris_settings', array() );
+		$settings = get_option( 'vitrus_settings', array() );
 
 		$defaults = array(
 			'model'           => '',
 			'temperature'     => 0.7,
-			'max_tokens'      => 1024,
+			'max_tokens'      => 4096,
 			'system_prompt'   => '',
 			'context_sharing' => false,
 			'debug_logging'   => false,
@@ -108,7 +108,7 @@ class SettingsController {
 		$settings = wp_parse_args( $settings, $defaults );
 
 		$settings['has_api_key']      = ! empty( self::get_api_key() );
-		$settings['has_constant_key'] = defined( 'IRIS_OPENROUTER_API_KEY' ) && IRIS_OPENROUTER_API_KEY;
+		$settings['has_constant_key'] = defined( 'VITRUS_OPENROUTER_API_KEY' ) && VITRUS_OPENROUTER_API_KEY;
 
 		return new WP_REST_Response( $settings, 200 );
 	}
@@ -124,24 +124,24 @@ class SettingsController {
 	public static function handle_save_settings( WP_REST_Request $request ) {
 		// Handle the API key separately (own option, own hooks).
 		$api_key = $request->get_param( 'api_key' );
-		if ( null !== $api_key && ! ( defined( 'IRIS_OPENROUTER_API_KEY' ) && IRIS_OPENROUTER_API_KEY ) ) {
-			update_option( 'iris_api_key', sanitize_text_field( $api_key ) );
+		if ( null !== $api_key && ! ( defined( 'VITRUS_OPENROUTER_API_KEY' ) && VITRUS_OPENROUTER_API_KEY ) ) {
+			update_option( 'vitrus_api_key', sanitize_text_field( $api_key ) );
 		}
 
-		$current  = get_option( 'iris_settings', array() );
+		$current  = get_option( 'vitrus_settings', array() );
 		$settings = array(
 			'model'           => sanitize_text_field( $request->get_param( 'model' ) ?? $current['model'] ?? '' ),
 			'temperature'     => self::clamp_float( (float) ( $request->get_param( 'temperature' ) ?? $current['temperature'] ?? 0.7 ), 0.0, 2.0 ),
-			'max_tokens'      => absint( $request->get_param( 'max_tokens' ) ?? $current['max_tokens'] ?? 1024 ),
+			'max_tokens'      => absint( $request->get_param( 'max_tokens' ) ?? $current['max_tokens'] ?? 4096 ),
 			'system_prompt'   => sanitize_textarea_field( $request->get_param( 'system_prompt' ) ?? $current['system_prompt'] ?? '' ),
 			'context_sharing' => (bool) ( $request->get_param( 'context_sharing' ) ?? $current['context_sharing'] ?? false ),
 			'debug_logging'   => (bool) ( $request->get_param( 'debug_logging' ) ?? $current['debug_logging'] ?? false ),
 		);
 
-		update_option( 'iris_settings', $settings );
+		update_option( 'vitrus_settings', $settings );
 
 		return new WP_REST_Response(
-			array( 'message' => __( 'Settings saved.', 'iris' ) ),
+			array( 'message' => __( 'Settings saved.', 'vitrus' ) ),
 			200
 		);
 	}
@@ -188,11 +188,11 @@ class SettingsController {
 	 * @return string The API key, or an empty string.
 	 */
 	private static function get_api_key() {
-		if ( defined( 'IRIS_OPENROUTER_API_KEY' ) && IRIS_OPENROUTER_API_KEY ) {
-			return IRIS_OPENROUTER_API_KEY;
+		if ( defined( 'VITRUS_OPENROUTER_API_KEY' ) && VITRUS_OPENROUTER_API_KEY ) {
+			return VITRUS_OPENROUTER_API_KEY;
 		}
 
-		return get_option( 'iris_api_key', '' );
+		return get_option( 'vitrus_api_key', '' );
 	}
 
 	/**

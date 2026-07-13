@@ -2,12 +2,12 @@
 /**
  * Plugin bootstrapper.
  *
- * Coordinates all class initializations for the Iris plugin.
+ * Coordinates all class initializations for the Vitrus plugin.
  *
- * @package Iris
+ * @package Vitrus
  */
 
-namespace Iris;
+namespace Vitrus;
 
 // Prevent direct file access.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -58,16 +58,16 @@ class Plugin {
 	 * @return void
 	 */
 	private static function define_constants() {
-		if ( ! defined( 'IRIS_VERSION' ) ) {
-			define( 'IRIS_VERSION', '0.2.0-alpha' );
+		if ( ! defined( 'VITRUS_VERSION' ) ) {
+			define( 'VITRUS_VERSION', '0.3.0' );
 		}
 
-		if ( ! defined( 'IRIS_PLUGIN_FILE' ) ) {
-			define( 'IRIS_PLUGIN_FILE', dirname( __DIR__ ) . '/iris.php' );
+		if ( ! defined( 'VITRUS_PLUGIN_FILE' ) ) {
+			define( 'VITRUS_PLUGIN_FILE', dirname( __DIR__ ) . '/vitrus.php' );
 		}
 
-		if ( ! defined( 'IRIS_PLUGIN_DIR' ) ) {
-			define( 'IRIS_PLUGIN_DIR', dirname( __DIR__ ) );
+		if ( ! defined( 'VITRUS_PLUGIN_DIR' ) ) {
+			define( 'VITRUS_PLUGIN_DIR', dirname( __DIR__ ) );
 		}
 	}
 

@@ -1,655 +1,406 @@
-@use "../../tokens" as *;
+// Vitrus chat page — design-system layout. Tokens from _ds-tokens; fonts self-hosted.
+@use "../../markdown" as *;
+@use "../../chat-surface" as *;
 
-#iris-chat-page-root {
-  .iris-chat-page {
+#vitrus-chat-page-root {
+  @include vitrus-chat-surface;
+
+  .vitrus-chat-shell {
     display: flex;
-    position: relative;
-    height: calc(100vh - 100px);
-    margin: 20px 20px 20px 2px;
-    background: $iris-bg-primary;
-    border: 1px solid $iris-border;
-    border-radius: $iris-radius-lg;
-    box-shadow: $iris-shadow-lg;
-    overflow: hidden;
-    color: $iris-text-primary;
-    font-family: $iris-font-family;
+    flex-direction: column;
+    height: 100vh;
+    width: 100%;
+    background: var(--vt-bg);
+    color: var(--vt-text);
+    font-family: "Hanken Grotesk", system-ui, sans-serif;
+    line-height: normal;
+    -webkit-font-smoothing: antialiased;
 
-    @media (max-width: 782px) {
-      height: calc(100vh - 46px - 20px);
-      margin: 10px;
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+      color: inherit;
     }
-    
-    // Main Chat Panel
-    &__main {
-      flex: 1;
+  }
+
+  .vitrus-topbar {
+    flex-shrink: 0;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 14px;
+    background: var(--vt-sidebar);
+    border-bottom: 1px solid var(--vt-border);
+
+    &__group {
       display: flex;
-      flex-direction: column;
-      height: 100%;
-      background: $iris-bg-primary;
-      position: relative;
-    }
-    
-    // Header
-    &__header {
-      display: flex;
-      justify-content: space-between;
       align-items: center;
-      padding: $iris-space-base $iris-space-lg;
-      border-bottom: 1px solid $iris-border;
-      background: $iris-bg-secondary;
+      gap: 4px;
     }
+    &__btn {
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      color: var(--vt-muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        background: var(--vt-surface);
+        color: var(--vt-text);
+      }
+    }
+  }
 
-    &__header-title-group {
+  .vitrus-chat-body {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+  }
+
+  .vitrus-cp {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    background: var(--vt-bg);
+
+    &__header {
+      height: 56px;
+      flex-shrink: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 28px;
+      border-bottom: 1px solid var(--vt-border);
+    }
+    &__header-info {
       display: flex;
       flex-direction: column;
-      gap: 2px;
+      gap: 1px;
+      min-width: 0;
     }
-
     &__header-title {
-      font-size: $iris-font-md;
-      font-weight: $iris-weight-semibold;
-      color: $iris-text-primary;
-      margin: 0;
-      line-height: $iris-line-height-tight;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--vt-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
-
-    &__header-meta {
-      font-size: $iris-font-xs;
-      color: $iris-text-secondary;
+    &__header-rename {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--vt-text);
+      border: 1px solid var(--vt-accent);
+      border-radius: 6px;
+      background: var(--vt-bg);
+      padding: 3px 8px;
+      min-width: 0;
+      max-width: 320px;
+      &:focus {
+        outline: none;
+      }
     }
-
+    &__header-sub {
+      font-size: 11px;
+      color: var(--vt-faint);
+    }
     &__header-actions {
       display: flex;
       align-items: center;
-      gap: $iris-space-md;
+      gap: 8px;
+      flex-shrink: 0;
     }
-
-    &__sidebar-toggle {
-      background: none;
-      border: none;
-      color: $iris-text-secondary;
-      cursor: pointer;
-      padding: $iris-space-xs;
-      border-radius: $iris-radius-sm;
-      transition: all $iris-transition-fast;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
+    &__header-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
       &:hover {
-        color: $iris-text-primary;
-        background: $iris-bg-surface-hover;
-      }
-      
-      &--active {
-        color: $iris-accent;
+        background: var(--vt-surface);
       }
     }
 
-    // Message Feed body
     &__body {
       flex: 1;
+      overflow-x: hidden;
       overflow-y: auto;
-      padding: $iris-space-lg;
-      background: $iris-bg-primary;
-      display: flex;
-      flex-direction: column;
+      padding: 38px 32px 8px;
     }
 
     &__loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
       height: 100%;
-      color: $iris-text-secondary;
-      gap: $iris-space-md;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
-
     &__spinner {
-      width: 28px;
-      height: 28px;
-      border: 3px solid $iris-border;
-      border-top-color: $iris-accent;
-      border-radius: $iris-radius-full;
-      animation: iris-spin 0.8s linear infinite;
+      width: 26px;
+      height: 26px;
+      border-radius: 50%;
+      border: 2px solid var(--vt-border-strong);
+      border-top-color: var(--vt-accent);
+      animation: vitrus-spin 0.7s linear infinite;
     }
 
-    // Empty Welcome State
-    &__empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      max-width: 650px;
-      margin: auto;
-      text-align: center;
-      padding: $iris-space-xl 0;
-    }
-
-    &__welcome-logo {
-      margin-bottom: $iris-space-lg;
-      filter: drop-shadow(0 0 15px rgba(130, 143, 255, 0.2));
-      animation: iris-float 4s ease-in-out infinite;
-    }
-
-    &__welcome-title {
-      font-size: $iris-font-xl;
-      font-weight: $iris-weight-bold;
-      color: $iris-text-primary;
-      margin: 0 0 $iris-space-sm 0;
-    }
-
-    &__welcome-subtitle {
-      font-size: $iris-font-base;
-      color: $iris-text-secondary;
-      margin: 0 0 $iris-space-2xl 0;
-      line-height: $iris-line-height;
-    }
-
-    &__suggestions {
-      display: grid;
-      grid-template-columns: 1fr;
-      gap: $iris-space-md;
-      width: 100%;
-
-      @media (min-width: 600px) {
-        grid-template-columns: 1fr 1fr;
-      }
-    }
-
-    &__suggestion-card {
-      background: $iris-bg-secondary;
-      border: 1px solid $iris-border;
-      border-radius: $iris-radius-md;
-      padding: $iris-space-md $iris-space-base;
-      text-align: left;
-      cursor: pointer;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: all $iris-transition-fast;
-      color: $iris-text-primary;
-
-      &:hover {
-        background: $iris-bg-surface-hover;
-        border-color: $iris-border-focus;
-        transform: translateY(-2px);
-        box-shadow: $iris-shadow-sm;
-      }
-    }
-
-    &__suggestion-text {
-      font-size: $iris-font-sm;
-      font-weight: $iris-weight-medium;
-      color: $iris-text-secondary;
-      line-height: 1.4;
-      flex: 1;
-      padding-right: $iris-space-sm;
-    }
-
-    &__suggestion-arrow {
-      color: $iris-accent;
-      font-weight: $iris-weight-bold;
-      opacity: 0.7;
-      transition: transform $iris-transition-fast;
-    }
-
-    &__suggestion-card:hover &__suggestion-arrow {
-      transform: translateX(3px);
-      opacity: 1;
-    }
-
-    // Message container
-    &__messages {
-      display: flex;
-      flex-direction: column;
-      gap: $iris-space-xl;
-      max-width: 800px;
-      width: 100%;
+    // ---- feed --------------------------------------------------------------
+    &__feed {
+      max-width: 720px;
       margin: 0 auto;
-    }
-
-    &__message {
       display: flex;
-      gap: $iris-space-base;
-      
-      &--user {
-        flex-direction: row-reverse;
-        
-        .iris-chat-page__bubble {
-          background: $iris-bg-secondary;
-          border: 1px solid $iris-border;
-          border-radius: $iris-radius-lg $iris-radius-sm $iris-radius-lg $iris-radius-lg;
-        }
-      }
-      
-      &--assistant {
-        .iris-chat-page__bubble {
-          background: $iris-bg-secondary;
-          border: 1px solid $iris-border;
-          border-radius: $iris-radius-sm $iris-radius-lg $iris-radius-lg $iris-radius-lg;
-        }
-      }
+      flex-direction: column;
+      gap: 34px;
     }
 
-    &__avatar-wrapper {
-      flex-shrink: 0;
-    }
-
-    &__avatar {
-      width: 32px;
-      height: 32px;
-      border-radius: $iris-radius-full;
+    &__turn-meta {
       display: flex;
       align-items: center;
-      justify-content: center;
-      font-size: $iris-font-sm;
-      font-weight: $iris-weight-semibold;
-      
-      &--user {
-        background: $iris-bg-surface;
-        color: $iris-text-primary;
-        border: 1px solid $iris-border;
-      }
-      
-      &--ai {
-        background: linear-gradient(135deg, $iris-accent 0%, #a78bfa 100%);
-        color: #fff;
-        box-shadow: $iris-shadow-sm;
-      }
+      gap: 9px;
+      margin-bottom: 13px;
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--vt-faint);
+    }
+    &__turn-mark {
+      display: inline-flex;
+      color: var(--vt-text);
+    }
+    &__turn-time {
+      font-weight: 400;
+      letter-spacing: 0;
+      color: var(--vt-faint);
     }
 
+    &__md {
+      @include vitrus-markdown(16.5px, 1.65);
+    }
+
+    &__turn-actions {
+      @include vitrus-turn-actions;
+    }
+
+    &__turn--user {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    &__turn-you {
+      font-size: 10.5px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--vt-faint);
+      margin-right: 2px;
+    }
     &__bubble {
-      max-width: 80%;
-      padding: $iris-space-md $iris-space-base;
-      line-height: $iris-line-height;
-    }
-
-    &__message-content {
-      font-size: $iris-font-base;
-      color: $iris-text-primary;
-
-      p:first-child {
-        margin-top: 0;
-      }
-      p:last-child {
-        margin-bottom: 0;
-      }
-
-      code {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 2px 5px;
-        border-radius: $iris-radius-sm;
-        font-family: $iris-font-mono;
-        font-size: $iris-font-sm;
-      }
-
-      pre {
-        background: $iris-bg-secondary;
-        border: 1px solid $iris-border;
-        border-radius: $iris-radius-md;
-        padding: $iris-space-base;
-        overflow-x: auto;
-        margin: $iris-space-md 0;
-        
-        code {
-          background: none;
-          padding: 0;
-          border-radius: 0;
-          font-size: $iris-font-sm;
-          color: $iris-text-primary;
-          display: block;
-        }
-      }
-
-      ul, ol {
-        margin: $iris-space-sm 0;
-        padding-left: $iris-space-xl;
-      }
-
-      a {
-        color: $iris-accent;
-        text-decoration: none;
-        &:hover {
-          text-decoration: underline;
-        }
-      }
+      max-width: 74%;
+      background: var(--vt-surface);
+      border-radius: 13px;
+      padding: 13px 17px;
+      font-size: 14.5px;
+      line-height: 1.5;
+      color: var(--vt-text);
+      white-space: pre-wrap;
+      word-break: break-word;
     }
 
     &__typing {
       display: flex;
-      align-items: center;
-      gap: 4px;
-      height: 20px;
-
+      gap: 5px;
+      padding: 4px 0;
       span {
         width: 6px;
         height: 6px;
-        background-color: $iris-text-secondary;
         border-radius: 50%;
-        display: inline-block;
-        animation: iris-typing 1.4s infinite ease-in-out both;
-
-        &:nth-child(1) { animation-delay: -0.32s; }
-        &:nth-child(2) { animation-delay: -0.16s; }
+        background: var(--vt-faint);
+        animation: vitrus-dot 1.3s infinite;
+      }
+      span:nth-child(2) {
+        animation-delay: 0.18s;
+      }
+      span:nth-child(3) {
+        animation-delay: 0.36s;
       }
     }
 
-    // Input area
+    // ---- composer ----------------------------------------------------------
     &__footer {
-      padding: $iris-space-base $iris-space-lg;
-      background: $iris-bg-primary;
-      border-top: 1px solid $iris-border;
+      padding: 12px 32px 26px;
     }
-
-    &__input-container {
-      max-width: 800px;
+    &__composer {
+      max-width: 720px;
       margin: 0 auto;
-      position: relative;
-      background: $iris-bg-secondary;
-      border: 1px solid $iris-border;
-      border-radius: $iris-radius-lg;
-      display: flex;
-      align-items: flex-end;
-      padding: $iris-space-sm $iris-space-md;
-      transition: border-color $iris-transition-fast;
-
-      &:focus-within {
-        border-color: $iris-border-focus;
-        box-shadow: 0 0 0 1px $iris-border-focus;
-      }
+      background: var(--vt-surface);
+      border: 1px solid var(--vt-border);
+      border-radius: 16px;
+      padding: 14px 14px 14px 20px;
+      box-shadow: var(--vt-shadow);
     }
-
+    &__composer-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.12em;
+      color: var(--vt-faint);
+      margin-bottom: 11px;
+    }
+    &__composer-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
     &__textarea {
       flex: 1;
-      background: transparent;
+      min-width: 0;
       border: none;
-      outline: none;
+      background: none;
+      padding: 0;
       resize: none;
-      color: $iris-text-primary;
-      font-size: $iris-font-base;
+      font-family: inherit;
+      font-size: 15px;
       line-height: 1.5;
-      max-height: $iris-chat-input-max-height;
-      padding: $iris-space-xs 0;
-      margin-right: 40px;
-
+      color: var(--vt-text);
+      max-height: 160px;
       &::placeholder {
-        color: $iris-text-muted;
+        color: var(--vt-faint);
+      }
+      &:focus {
+        outline: none;
+        box-shadow: none;
       }
     }
-
-    &__send-button {
-      position: absolute;
-      right: $iris-space-md;
-      bottom: $iris-space-md;
-      background: $iris-accent;
+    &__send {
+      flex-shrink: 0;
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+	  background: var(--vt-badge);
       color: #fff;
-      border: none;
-      border-radius: $iris-radius-md;
-      width: 32px;
-      height: 32px;
       display: flex;
       align-items: center;
       justify-content: center;
-      cursor: pointer;
-      transition: all $iris-transition-fast;
-	  margin: auto;
-      top: 0;
-	  bottom: 0;
-
+      transition: .15s;
       &:hover:not(:disabled) {
-        background: $iris-accent-hover;
-        transform: scale(1.05);
+        filter: brightness(1.08);
       }
-
       &:disabled {
-        background: $iris-bg-surface;
-        color: $iris-text-muted;
-        cursor: not-allowed;
+        opacity: 0;
+        cursor: default;
       }
     }
 
-    &__footer-note {
-      text-align: center;
-      font-size: $iris-font-xs;
-      color: $iris-text-muted;
-      margin-top: $iris-space-sm;
-    }
-
-    // Right Sidebar (Collapsible)
-    &__sidebar {
-      width: 0;
-      background: $iris-bg-secondary;
-      border-left: 0 solid $iris-border;
-      display: flex;
-      flex-direction: column;
+    // ---- welcome / onboarding ---------------------------------------------
+    &__welcome {
       height: 100%;
-      transition: width $iris-transition-drawer, border-left-width $iris-transition-drawer;
-      overflow: hidden;
-      flex-shrink: 0;
-
-      &--open {
-        width: 260px;
-        border-left: 1px solid $iris-border;
-      }
-    }
-
-    &__sidebar-header {
-      padding: $iris-space-base;
-      border-bottom: 1px solid $iris-border;
-    }
-
-    &__new-chat-btn {
-      width: 100%;
-      background: $iris-accent-subtle;
-      border: 1px dashed rgba($iris-accent, 0.4);
-      color: $iris-accent;
-      border-radius: $iris-radius-md;
-      padding: $iris-space-md;
-      font-size: $iris-font-sm;
-      font-weight: $iris-weight-medium;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: $iris-space-sm;
-      transition: all $iris-transition-fast;
-
-      &:hover {
-        background: rgba($iris-accent, 0.18);
-        border-color: $iris-accent;
-        color: $iris-accent-hover;
-      }
-    }
-
-    &__sidebar-list {
-      flex: 1;
-      overflow-y: auto;
-      padding: $iris-space-base $iris-space-sm;
       display: flex;
       flex-direction: column;
-      gap: 2px;
-    }
-
-    &__sidebar-empty {
-      font-size: $iris-font-sm;
-      color: $iris-text-muted;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
       text-align: center;
-      padding: $iris-space-xl 0;
+      .vitrus-cp__composer {
+        width: 100%;
+        max-width: 600px;
+        margin-top: 8px;
+      }
+    }
+    &__welcome-title {
+      font-family: "Newsreader", serif;
+      font-size: 28px;
+      font-weight: 500;
+      letter-spacing: -0.01em;
+      margin-bottom: 12px;
+    }
+    &__welcome-sub {
+      font-size: 14px;
+      color: var(--vt-muted);
+      margin-bottom: 28px;
+    }
+    &__chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 600px;
+      margin-top: 22px;
     }
 
-    &__history-item {
+    // ---- delete modal ------------------------------------------------------
+    &__overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100000;
+      background: oklch(0 0 0 / 0.5);
       display: flex;
       align-items: center;
-      padding: $iris-space-md $iris-space-base;
-      border-radius: $iris-radius-md;
-      cursor: pointer;
-      position: relative;
-      transition: all $iris-transition-fast;
-      color: $iris-text-secondary;
-      gap: $iris-space-sm;
-      
-      &:hover {
-        background: $iris-bg-surface;
-        color: $iris-text-primary;
-      }
-
-      &--active {
-        background: $iris-bg-surface-hover;
-        color: $iris-text-primary;
-        font-weight: $iris-weight-medium;
-      }
+      justify-content: center;
     }
-
-    &__history-icon {
-      flex-shrink: 0;
-      opacity: 0.6;
-    }
-
-    &__history-title {
-      font-size: $iris-font-sm;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      flex: 1;
-      padding-right: 40px; // space for hover action buttons
-    }
-
-    &__rename-input {
-      flex: 1;
-      background: $iris-bg-primary;
-      border: 1px solid $iris-border-focus;
-      border-radius: $iris-radius-sm;
-      color: $iris-text-primary;
-      font-size: $iris-font-sm;
-      padding: 2px 6px;
-      outline: none;
+    &__modal {
       width: 100%;
+      max-width: 400px;
+      background: var(--vt-surface);
+      border: 1px solid var(--vt-border);
+      border-radius: 16px;
+      padding: 24px;
+      box-shadow: var(--vt-shadow);
     }
-
-    &__history-actions {
-      position: absolute;
-      right: $iris-space-base;
-      display: none;
-      align-items: center;
-      gap: $iris-space-xs;
-      background: linear-gradient(90deg, transparent 0%, $iris-bg-surface 30%, $iris-bg-surface 100%);
-      padding-left: $iris-space-md;
+    &__modal-title {
+      font-family: "Newsreader", serif;
+      font-size: 20px;
+      font-weight: 500;
+      margin-bottom: 8px;
     }
-
-    &__history-item:hover &__history-actions {
+    &__modal-msg {
+      font-size: 14px;
+      color: var(--vt-muted);
+      margin-bottom: 20px;
+      line-height: 1.5;
+    }
+    &__modal-actions {
       display: flex;
+      justify-content: flex-end;
+      gap: 10px;
     }
-
-    &__history-item--active:hover &__history-actions {
-      background: linear-gradient(90deg, transparent 0%, $iris-bg-surface-hover 30%, $iris-bg-surface-hover 100%);
-    }
-
-    &__history-action-btn {
-      background: none;
-      border: none;
-      color: $iris-text-secondary;
-      cursor: pointer;
-      padding: 2px;
-      border-radius: $iris-radius-sm;
-      transition: all $iris-transition-fast;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
+    &__modal-btn {
+      font-size: 13px;
+      font-weight: 600;
+      padding: 9px 16px;
+      border-radius: 9px;
+      background: var(--vt-raised);
+      color: var(--vt-text);
       &:hover {
-        color: $iris-text-primary;
-        background: rgba(255, 255, 255, 0.05);
+        background: var(--vt-border-strong);
       }
-    }
-
-    &__sidebar-footer {
-      padding: $iris-space-base;
-      border-top: 1px solid $iris-border;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      background: $iris-bg-secondary;
-    }
-
-    &__sidebar-footer-brand {
-      display: flex;
-      align-items: center;
-      gap: $iris-space-sm;
-    }
-
-    &__sidebar-logo-text {
-      font-size: $iris-font-sm;
-      font-weight: $iris-weight-semibold;
-      background: linear-gradient(135deg, $iris-accent 0%, #a78bfa 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-
-    &__settings-btn {
-      background: none;
-      border: none;
-      color: $iris-text-secondary;
-      cursor: pointer;
-      padding: $iris-space-xs;
-      border-radius: $iris-radius-sm;
-      transition: all $iris-transition-fast;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      &:hover {
-        color: $iris-text-primary;
-        transform: rotate(30deg);
-        background: $iris-bg-surface-hover;
-      }
-    }
-  }
-
-  // Adjustments on Settings view inside AdminApp
-  .iris-settings {
-    // Styling the back button next to logo
-    &__back-btn {
-      background: none;
-      border: none;
-      color: $iris-text-secondary;
-      cursor: pointer;
-      padding: $iris-space-xs;
-      border-radius: $iris-radius-sm;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-right: $iris-space-md;
-      transition: all $iris-transition-fast;
-
-      &:hover {
-        color: $iris-text-primary;
-        background: $iris-bg-surface-hover;
+      &--danger {
+        background: oklch(0.55 0.2 25);
+        color: #fff;
+        &:hover {
+          filter: brightness(1.08);
+          background: oklch(0.55 0.2 25);
+        }
       }
     }
   }
 }
 
-// Global Keyframes for animations
-@keyframes iris-typing {
-  0%, 100% { transform: scale(1); opacity: 0.4; }
-  50% { transform: scale(1.4); opacity: 1; }
+@keyframes vitrus-spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
-
-@keyframes iris-spin {
-  to { transform: rotate(360deg); }
-}
-
-@keyframes iris-float {
-  0%, 100% { transform: translateY(0); }
-  50% { transform: translateY(-8px); }
-}
-
-// Override WP default bottom padding on Iris screens to prevent vertical page scrollbar
-body.toplevel_page_iris,
-body.iris_page_iris-settings {
-  #wpbody-content {
-    padding-bottom: 0 !important;
+@keyframes vitrus-dot {
+  0%,
+  60%,
+  100% {
+    opacity: 0.25;
+    transform: translateY(0);
+  }
+  30% {
+    opacity: 1;
+    transform: translateY(-3px);
   }
 }

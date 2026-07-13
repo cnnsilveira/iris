@@ -1,69 +1,48 @@
 /**
- * Frontend initialization and entry point for the Iris admin interfaces.
+ * Frontend initialization and entry point for the Vitrus admin interfaces.
  *
- * @package Iris
+ * @package Vitrus
  * @since   v0.1.0
  */
 
+import "@/types/vitrus";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { ChatPage } from "./components/chat/ChatPage";
 import { SettingsDashboard } from "./components/settings/SettingsDashboard";
-import { ChatDrawer } from "./components/chat/ChatDrawer";
+import { ChatWidget } from "./components/chat/ChatWidget";
 import "../scss/main.scss";
 
-/**
- * Declared settings localized from WordPress backend.
- *
- * @since v0.1.0
- */
-interface IrisSettings {
-  /** Security nonce for WordPress REST API authentication. */
-  nonce: string;
-  /** Root URL for Iris REST endpoints. */
-  restUrl: string;
-  /** MD5 hash of the site URL for storage compartmentalization. */
-  siteHash: string;
-  /** Flag to check if current page is the settings screen. */
-  isSettingsPage: boolean;
-}
-
-declare global {
-  interface Window {
-    irisSettings?: IrisSettings;
-  }
-}
-
 // Conditionally mount Chat Page
-const chatPageContainer = document.getElementById("iris-chat-page-root");
+const chatPageContainer = document.getElementById("vitrus-chat-page-root");
 if (chatPageContainer) {
   createRoot(chatPageContainer).render(
     <React.StrictMode>
       <ChatPage onOpenSettings={() => {
-        window.location.href = "admin.php?page=iris-settings";
+        window.location.href = "admin.php?page=vitrus-settings";
       }} />
     </React.StrictMode>,
   );
 }
 
 // Conditionally mount Settings Dashboard
-const settingsPageContainer = document.getElementById("iris-settings-page-root");
+const settingsPageContainer = document.getElementById("vitrus-settings-page-root");
 if (settingsPageContainer) {
   createRoot(settingsPageContainer).render(
     <React.StrictMode>
       <SettingsDashboard onBackToChat={() => {
-        window.location.href = "admin.php?page=iris";
+        window.location.href = "admin.php?page=vitrus";
       }} />
     </React.StrictMode>,
   );
 }
 
-// Conditionally mount Chat Drawer
-const chatContainer = document.getElementById("iris-chat-root");
+// Conditionally mount the floating Copilot widget
+const chatContainer = document.getElementById("vitrus-chat-root");
 if (chatContainer) {
   createRoot(chatContainer).render(
     <React.StrictMode>
-      <ChatDrawer />
+      <ChatWidget />
     </React.StrictMode>,
   );
 }

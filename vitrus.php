@@ -1,18 +1,18 @@
 <?php
 /**
- * Plugin Name: Iris
- * Plugin URI:  https://github.com/cnnsilveira/iris/
+ * Plugin Name: Vitrus
+ * Plugin URI:  https://github.com/cnnsilveira/vitrus/
  * Description: The best AI Assistant for WordPress, powered by OpenRouter.
- * Version:     0.2.0-alpha
+ * Version:     0.3.0
  * Requires PHP: 7.4
  * Author:      Caio Nunes da Silveira
  * Author URI:  https://caionunes.dev/
  * License:     GPL-2.0-or-later
  * License URI: https://www.gnu.org/licenses/gpl-2.0.html
- * Text Domain: iris
+ * Text Domain: vitrus
  * Domain Path: /languages
  *
- * @package Iris
+ * @package Vitrus
  */
 
 // Prevent direct file access.
@@ -27,7 +27,7 @@ if ( ! defined( 'ABSPATH' ) ) {
  *
  * @return void
  */
-function iris_autoloader_missing_notice() {
+function vitrus_autoloader_missing_notice() {
 	?>
 	<div class="notice notice-error">
 		<p>
@@ -35,7 +35,7 @@ function iris_autoloader_missing_notice() {
 			echo wp_kses_post(
 				sprintf(
 					/* translators: %s: composer install command. */
-					__( '<strong>Iris:</strong> The Composer autoloader was not found. Please run %s from the plugin directory.', 'iris' ),
+					__( '<strong>Vitrus:</strong> The Composer autoloader was not found. Please run %s from the plugin directory.', 'vitrus' ),
 					'<code>composer install</code>'
 				)
 			);
@@ -47,7 +47,7 @@ function iris_autoloader_missing_notice() {
 
 // Check for the Composer autoloader.
 if ( ! file_exists( __DIR__ . '/vendor/autoload.php' ) ) {
-	add_action( 'admin_notices', 'iris_autoloader_missing_notice' );
+	add_action( 'admin_notices', 'vitrus_autoloader_missing_notice' );
 	return;
 }
 
@@ -64,21 +64,21 @@ require_once __DIR__ . '/vendor/autoload.php';
  * @param bool $network_wide Whether the plugin is being activated network-wide.
  * @return void
  */
-function iris_activate( $network_wide ) {
+function vitrus_activate( $network_wide ) {
 	if ( $network_wide ) {
 		wp_die(
-			esc_html__( 'Iris does not support network-wide activation. Please activate it on individual sites.', 'iris' ),
-			esc_html__( 'Activation Error', 'iris' ),
+			esc_html__( 'Vitrus does not support network-wide activation. Please activate it on individual sites.', 'vitrus' ),
+			esc_html__( 'Activation Error', 'vitrus' ),
 			array( 'back_link' => true )
 		);
 	}
 
 	// Schedule a one-off cron event to hydrate the model list on activation.
-	if ( ! wp_next_scheduled( 'iris_sync_models_event' ) ) {
-		wp_schedule_single_event( time() + 10, 'iris_sync_models_event' );
+	if ( ! wp_next_scheduled( 'vitrus_sync_models_event' ) ) {
+		wp_schedule_single_event( time() + 10, 'vitrus_sync_models_event' );
 	}
 }
-register_activation_hook( __FILE__, 'iris_activate' );
+register_activation_hook( __FILE__, 'vitrus_activate' );
 
 /**
  * Handle plugin deactivation.
@@ -89,13 +89,13 @@ register_activation_hook( __FILE__, 'iris_activate' );
  *
  * @return void
  */
-function iris_deactivate() {
-	$timestamp = wp_next_scheduled( 'iris_sync_models_event' );
+function vitrus_deactivate() {
+	$timestamp = wp_next_scheduled( 'vitrus_sync_models_event' );
 	if ( $timestamp ) {
-		wp_unschedule_event( $timestamp, 'iris_sync_models_event' );
+		wp_unschedule_event( $timestamp, 'vitrus_sync_models_event' );
 	}
 }
-register_deactivation_hook( __FILE__, 'iris_deactivate' );
+register_deactivation_hook( __FILE__, 'vitrus_deactivate' );
 
 // Bootstrap the plugin.
-Iris\Plugin::init();
+Vitrus\Plugin::init();

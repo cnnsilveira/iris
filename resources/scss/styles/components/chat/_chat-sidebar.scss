@@ -1,0 +1,271 @@
+// Vitrus chat sidebar — scoped under the chat page root; tokens from _ds-tokens.
+#vitrus-chat-page-root {
+  .vitrus-sb {
+    width: 264px;
+    flex-shrink: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background: var(--vt-sidebar);
+
+    &__head {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 20px 20px 14px;
+    }
+
+    &__brand {
+      display: flex;
+      align-items: baseline;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+    }
+    &__logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 30px;
+      height: 30px;
+      color: var(--vt-text);
+      align-self: center;
+
+	  svg {
+		width: 25px;
+    	height: 20px;
+	  }
+    }
+	&__name {
+      font-weight: 600;
+      font-size: 16px;
+      letter-spacing: -0.01em;
+      color: var(--vt-text);
+	}
+    &__tag {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      color: var(--vt-faint);
+    }
+
+    &__actions {
+      padding: 2px 12px 8px;
+    }
+    &__new {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 10px 13px;
+      background: var(--vt-surface);
+      border-radius: 11px;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--vt-text);
+      &:hover {
+        background: var(--vt-raised);
+      }
+    }
+    &__kbd {
+      margin-left: auto;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--vt-faint);
+    }
+
+    &__search {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      margin: 0 12px 10px;
+      padding: 9px 13px;
+      border-radius: 10px;
+      color: var(--vt-faint);
+      input {
+        flex: 1;
+        min-width: 0;
+        border: none;
+        background: none;
+        margin: 0;
+        padding: 0;
+        min-height: 0;
+        height: auto;
+        font-size: 13px;
+        color: var(--vt-text);
+        &::placeholder {
+          color: var(--vt-faint);
+        }
+        &:focus {
+          outline: none;
+          box-shadow: none;
+        }
+      }
+      &:focus-within {
+        background: var(--vt-surface);
+      }
+    }
+
+    &__list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 4px 10px;
+    }
+    &__empty {
+      padding: 12px;
+      font-size: 13px;
+      color: var(--vt-faint);
+    }
+    &__group {
+      margin-bottom: 14px;
+    }
+    &__group-label {
+      font-size: 10px;
+      font-weight: 600;
+      letter-spacing: 0.1em;
+      color: var(--vt-faint);
+      padding: 8px 10px 6px;
+    }
+
+    &__row {
+      position: relative;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      margin-bottom: 1px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--vt-muted);
+      cursor: pointer;
+      &:hover {
+        background: var(--vt-surface);
+      }
+      &:hover .vitrus-sb__row-actions {
+        opacity: 1;
+      }
+      &--active {
+        color: var(--vt-text);
+        font-weight: 600;
+        background: var(--vt-raised);
+      }
+    }
+    &__marker {
+      position: absolute;
+      left: 0;
+      top: 9px;
+      bottom: 9px;
+      width: 2px;
+      border-radius: 2px;
+      background: var(--vt-active-marker);
+    }
+    &__row-title {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    &__row-actions {
+      position: absolute;
+      right: 6px;
+      top: 50%;
+      transform: translateY(-50%);
+      display: flex;
+      align-items: center;
+      gap: 2px;
+      padding-left: 16px;
+      opacity: 0;
+      &:has(.vitrus-menu__trigger[aria-expanded="true"]) {
+        opacity: 1;
+      }
+      button {
+        width: 24px;
+        height: 24px;
+        border-radius: 6px;
+        color: var(--vt-faint);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        &:hover {
+          background: var(--vt-border-strong);
+          color: var(--vt-text);
+        }
+      }
+    }
+    &__rename {
+      flex: 1;
+      min-width: 0;
+      border: 1px solid var(--vt-accent);
+      border-radius: 6px;
+      background: var(--vt-bg);
+      color: var(--vt-text);
+      padding: 4px 8px;
+      font-size: 13px;
+      &:focus {
+        outline: none;
+      }
+    }
+
+    &__foot {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      margin: 0 8px;
+      padding: 13px 14px;
+      border-top: 1px solid var(--vt-border);
+    }
+    &__avatar {
+      width: 30px;
+      height: 30px;
+      border-radius: 50%;
+      flex-shrink: 0;
+      background: var(--vt-raised);
+      border: 1px solid var(--vt-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--vt-text);
+      overflow: hidden;
+      img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+      }
+    }
+    &__user {
+      flex: 1;
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+    }
+    &__user-name {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--vt-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    &__user-role {
+      font-size: 10.5px;
+      color: var(--vt-faint);
+    }
+    &__settings {
+      width: 28px;
+      height: 28px;
+      border-radius: 7px;
+      color: var(--vt-faint);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      &:hover {
+        background: var(--vt-surface);
+        color: var(--vt-text);
+      }
+    }
+  }
+}

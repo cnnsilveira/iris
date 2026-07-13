@@ -1,711 +1,337 @@
 @use "../../tokens" as *;
 
-#iris-settings-page-root {
-  .iris-settings {
-    max-width: $iris-settings-max-width;
-    margin: $iris-space-lg auto;
-    background: $iris-bg-secondary;
-    border: 1px solid $iris-border;
-    border-radius: $iris-radius-lg;
-    box-shadow: $iris-shadow-md;
-    padding: $iris-space-xl;
-    color: $iris-text-primary;
+// Styled components nested inside #vitrus-settings-page-root to avoid leaks,
+// but scoped only to the custom searchable select and markdown preview elements.
+#vitrus-settings-page-root {
+  // Searchable Model Select Dropdown
+  .vitrus-settings__model-dropdown {
+    position: relative;
+    width: 100%;
+    max-width: 450px;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+  }
 
-    &__loading {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      min-height: 300px;
-      color: $iris-text-secondary;
-      gap: $iris-space-md;
+  .vitrus-settings__model-trigger {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+    background-color: #fff;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    padding: 6px 12px;
+    min-height: 40px;
+    cursor: pointer;
+    user-select: none;
+    box-sizing: border-box;
+    transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+
+    &:hover {
+      border-color: #50575e;
     }
 
-    &__spinner {
-      width: 32px;
-      height: 32px;
-      border: 3px solid $iris-border;
-      border-top-color: $iris-accent;
-      border-radius: $iris-radius-full;
-      animation: iris-spin 0.8s linear infinite;
-
-      &--btn {
-        width: 16px;
-        height: 16px;
-        border-width: 2px;
-        display: inline-block;
-        margin-right: $iris-space-sm;
-        vertical-align: text-bottom;
-      }
-    }
-
-    &__header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      border-bottom: 1px solid $iris-border;
-      padding-bottom: $iris-space-lg;
-      margin-bottom: $iris-space-xl;
-    }
-
-    &__branding {
-      display: flex;
-      align-items: center;
-      gap: $iris-space-md;
-    }
-
-    &__logo {
-      width: 40px;
-      height: 40px;
-      color: $iris-accent;
-    }
-
-    &__title {
-      font-size: $iris-font-xl;
-      font-weight: $iris-weight-bold;
-      letter-spacing: -0.02em;
-    }
-
-    &__subtitle {
-      color: $iris-text-secondary;
-      font-size: $iris-font-sm;
-      margin-top: $iris-space-xs;
-    }
-
-    &__sync-btn {
-      display: flex;
-      align-items: center;
-      gap: $iris-space-sm;
-      background: $iris-accent-subtle;
-      color: $iris-accent;
-      border: 1px solid rgba(130, 143, 255, 0.2);
-      padding: $iris-space-sm $iris-space-md;
-      border-radius: $iris-radius-md;
-      font-weight: $iris-weight-medium;
-      transition: all $iris-transition-fast;
-
-      &:hover:not(:disabled) {
-        background: $iris-accent;
-        color: $iris-bg-primary;
-      }
-
-      &:disabled {
-        opacity: 0.5;
-        cursor: not-allowed;
-      }
-    }
-
-    &__sync-icon {
-      width: 16px;
-      height: 16px;
-
-      &--spin {
-        animation: iris-spin 1.2s linear infinite;
-      }
-    }
-
-    &__alert {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: $iris-space-md $iris-space-lg;
-      border-radius: $iris-radius-md;
-      margin-bottom: $iris-space-lg;
-      font-size: $iris-font-base;
-      animation: iris-fade-in $iris-transition-base;
-
-      &--success {
-        background: rgba(78, 228, 165, 0.08);
-        border: 1px solid rgba(78, 228, 165, 0.2);
-        color: $iris-success;
-      }
-
-      &--error {
-        background: rgba(242, 95, 92, 0.08);
-        border: 1px solid rgba(242, 95, 92, 0.2);
-        color: $iris-error;
-      }
-
-      &--info {
-        background: rgba(130, 143, 255, 0.08);
-        border: 1px solid rgba(130, 143, 255, 0.2);
-        color: $iris-accent;
-      }
-    }
-
-    &__alert-close {
-      font-size: $iris-font-lg;
-      line-height: 1;
-      color: inherit;
-      opacity: 0.7;
-      transition: opacity $iris-transition-fast;
-
-      &:hover {
-        opacity: 1;
-      }
-    }
-
-    &__section {
-      margin-bottom: $iris-space-2xl;
-    }
-
-    &__section-title {
-      font-size: $iris-font-md;
-      font-weight: $iris-weight-semibold;
-      border-left: 3px solid $iris-accent;
-      padding-left: $iris-space-sm;
-      margin-bottom: $iris-space-lg;
-      color: $iris-text-primary;
-    }
-
-    &__form-group {
-      margin-bottom: $iris-space-lg;
-
-      &--checkbox {
-        display: flex;
-        align-items: flex-start;
-        margin-top: $iris-space-lg;
-      }
-    }
-
-    &__label {
-      display: block;
-      font-weight: $iris-weight-semibold;
-      margin-bottom: $iris-space-sm;
-      color: $iris-text-primary;
-    }
-
-    &__input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    &__input,
-    &__textarea {
-      width: 100%;
-      background: $iris-bg-surface;
-      border: 1px solid $iris-border;
-      border-radius: $iris-radius-md;
-      color: $iris-text-primary;
-      padding: $iris-space-md;
-      font-size: $iris-font-base;
-      transition: all $iris-transition-fast;
-
-      &:focus {
-        border-color: $iris-border-focus;
-        box-shadow: 0 0 0 3px $iris-accent-subtle;
-      }
-    }
-
-    &__textarea {
-      font-family: $iris-font-mono;
-      font-size: $iris-font-sm;
-      line-height: $iris-line-height;
-    }
-
-    &__badge {
-      position: absolute;
-      right: $iris-space-md;
-      display: flex;
-      align-items: center;
-      gap: $iris-space-xs;
-      padding: $iris-space-xs $iris-space-sm;
-      border-radius: $iris-radius-sm;
-      font-size: $iris-font-xs;
-      font-weight: $iris-weight-medium;
-
-      &--constant {
-        background: rgba(255, 255, 255, 0.05);
-        border: 1px solid $iris-border;
-        color: $iris-text-secondary;
-      }
-    }
-
-    &__help-text {
-      font-size: $iris-font-sm;
-      color: $iris-text-muted;
-      margin-top: $iris-space-xs;
-
-      a {
-        color: $iris-accent;
-        text-decoration: none;
-
-        &:hover {
-          text-decoration: underline;
-        }
-      }
-    }
-
-    // Searchable Model Select Dropdown
-    &__model-dropdown {
-      position: relative;
-      width: 100%;
-    }
-
-    &__model-trigger {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      background: $iris-bg-surface;
-      border: 1px solid $iris-border;
-      border-radius: $iris-radius-md;
-      padding: $iris-space-md;
-      cursor: pointer;
-      user-select: none;
-      transition: all $iris-transition-fast;
-
-      &:hover {
-        background: $iris-bg-surface-hover;
-        border-color: rgba(255, 255, 255, 0.15);
-      }
-
-      &--open {
-        border-color: $iris-border-focus;
-        box-shadow: 0 0 0 3px $iris-accent-subtle;
-      }
-    }
-
-    &__selected-model {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 2px;
-    }
-
-    &__selected-name {
-      font-weight: $iris-weight-medium;
-      color: $iris-text-primary;
-    }
-
-    &__selected-meta {
-      font-size: $iris-font-xs;
-      color: $iris-text-secondary;
-    }
-
-    &__dropdown-arrow {
-      width: 20px;
-      height: 20px;
-      color: $iris-text-muted;
-      transition: transform $iris-transition-base;
-
-      .iris-settings__model-trigger--open & {
-        transform: rotate(180deg);
-      }
-    }
-
-    &__model-menu {
-      position: absolute;
-      top: calc(100% + $iris-space-xs);
-      left: 0;
-      right: 0;
-      background: $iris-bg-glass;
-      backdrop-filter: blur(16px);
-      border: 1px solid $iris-border;
-      border-radius: $iris-radius-md;
-      box-shadow: $iris-shadow-lg;
-      z-index: 10;
-      overflow: hidden;
-      animation: iris-fade-in $iris-transition-fast;
-    }
-
-    &__model-menu-header {
-      padding: $iris-space-md;
-      border-bottom: 1px solid $iris-border;
-      display: flex;
-      flex-direction: column;
-      gap: $iris-space-sm;
-    }
-
-    &__model-search {
-      width: 100%;
-      background: $iris-bg-surface;
-      border: 1px solid $iris-border;
-      border-radius: $iris-radius-sm;
-      padding: $iris-space-sm;
-      color: $iris-text-primary;
-
-      &:focus {
-        outline: none;
-        border-color: $iris-border-focus;
-      }
-    }
-
-    &__free-filter {
-      display: flex;
-      align-items: center;
-      gap: $iris-space-sm;
-      font-size: $iris-font-sm;
-      color: $iris-text-secondary;
-      cursor: pointer;
-      user-select: none;
-
-      input {
-        cursor: pointer;
-      }
-    }
-
-    &__model-list {
-      max-height: 240px;
-      overflow-y: auto;
-    }
-
-    &__model-option {
-      padding: $iris-space-sm $iris-space-md;
-      cursor: pointer;
-      transition: background $iris-transition-fast;
-
-      &:hover {
-        background: $iris-bg-surface-hover;
-      }
-
-      &--selected {
-        background: $iris-accent-subtle;
-
-        &:hover {
-          background: rgba(130, 143, 255, 0.18);
-        }
-      }
-    }
-
-    &__option-name {
-      display: flex;
-      align-items: center;
-      gap: $iris-space-sm;
-      font-weight: $iris-weight-medium;
-      color: $iris-text-primary;
-    }
-
-    &__free-badge {
-      background: rgba(78, 228, 165, 0.15);
-      color: $iris-success;
-      font-size: $iris-font-xs;
-      padding: 1px $iris-space-xs;
-      border-radius: 4px;
-      font-weight: $iris-weight-semibold;
-    }
-
-    &__option-meta {
-      font-size: $iris-font-xs;
-      color: $iris-text-secondary;
-      margin-top: 2px;
-    }
-
-    &__model-no-results {
-      padding: $iris-space-lg;
-      text-align: center;
-      color: $iris-text-muted;
-      font-size: $iris-font-sm;
-    }
-
-    // Checkboxes & inputs
-    &__checkbox-label {
-      display: flex;
-      align-items: flex-start;
-      gap: $iris-space-sm;
-      cursor: pointer;
-      user-select: none;
-    }
-
-    &__checkbox {
-      margin-top: 4px;
-      cursor: pointer;
-    }
-
-    &__checkbox-text {
-      font-size: $iris-font-base;
-      line-height: $iris-line-height;
-      color: $iris-text-primary;
-    }
-
-    // Parameter grids & sliders
-    &__grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: $iris-space-lg;
-
-      @media (max-width: 600px) {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    &__slider {
-      width: 100%;
-      height: 6px;
-      background: $iris-bg-surface;
-      border-radius: $iris-radius-full;
+    &:focus,
+    &--open {
       outline: none;
-      -webkit-appearance: none;
-      margin: $iris-space-md 0;
-
-      &::-webkit-slider-thumb {
-        -webkit-appearance: none;
-        appearance: none;
-        width: 18px;
-        height: 18px;
-        border-radius: 50%;
-        background: $iris-accent;
-        cursor: pointer;
-        transition: background $iris-transition-fast;
-
-        &:hover {
-          background: $iris-accent-hover;
-        }
-      }
-
-      &::-moz-range-thumb {
-        width: 18px;
-        height: 18px;
-        border: none;
-        border-radius: 50%;
-        background: $iris-accent;
-        cursor: pointer;
-        transition: background $iris-transition-fast;
-
-        &:hover {
-          background: $iris-accent-hover;
-        }
-      }
+      border-color: #2271b1;
+      box-shadow: 0 0 0 1px #2271b1;
     }
+  }
 
-    &__slider-labels {
-      display: flex;
-      justify-content: space-between;
-      font-size: $iris-font-xs;
-      color: $iris-text-muted;
+  .vitrus-settings__selected-model {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 2px;
+    text-align: left;
+  }
+
+  .vitrus-settings__selected-name {
+    font-weight: 500;
+    font-size: 14px;
+    color: #2c3338;
+  }
+
+  .vitrus-settings__selected-meta {
+    font-size: 11px;
+    color: #646970;
+  }
+
+  .vitrus-settings__dropdown-arrow {
+    width: 20px;
+    height: 20px;
+    color: #646970;
+    transition: transform 0.2s ease-in-out;
+
+    .vitrus-settings__model-trigger--open & {
+      transform: rotate(180deg);
     }
+  }
 
-    &__footer {
-      border-top: 1px solid $iris-border;
-      padding-top: $iris-space-lg;
-      margin-top: $iris-space-xl;
-      display: flex;
-      justify-content: flex-end;
+  .vitrus-settings__model-menu {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background-color: #fff;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    z-index: 100;
+    overflow: hidden;
+    animation: vitrus-fade-in 0.15s ease-out;
+    box-sizing: border-box;
+  }
+
+  .vitrus-settings__model-menu-header {
+    padding: 10px;
+    border-bottom: 1px solid #dcdcde;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    background-color: #f6f7f7;
+  }
+
+  .vitrus-settings__model-search {
+    width: 100% !important;
+    background-color: #fff;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    padding: 6px 8px;
+    color: #2c3338;
+    font-size: 13px;
+    box-sizing: border-box;
+
+    &:focus {
+      outline: none;
+      border-color: #2271b1;
+      box-shadow: 0 0 0 1px #2271b1;
     }
+  }
 
-    &__save-btn {
-      background: $iris-accent;
-      color: $iris-bg-primary;
-      font-weight: $iris-weight-semibold;
-      padding: $iris-space-md $iris-space-xl;
-      border-radius: $iris-radius-md;
-      transition: background $iris-transition-fast;
+  .vitrus-settings__free-filter {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: #646970;
+    cursor: pointer;
+    user-select: none;
 
-      &:hover {
-        background: $iris-accent-hover;
-      }
-
-      &:disabled {
-        opacity: 0.7;
-        cursor: not-allowed;
-      }
-    }
-
-    // Tabs Navigation
-    &__tabs {
-      display: flex;
-      border-bottom: 1px solid $iris-border;
-      gap: $iris-space-md;
-      margin-bottom: $iris-space-xl;
-    }
-
-    &__tab {
-      background: none;
-      border: none;
-      border-bottom: 2px solid transparent;
-      padding: $iris-space-sm $iris-space-md;
-      color: $iris-text-secondary;
-      font-weight: $iris-weight-semibold;
-      font-size: $iris-font-base;
+    input[type="checkbox"] {
+      margin: 0;
       cursor: pointer;
-      transition: all $iris-transition-fast;
-      margin-bottom: -1px;
-
-      &:hover {
-        color: $iris-text-primary;
-      }
-
-      &--active {
-        color: $iris-accent;
-        border-bottom-color: $iris-accent;
-      }
     }
+  }
 
-    // System Prompt Markdown Editor (GitHub-style)
-    &__prompt-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: $iris-space-sm;
-      border-bottom: 1px solid $iris-border;
-      flex-wrap: wrap;
-      gap: $iris-space-sm;
+  .vitrus-settings__model-list {
+    max-height: 200px;
+    overflow-y: auto;
+  }
 
-      .iris-settings__label {
-        margin-bottom: 5px;
-      }
-    }
+  .vitrus-settings__model-option {
+    padding: 8px 12px;
+    cursor: pointer;
+    box-sizing: border-box;
+    border-bottom: 1px solid #f0f0f1;
+    text-align: left;
+    transition: background-color 0.1s ease-in-out;
 
-    &__prompt-tabs {
-      display: flex;
-      align-items: center;
-      gap: $iris-space-xs;
-    }
-
-    &__prompt-tab {
-      background: none;
-      border: 1px solid transparent;
+    &:last-child {
       border-bottom: none;
-      padding: $iris-space-xs $iris-space-md;
-      color: $iris-text-secondary;
-      font-weight: $iris-weight-medium;
-      font-size: $iris-font-sm;
-      cursor: pointer;
-      border-radius: $iris-radius-sm $iris-radius-sm 0 0;
-      transition: all $iris-transition-fast;
-      margin-bottom: -1px;
+    }
+
+    &:hover {
+      background-color: #f6f7f7;
+    }
+
+    &--selected {
+      background-color: #f0f6fc;
+      border-left: 4px solid #2271b1;
+      padding-left: 8px;
 
       &:hover {
-        color: $iris-text-primary;
-        background: $iris-bg-surface-hover;
-      }
-
-      &--active {
-        color: $iris-accent;
-        background: $iris-bg-surface;
-        border-color: $iris-border;
-        border-bottom: 1px solid $iris-bg-surface;
-        font-weight: $iris-weight-semibold;
+        background-color: #ebf3fc;
       }
     }
+  }
 
-    &__prompt-char-count {
-      font-size: $iris-font-xs;
-      color: $iris-text-muted;
-      margin-left: $iris-space-md;
-      align-self: center;
-    }
+  .vitrus-settings__option-name {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 500;
+    font-size: 13px;
+    color: #2c3338;
+  }
 
-    &__prompt-editor {
-      position: relative;
-    }
+  .vitrus-settings__free-badge {
+    background-color: #d8f3e5;
+    color: #137847;
+    font-size: 10px;
+    padding: 1px 5px;
+    border-radius: 3px;
+    font-weight: 600;
+    display: inline-block;
+  }
 
-    &__prompt-preview {
-      width: 100%;
-      background: $iris-bg-surface;
-      border: 1px solid $iris-border;
-      border-radius: $iris-radius-md;
-      color: $iris-text-primary;
-      padding: $iris-space-md;
-      font-size: $iris-font-base;
-      line-height: $iris-line-height;
-      min-height: 180px;
-      overflow-y: auto;
-      box-sizing: border-box;
+  .vitrus-settings__option-meta {
+    font-size: 11px;
+    color: #646970;
+    margin-top: 2px;
+    word-break: break-all;
+  }
 
-      // Basic Markdown styling inside preview
-      h1, h2, h3, h4, h5, h6 {
-        color: $iris-accent;
-        font-weight: $iris-weight-semibold;
-        margin-top: $iris-space-md;
-        margin-bottom: $iris-space-sm;
-        line-height: $iris-line-height-tight;
+  .vitrus-settings__model-no-results {
+    padding: 15px;
+    text-align: center;
+    color: #646970;
+    font-size: 13px;
+  }
 
-        &:first-child {
-          margin-top: 0;
-        }
-      }
+  // System Prompt Markdown Preview container
+  .vitrus-settings__prompt-preview {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen-Sans, Ubuntu, Cantarell, "Helvetica Neue", sans-serif;
+    color: #2c3338;
+    background-color: #fff;
+    border: 1px solid #8c8f94;
+    border-radius: 4px;
+    padding: 12px 15px;
+    min-height: 180px;
+    max-height: 350px;
+    overflow-y: auto;
+    box-sizing: border-box;
 
-      h1 { font-size: $iris-font-lg; border-bottom: 1px solid $iris-border; padding-bottom: $iris-space-xs; }
-      h2 { font-size: $iris-font-md; }
-      h3 { font-size: $iris-font-base; }
+    h1, h2, h3, h4, h5, h6 {
+      color: #1d2327;
+      margin-top: 16px;
+      margin-bottom: 8px;
+      font-weight: 600;
 
-      p {
+      &:first-child {
         margin-top: 0;
-        margin-bottom: $iris-space-md;
-        &:last-child {
-          margin-bottom: 0;
-        }
       }
+    }
 
-      a {
-        color: $iris-accent;
-        text-decoration: none;
-        &:hover {
-          text-decoration: underline;
-        }
-      }
+    h1 { font-size: 18px; border-bottom: 1px solid #dcdcde; padding-bottom: 4px; }
+    h2 { font-size: 16px; }
+    h3 { font-size: 14px; }
 
-      ul, ol {
-        margin-top: 0;
-        margin-bottom: $iris-space-md;
-        padding-left: $iris-space-lg;
+    p {
+      margin-top: 0;
+      margin-bottom: 12px;
+      &:last-child {
+        margin-bottom: 0;
       }
+    }
 
-      ul {
-        list-style-type: disc;
+    a {
+      color: #2271b1;
+      text-decoration: underline;
+      &:hover {
+        color: #135e96;
       }
+    }
 
-      ol {
-        list-style-type: decimal;
-      }
+    ul, ol {
+      margin-top: 0;
+      margin-bottom: 12px;
+      padding-left: 20px;
+    }
 
-      li {
-        margin-bottom: $iris-space-xs;
-      }
+    ul { list-style-type: disc; }
+    ol { list-style-type: decimal; }
+    li { margin-bottom: 4px; }
+
+    code {
+      font-family: Consolas, Monaco, monospace;
+      font-size: 12px;
+      background-color: #f0f0f1;
+      padding: 2px 4px;
+      border-radius: 3px;
+      color: #b32d2e;
+    }
+
+    pre {
+      background-color: #f6f7f7;
+      border: 1px solid #c3c4c7;
+      border-radius: 4px;
+      padding: 10px;
+      overflow-x: auto;
+      margin-bottom: 12px;
 
       code {
-        font-family: $iris-font-mono;
-        font-size: $iris-font-sm;
-        background: rgba(255, 255, 255, 0.06);
-        padding: 2px 6px;
-        border-radius: 4px;
-        color: $iris-success;
-      }
-
-      pre {
-        background: $iris-bg-primary;
-        border: 1px solid $iris-border;
-        border-radius: $iris-radius-sm;
-        padding: $iris-space-md;
-        overflow-x: auto;
-        margin-bottom: $iris-space-md;
-
-        code {
-          background: none;
-          padding: 0;
-          border-radius: 0;
-          font-size: $iris-font-sm;
-        }
-      }
-
-      blockquote {
-        margin: 0 0 $iris-space-md 0;
-        padding: 0 $iris-space-md;
-        color: $iris-text-secondary;
-        border-left: 4px solid $iris-border-focus;
+        background: none;
+        padding: 0;
+        border-radius: 0;
+        font-size: 12px;
+        color: inherit;
       }
     }
 
-    &__prompt-empty {
-      color: $iris-text-muted;
-      font-style: italic;
-      margin: 0;
+    blockquote {
+      margin: 0 0 12px 0;
+      padding: 0 12px;
+      color: #646970;
+      border-left: 4px solid #c3c4c7;
     }
+  }
+
+  .vitrus-settings__prompt-empty {
+    color: #646970;
+    font-style: italic;
+    margin: 0;
+  }
+
+  // Spinner styled specifically to match standard WP style spin/rotate
+  .vitrus-settings__spinner {
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    border: 2px solid #c3c4c7;
+    border-top-color: #2271b1;
+    border-radius: 50%;
+    animation: vitrus-spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 8px;
+
+    &--btn {
+      width: 14px;
+      height: 14px;
+      border-width: 1.5px;
+      border-top-color: #fff;
+      margin-right: 6px;
+    }
+  }
+
+  // Loading area in settings page before REST response returns
+  .vitrus-settings__loading {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 200px;
+    font-size: 14px;
+    color: #646970;
+    gap: 12px;
+    background-color: #fff;
+    border: 1px solid #c3c4c7;
+    border-radius: 4px;
+    padding: 20px;
+    margin-top: 20px;
   }
 }
 
-@keyframes iris-spin {
+@keyframes vitrus-spin {
   to {
     transform: rotate(360deg);
   }
 }
 
-@keyframes iris-fade-in {
+@keyframes vitrus-fade-in {
   from {
     opacity: 0;
-    transform: translateY(4px);
+    transform: translateY(2px);
   }
   to {
     opacity: 1;

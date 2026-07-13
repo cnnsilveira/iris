@@ -58,7 +58,7 @@ interface Settings {
  * SettingsDashboard Component.
  *
  * Renders the main administration settings layout for configuring
- * the Iris Assistant, API keys, behavior, and parameters.
+ * the Vitrus Assistant, API keys, behavior, and parameters.
  *
  * @since v0.1.0
  *
@@ -83,7 +83,7 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
   const [apiKey, setApiKey] = useState("");
   const [selectedModel, setSelectedModel] = useState("");
   const [temperature, setTemperature] = useState(0.7);
-  const [maxTokens, setMaxTokens] = useState(1024);
+  const [maxTokens, setMaxTokens] = useState(4096);
   const [systemPrompt, setSystemPrompt] = useState("");
   const [promptTab, setPromptTab] = useState<"raw" | "preview">("raw");
   const [contextSharing, setContextSharing] = useState(false);
@@ -100,8 +100,8 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   // REST details from localized script
-  const restUrl = window.irisSettings?.restUrl || "/wp-json/iris/v1/";
-  const nonce = window.irisSettings?.nonce || "";
+  const restUrl = window.vitrusSettings?.restUrl || "/wp-json/vitrus/v1/";
+  const nonce = window.vitrusSettings?.nonce || "";
 
   useEffect(() => {
     fetchSettings();
@@ -315,443 +315,532 @@ export const SettingsDashboard: React.FC<{ onBackToChat?: () => void }> = ({
 
   if (loading) {
     return (
-      <div className="iris-settings__loading">
-        <div className="iris-settings__spinner"></div>
-        <p>Loading Iris settings dashboard...</p>
+      <div className="vitrus-settings__loading">
+        <div className="vitrus-settings__spinner"></div>
+        <p>Loading Vitrus settings dashboard...</p>
       </div>
     );
   }
 
   return (
-    <div className="iris-settings">
-      <div className="iris-settings__header">
-        <div className="iris-settings__branding">
-          {onBackToChat && (
-            <button
-              type="button"
-              className="iris-settings__back-btn"
-              onClick={onBackToChat}
-              title="Return to Chat"
-            >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                width="20"
-                height="20"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"
-                  fill="currentColor"
-                />
-              </svg>
-            </button>
-          )}
-          <svg
-            className="iris-settings__logo"
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z"
-              fill="currentColor"
-            />
-          </svg>
-          <div>
-            <h1 className="iris-settings__title">Iris Assistant</h1>
-            <p className="iris-settings__subtitle">
-              Configure your WordPress AI Copilot, model parameters, and
-              preferences.
-            </p>
-          </div>
-        </div>
+    <div className="wrap">
+      <h1 className="wp-heading-inline">Vitrus Settings</h1>
+      {onBackToChat && (
         <button
           type="button"
-          className="iris-settings__sync-btn"
-          onClick={handleSyncModels}
-          disabled={syncing || (!hasApiKey && !hasConstantKey)}
+          className="page-title-action"
+          onClick={onBackToChat}
         >
-          <svg
-            className={`iris-settings__sync-icon ${syncing ? "iris-settings__sync-icon--spin" : ""}`}
-            viewBox="0 0 24 24"
-            fill="none"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M17.65 6.35C16.2 4.9 14.21 4 12 4C7.58 4 4.01 7.58 4.01 12C4.01 16.42 7.58 20 12 20C15.73 20 18.84 17.45 19.73 14H17.65C16.83 16.33 14.61 18 12 18C8.69 18 6 15.31 6 12C6 8.69 8.69 6 12 6C13.66 6 15.14 6.69 16.22 7.78L13 11H20V4L17.65 6.35Z"
-              fill="currentColor"
-            />
-          </svg>
-          {syncing ? "Syncing..." : "Sync Models"}
+          Return to Chat
         </button>
-      </div>
+      )}
+      <hr className="wp-header-end" />
 
-      <div className="iris-settings__tabs">
-        <button
-          type="button"
-          className={`iris-settings__tab ${activeTab === "settings" ? "iris-settings__tab--active" : ""}`}
-          onClick={() => setActiveTab("settings")}
-        >
-          Settings
-        </button>
-        <button
-          type="button"
-          className={`iris-settings__tab ${activeTab === "logs" ? "iris-settings__tab--active" : ""}`}
-          onClick={() => setActiveTab("logs")}
-        >
-          Debug Logs
-        </button>
+      <div className="wp-filter">
+        <ul className="filter-links">
+          <li>
+            <a
+              href="#settings"
+              className={activeTab === "settings" ? "current" : ""}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("settings");
+              }}
+            >
+              Settings
+            </a>
+          </li>
+          <li>
+            <a
+              href="#logs"
+              className={activeTab === "logs" ? "current" : ""}
+              onClick={(e) => {
+                e.preventDefault();
+                setActiveTab("logs");
+              }}
+            >
+              Debug Logs
+            </a>
+          </li>
+        </ul>
       </div>
 
       {statusMsg && (
         <div
-          className={`iris-settings__alert iris-settings__alert--${statusMsg.type}`}
+          className={`notice notice-${
+            statusMsg.type === "error" ? "error" : statusMsg.type === "success" ? "success" : "info"
+          } is-dismissible`}
+          style={{
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: "15px 0",
+          }}
         >
-          <span className="iris-settings__alert-text">{statusMsg.text}</span>
+          <p>{statusMsg.text}</p>
           <button
-            className="iris-settings__alert-close"
+            type="button"
+            className="notice-dismiss"
+            style={{
+              position: "static",
+              border: "none",
+              background: "none",
+              padding: "10px",
+              cursor: "pointer",
+            }}
             onClick={() => setStatusMsg(null)}
           >
-            &times;
+            <span className="screen-reader-text">Dismiss this notice.</span>
           </button>
         </div>
       )}
 
-      <form className="iris-settings__form" onSubmit={handleSave}>
+      <form onSubmit={handleSave}>
         {activeTab === "settings" ? (
-          <>
-            {/* Section 1: API Configuration */}
-            <div className="iris-settings__section">
-              <h2 className="iris-settings__section-title">API Authentication</h2>
-              <div className="iris-settings__form-group">
-                <label htmlFor="api_key" className="iris-settings__label">
-                  OpenRouter API Key
-                </label>
-                <div className="iris-settings__input-wrapper">
-                  <input
-                    id="api_key"
-                    type="password"
-                    className="iris-settings__input"
-                    placeholder={
-                      hasApiKey
-                        ? "••••••••••••••••••••••••••••••••"
-                        : "sk-or-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-                    }
-                    value={apiKey}
-                    onChange={(e) => setApiKey(e.target.value)}
-                    disabled={hasConstantKey}
-                  />
-                  {hasConstantKey && (
-                    <div className="iris-settings__badge iris-settings__badge--constant">
-                      <svg
-                        viewBox="0 0 24 24"
-                        fill="none"
-                        width="14"
-                        height="14"
-                        xmlns="http://www.w3.org/2000/svg"
+          <table className="form-table" role="presentation">
+            <tbody>
+              {/* Section 1: API Configuration */}
+              <tr>
+                <th
+                  scope="row"
+                  colSpan={2}
+                  style={{
+                    padding: "20px 0 10px 0",
+                    borderBottom: "1px solid #dcdcde",
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: "1.3em" }}>API Authentication</h2>
+                </th>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <label htmlFor="api_key">OpenRouter API Key</label>
+                </th>
+                <td>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <input
+                      id="api_key"
+                      type="password"
+                      className="regular-text"
+                      placeholder={
+                        hasApiKey
+                          ? "••••••••••••••••••••••••••••••••"
+                          : "sk-or-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                      }
+                      value={apiKey}
+                      onChange={(e) => setApiKey(e.target.value)}
+                      disabled={hasConstantKey}
+                    />
+                    {hasConstantKey && (
+                      <span
+                        className="badge"
+                        style={{
+                          background: "#f0f0f1",
+                          border: "1px solid #c3c4c7",
+                          padding: "3px 8px",
+                          borderRadius: "3px",
+                          fontSize: "11px",
+                          color: "#50575e",
+                        }}
                       >
-                        <path
-                          d="M18 8H17V6C17 3.24 14.76 1 12 1C9.24 1 7 3.24 7 6V8H6C4.9 8 4 8.9 4 10V20C4 21.1 4.9 22 6 22H18C19.1 22 20 21.1 20 20V10C20 8.9 19.1 8 18 8ZM12 17C10.9 17 10 16.1 10 15C10 13.9 10.9 13 12 13C13.1 13 14 13.9 14 15C14 16.1 13.1 17 12 17ZM15 8H9V6C9 4.34 10.34 3 12 3C13.66 3 15 4.34 15 6V8Z"
-                          fill="currentColor"
-                        />
-                      </svg>
-                      Configured in wp-config.php
-                    </div>
-                  )}
-                </div>
-                <p className="iris-settings__help-text">
-                  Retrieve your API key from your{" "}
-                  <a
-                    href="https://openrouter.ai/keys"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                  >
-                    OpenRouter Dashboard
-                  </a>
-                  .
-                </p>
-              </div>
-            </div>
-
-            {/* Section 2: Model Configuration */}
-            <div className="iris-settings__section">
-              <h2 className="iris-settings__section-title">Model Selection</h2>
-
-              <div className="iris-settings__form-group">
-                <label className="iris-settings__label">Active Model</label>
-
-                <div className="iris-settings__model-dropdown" ref={dropdownRef}>
-                  <div
-                    className={`iris-settings__model-trigger ${dropdownOpen ? "iris-settings__model-trigger--open" : ""}`}
-                    onClick={() => setDropdownOpen(!dropdownOpen)}
-                  >
-                    {activeModelObj ? (
-                      <div className="iris-settings__selected-model">
-                        <span className="iris-settings__selected-name">
-                          {activeModelObj.name}
-                        </span>
-                        <span className="iris-settings__selected-meta">
-                          {activeModelObj.context_length.toLocaleString()} ctx
-                          &bull; {getModelPricingStr(activeModelObj)}
-                        </span>
-                      </div>
-                    ) : (
-                      <span className="iris-settings__placeholder">
-                        {selectedModel || "Select an AI Model..."}
+                        Configured in wp-config.php
                       </span>
                     )}
-                    <svg
-                      className="iris-settings__dropdown-arrow"
-                      viewBox="0 0 24 24"
-                      fill="none"
-                      xmlns="http://www.w3.org/2000/svg"
-                    >
-                      <path d="M7 10L12 15L17 10H7Z" fill="currentColor" />
-                    </svg>
                   </div>
+                  <p className="description">
+                    Retrieve your API key from your{" "}
+                    <a
+                      href="https://openrouter.ai/keys"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      OpenRouter Dashboard
+                    </a>
+                    .
+                  </p>
+                </td>
+              </tr>
 
-                  {dropdownOpen && (
-                    <div className="iris-settings__model-menu">
-                      <div className="iris-settings__model-menu-header">
-                        <input
-                          type="text"
-                          className="iris-settings__model-search"
-                          placeholder="Search models..."
-                          value={searchQuery}
-                          onChange={(e) => setSearchQuery(e.target.value)}
-                          onClick={(e) => e.stopPropagation()}
-                          autoFocus
-                        />
-                        <label
-                          className="iris-settings__free-filter"
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <input
-                            type="checkbox"
-                            checked={freeOnly}
-                            onChange={(e) => setFreeOnly(e.target.checked)}
-                          />
-                          Free models only
-                        </label>
-                      </div>
-
-                      <div className="iris-settings__model-list">
-                        {filteredModels.length > 0 ? (
-                          filteredModels.map((model) => (
-                            <div
-                              key={model.id}
-                              className={`iris-settings__model-option ${selectedModel === model.id ? "iris-settings__model-option--selected" : ""}`}
-                              onClick={() => {
-                                setSelectedModel(model.id);
-                                setDropdownOpen(false);
-                              }}
-                            >
-                              <div className="iris-settings__option-name">
-                                {model.name}
-                                {parseFloat(model.pricing.prompt.toString()) ===
-                                  0 && (
-                                  <span className="iris-settings__free-badge">
-                                    Free
-                                  </span>
-                                )}
-                              </div>
-                              <div className="iris-settings__option-meta">
-                                {model.id} &bull;{" "}
-                                {(model.context_length / 1000).toFixed(0)}k context
-                                &bull; {getModelPricingStr(model)}
-                              </div>
-                            </div>
-                          ))
-                        ) : (
-                          <div className="iris-settings__model-no-results">
-                            No models found matching criteria.
-                          </div>
-                        )}
-                      </div>
+              {/* Section 2: Model Configuration */}
+              <tr>
+                <th
+                  scope="row"
+                  colSpan={2}
+                  style={{
+                    padding: "20px 0 10px 0",
+                    borderBottom: "1px solid #dcdcde",
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: "1.3em" }}>Model Selection</h2>
+                </th>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <label>Sync Models</label>
+                </th>
+                <td>
+                  <button
+                    type="button"
+                    className="button button-secondary"
+                    onClick={handleSyncModels}
+                    disabled={syncing || (!hasApiKey && !hasConstantKey)}
+                    style={{ display: "flex", alignItems: "center", gap: "6px" }}
+                  >
+                    {syncing && <div className="vitrus-settings__spinner vitrus-settings__spinner--btn"></div>}
+                    Sync Models
+                  </button>
+                  <p className="description">
+                    Retrieve the latest list of compatible models from OpenRouter. Requires a configured API key.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <label>Active Model</label>
+                </th>
+                <td>
+                  <div className="vitrus-settings__model-dropdown" ref={dropdownRef}>
+                    <div
+                      className={`vitrus-settings__model-trigger ${
+                        dropdownOpen ? "vitrus-settings__model-trigger--open" : ""
+                      }`}
+                      onClick={() => setDropdownOpen(!dropdownOpen)}
+                      tabIndex={0}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          setDropdownOpen(!dropdownOpen);
+                        }
+                      }}
+                    >
+                      {activeModelObj ? (
+                        <div className="vitrus-settings__selected-model">
+                          <span className="vitrus-settings__selected-name">
+                            {activeModelObj.name}
+                          </span>
+                          <span className="vitrus-settings__selected-meta">
+                            {activeModelObj.context_length.toLocaleString()} ctx
+                            &bull; {getModelPricingStr(activeModelObj)}
+                          </span>
+                        </div>
+                      ) : (
+                        <span className="vitrus-settings__placeholder" style={{ color: "#646970" }}>
+                          {selectedModel || "Select an AI Model..."}
+                        </span>
+                      )}
+                      <svg
+                        className="vitrus-settings__dropdown-arrow"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        xmlns="http://www.w3.org/2000/svg"
+                        style={{ transform: dropdownOpen ? "rotate(180deg)" : "none" }}
+                      >
+                        <path d="M7 10L12 15L17 10H7Z" fill="currentColor" />
+                      </svg>
                     </div>
-                  )}
-                </div>
-                <p className="iris-settings__help-text">
-                  Select the LLM that Iris will query. Models marked as Free do not
-                  incur billing charges on your OpenRouter account.
-                </p>
-              </div>
-            </div>
 
-            {/* Section 3: AI Behavior & System Prompts */}
-            <div className="iris-settings__section">
-              <h2 className="iris-settings__section-title">
-                Assistant Instructions
-              </h2>
+                    {dropdownOpen && (
+                      <div className="vitrus-settings__model-menu">
+                        <div className="vitrus-settings__model-menu-header">
+                          <input
+                            type="text"
+                            className="vitrus-settings__model-search"
+                            placeholder="Search models..."
+                            value={searchQuery}
+                            onChange={(e) => setSearchQuery(e.target.value)}
+                            onClick={(e) => e.stopPropagation()}
+                            autoFocus
+                          />
+                          <label
+                            className="vitrus-settings__free-filter"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <input
+                              type="checkbox"
+                              checked={freeOnly}
+                              onChange={(e) => setFreeOnly(e.target.checked)}
+                              style={{ margin: 0 }}
+                            />
+                            <span>Free models only</span>
+                          </label>
+                        </div>
 
-              <div className="iris-settings__form-group">
-                <div className="iris-settings__prompt-header">
-                  <label htmlFor="system_prompt" className="iris-settings__label">
-                    System Prompt
-                  </label>
-                  <div className="iris-settings__prompt-tabs">
+                        <div className="vitrus-settings__model-list">
+                          {filteredModels.length > 0 ? (
+                            filteredModels.map((model) => (
+                              <div
+                                key={model.id}
+                                className={`vitrus-settings__model-option ${
+                                  selectedModel === model.id
+                                    ? "vitrus-settings__model-option--selected"
+                                    : ""
+                                }`}
+                                onClick={() => {
+                                  setSelectedModel(model.id);
+                                  setDropdownOpen(false);
+                                }}
+                              >
+                                <div className="vitrus-settings__option-name">
+                                  {model.name}
+                                  {parseFloat(model.pricing.prompt.toString()) === 0 && (
+                                    <span className="vitrus-settings__free-badge">Free</span>
+                                  )}
+                                </div>
+                                <div className="vitrus-settings__option-meta">
+                                  {model.id} &bull;{" "}
+                                  {(model.context_length / 1000).toFixed(0)}k context
+                                  &bull; {getModelPricingStr(model)}
+                                </div>
+                              </div>
+                            ))
+                          ) : (
+                            <div className="vitrus-settings__model-no-results">
+                              No models found matching criteria.
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <p className="description">
+                    Select the LLM that Vitrus will query. Models marked as Free do not incur billing
+                    charges on your OpenRouter account.
+                  </p>
+                </td>
+              </tr>
+
+              {/* Section 3: AI Behavior & System Prompts */}
+              <tr>
+                <th
+                  scope="row"
+                  colSpan={2}
+                  style={{
+                    padding: "20px 0 10px 0",
+                    borderBottom: "1px solid #dcdcde",
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: "1.3em" }}>Assistant Instructions</h2>
+                </th>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <label htmlFor="system_prompt">System Prompt</label>
+                </th>
+                <td>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                      marginBottom: "8px",
+                      maxWidth: "600px",
+                    }}
+                  >
                     <button
                       type="button"
-                      className={`iris-settings__prompt-tab ${
-                        promptTab === "raw" ? "iris-settings__prompt-tab--active" : ""
-                      }`}
+                      className={`button ${promptTab === "raw" ? "active" : ""}`}
                       onClick={() => setPromptTab("raw")}
+                      style={{ height: "30px", lineHeight: "28px" }}
                     >
                       Markdown
                     </button>
                     <button
                       type="button"
-                      className={`iris-settings__prompt-tab ${
-                        promptTab === "preview" ? "iris-settings__prompt-tab--active" : ""
-                      }`}
+                      className={`button ${promptTab === "preview" ? "active" : ""}`}
                       onClick={() => setPromptTab("preview")}
+                      style={{ height: "30px", lineHeight: "28px" }}
                     >
                       Preview
                     </button>
-                    <span className="iris-settings__prompt-char-count">
+                    <span className="description" style={{ marginLeft: "auto" }}>
                       {systemPrompt.length} characters
                     </span>
                   </div>
-                </div>
 
-                <div className="iris-settings__prompt-editor">
-                  {promptTab === "raw" ? (
-                    <textarea
-                      id="system_prompt"
-                      className="iris-settings__textarea"
-                      rows={8}
-                      placeholder="You are Iris, a helpful and expert AI assistant integrated within WordPress. Help the user troubleshoot issues, write code, or craft layouts."
-                      value={systemPrompt}
-                      onChange={(e) => setSystemPrompt(e.target.value)}
-                    />
-                  ) : (
-                    <div className="iris-settings__prompt-preview">
-                      {systemPrompt.trim() ? (
-                        <div
-                          dangerouslySetInnerHTML={renderMarkdown(systemPrompt)}
-                        />
-                      ) : (
-                        <p className="iris-settings__prompt-empty">
-                          Nothing to preview.
-                        </p>
-                      )}
-                    </div>
-                  )}
-                </div>
-                <p className="iris-settings__help-text">
-                  Custom instructions prepended to the message context. Guides the
-                  tone, boundaries, and responsiveness of the model.
-                </p>
-              </div>
-
-              <div className="iris-settings__form-group iris-settings__form-group--checkbox">
-                <label className="iris-settings__checkbox-label">
-                  <input
-                    type="checkbox"
-                    className="iris-settings__checkbox"
-                    checked={contextSharing}
-                    onChange={(e) => setContextSharing(e.target.checked)}
-                  />
-                  <span className="iris-settings__checkbox-text">
-                    Share site telemetry to help Iris give better answers (WordPress
-                    version, active plugins, and active theme).
-                  </span>
-                </label>
-              </div>
-            </div>
-
-            {/* Section 4: Advanced Parameters */}
-            <div className="iris-settings__section">
-              <h2 className="iris-settings__section-title">Advanced Parameters</h2>
-
-              <div className="iris-settings__grid">
-                <div className="iris-settings__form-group">
-                  <label htmlFor="temperature" className="iris-settings__label">
-                    Temperature ({temperature.toFixed(1)})
-                  </label>
-                  <input
-                    id="temperature"
-                    type="range"
-                    min="0"
-                    max="2"
-                    step="0.1"
-                    className="iris-settings__slider"
-                    value={temperature}
-                    onChange={(e) => setTemperature(parseFloat(e.target.value))}
-                  />
-                  <div className="iris-settings__slider-labels">
-                    <span>Precise (0.0)</span>
-                    <span>Creative (2.0)</span>
+                  <div style={{ maxWidth: "600px" }}>
+                    {promptTab === "raw" ? (
+                      <textarea
+                        id="system_prompt"
+                        className="large-text"
+                        rows={8}
+                        placeholder="You are Vitrus, a helpful and expert AI assistant..."
+                        value={systemPrompt}
+                        onChange={(e) => setSystemPrompt(e.target.value)}
+                        style={{ fontFamily: "monospace" }}
+                      />
+                    ) : (
+                      <div className="vitrus-settings__prompt-preview">
+                        {systemPrompt.trim() ? (
+                          <div dangerouslySetInnerHTML={renderMarkdown(systemPrompt)} />
+                        ) : (
+                          <p className="vitrus-settings__prompt-empty">Nothing to preview.</p>
+                        )}
+                      </div>
+                    )}
                   </div>
-                </div>
-
-                <div className="iris-settings__form-group">
-                  <label htmlFor="max_tokens" className="iris-settings__label">
-                    Max Output Tokens
+                  <p className="description">
+                    Custom instructions prepended to the message context. Guides the tone,
+                    boundaries, and responsiveness of the model.
+                  </p>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">Site Telemetry</th>
+                <td>
+                  <label htmlFor="context_sharing">
+                    <input
+                      id="context_sharing"
+                      type="checkbox"
+                      checked={contextSharing}
+                      onChange={(e) => setContextSharing(e.target.checked)}
+                      style={{ margin: "0 8px 0 0", verticalAlign: "middle" }}
+                    />
+                    Share site telemetry to help Vitrus give better answers (WordPress version, active
+                    plugins, and active theme).
                   </label>
+                </td>
+              </tr>
+
+              {/* Section 4: Advanced Parameters */}
+              <tr>
+                <th
+                  scope="row"
+                  colSpan={2}
+                  style={{
+                    padding: "20px 0 10px 0",
+                    borderBottom: "1px solid #dcdcde",
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: "1.3em" }}>Advanced Parameters</h2>
+                </th>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <label htmlFor="temperature">Temperature ({temperature.toFixed(1)})</label>
+                </th>
+                <td>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "15px",
+                      maxWidth: "350px",
+                    }}
+                  >
+                    <input
+                      id="temperature"
+                      type="range"
+                      min="0"
+                      max="2"
+                      step="0.1"
+                      value={temperature}
+                      onChange={(e) => setTemperature(parseFloat(e.target.value))}
+                      style={{ flex: 1, margin: 0 }}
+                    />
+                    <span
+                      style={{
+                        fontSize: "12px",
+                        color: "#646970",
+                        minWidth: "80px",
+                        textAlign: "right",
+                      }}
+                    >
+                      {temperature <= 0.3
+                        ? "Precise (0.0)"
+                        : temperature >= 1.5
+                          ? "Creative (2.0)"
+                          : "Balanced"}
+                    </span>
+                  </div>
+                </td>
+              </tr>
+              <tr>
+                <th scope="row">
+                  <label htmlFor="max_tokens">Max Output Tokens</label>
+                </th>
+                <td>
                   <input
                     id="max_tokens"
                     type="number"
                     min="1"
                     max="32768"
-                    className="iris-settings__input"
+                    className="small-text"
                     value={maxTokens}
-                    onChange={(e) =>
-                      setMaxTokens(parseInt(e.target.value, 10) || 1024)
-                    }
+                    onChange={(e) => setMaxTokens(parseInt(e.target.value, 10) || 4096)}
                   />
-                  <p className="iris-settings__help-text">
-                    Maximum length of the assistant response.
-                  </p>
-                </div>
-              </div>
-            </div>
-          </>
+                  <p className="description">Maximum length of the assistant response.</p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         ) : (
-          <div className="iris-settings__section">
-            <h2 className="iris-settings__section-title">Developer Tools</h2>
-            <div className="iris-settings__form-group iris-settings__form-group--checkbox">
-              <label className="iris-settings__checkbox-label">
-                <input
-                  type="checkbox"
-                  className="iris-settings__checkbox"
-                  checked={debugLogging}
-                  onChange={(e) => setDebugLogging(e.target.checked)}
-                />
-                <span className="iris-settings__checkbox-text">
-                  <strong>Enable Debug Logging</strong>
-                  <br />
-                  Write API communication logs (including full request payloads and response durations) to a local <code>iris-debug.log</code> file in the plugin root.
-                </span>
-              </label>
-            </div>
-            <p className="iris-settings__help-text" style={{ marginTop: "1rem" }}>
-              To view real-time log output, open your terminal at the plugin root and run:
-              <br />
-              <code style={{ background: "rgba(255, 255, 255, 0.05)", padding: "0.2rem 0.4rem", borderRadius: "4px", display: "inline-block", marginTop: "0.5rem" }}>
-                tail -f iris-debug.log
-              </code>
-            </p>
-          </div>
+          <table className="form-table" role="presentation">
+            <tbody>
+              <tr>
+                <th
+                  scope="row"
+                  colSpan={2}
+                  style={{
+                    padding: "20px 0 10px 0",
+                    borderBottom: "1px solid #dcdcde",
+                  }}
+                >
+                  <h2 style={{ margin: 0, fontSize: "1.3em" }}>Developer Tools</h2>
+                </th>
+              </tr>
+              <tr>
+                <th scope="row">Debug Logging</th>
+                <td>
+                  <label htmlFor="debug_logging">
+                    <input
+                      id="debug_logging"
+                      type="checkbox"
+                      checked={debugLogging}
+                      onChange={(e) => setDebugLogging(e.target.checked)}
+                      style={{ margin: "0 8px 0 0", verticalAlign: "middle" }}
+                    />
+                    Enable Debug Logging
+                  </label>
+                  <p className="description">
+                    Write API communication logs (including full request payloads and response
+                    durations) to a local <code>vitrus-debug.log</code> file in the plugin root.
+                  </p>
+                  <p className="description" style={{ marginTop: "1rem" }}>
+                    To view real-time log output, open your terminal at the plugin root and run:
+                    <br />
+                    <code
+                      style={{
+                        background: "#f0f0f1",
+                        border: "1px solid #c3c4c7",
+                        padding: "0.2rem 0.4rem",
+                        borderRadius: "4px",
+                        display: "inline-block",
+                        marginTop: "0.5rem",
+                      }}
+                    >
+                      tail -f vitrus-debug.log
+                    </code>
+                  </p>
+                </td>
+              </tr>
+            </tbody>
+          </table>
         )}
 
-        <div className="iris-settings__footer">
-          <button
-            type="submit"
-            className="iris-settings__save-btn"
-            disabled={saving}
-          >
-            {saving ? (
-              <>
-                <div className="iris-settings__spinner iris-settings__spinner--btn"></div>
-                Saving...
-              </>
-            ) : (
-              "Save Settings"
-            )}
+        <p
+          className="submit"
+          style={{
+            display: "flex",
+            gap: "10px",
+            alignItems: "center",
+            marginTop: "20px",
+            borderTop: "1px solid #dcdcde",
+            paddingTop: "20px",
+          }}
+        >
+          <button type="submit" className="button button-primary" disabled={saving}>
+            {saving ? "Saving..." : "Save Settings"}
           </button>
-        </div>
+        </p>
       </form>
     </div>
   );
