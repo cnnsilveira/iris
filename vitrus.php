@@ -3,7 +3,7 @@
  * Plugin Name: Vitrus
  * Plugin URI:  https://github.com/cnnsilveira/vitrus/
  * Description: The best AI Assistant for WordPress, powered by OpenRouter.
- * Version:     0.2.0-alpha
+ * Version:     0.3.0
  * Requires PHP: 7.4
  * Author:      Caio Nunes da Silveira
  * Author URI:  https://caionunes.dev/

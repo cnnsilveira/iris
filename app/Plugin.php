@@ -59,7 +59,7 @@ class Plugin {
 	 */
 	private static function define_constants() {
 		if ( ! defined( 'VITRUS_VERSION' ) ) {
-			define( 'VITRUS_VERSION', '0.2.0-alpha' );
+			define( 'VITRUS_VERSION', '0.3.0' );
 		}
 
 		if ( ! defined( 'VITRUS_PLUGIN_FILE' ) ) {
