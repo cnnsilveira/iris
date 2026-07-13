@@ -83,30 +83,45 @@ vitrus/
 │   │   ├── ChatController.php
 │   │   ├── ModelsController.php
 │   │   └── SettingsController.php
-│   ├── Chat/                    # Chat/streaming logic, OpenRouter client
+│   ├── Chat/                    # Chat/streaming logic, OpenRouter client, debug logger
+│   │   ├── DebugLogger.php
 │   │   └── OpenRouterClient.php
 │   ├── Models/                  # Model sync, caching, WP-Cron tasks
 │   │   └── ModelManager.php
 │   └── Plugin.php               # Bootstrapper Orchestrator (at root of app/)
 ├── resources/                   # Frontend source files
+│   ├── fonts/                   # WOFF2 font assets
 │   ├── ts/                      # React + TSX development source code
-│   │   ├── components/
-│   │   │   ├── chat/            # Chat feature components
-│   │   │   └── settings/        # Settings feature components
+│   │   ├── components/          # React components
+│   │   │   ├── admin/           # Admin layout components
+│   │   │   ├── chat/            # Chat interface components
+│   │   │   ├── icons/           # Custom SVG icon components
+│   │   │   └── settings/        # Settings dashboard components
+│   │   ├── hooks/               # Custom React hooks
+│   │   ├── lib/                 # Utility functions and helper modules
+│   │   ├── types/               # TypeScript type definitions
 │   │   └── main.tsx             # Vite entry point
-│   └── scss/                    # SASS styling stylesheets
+│   └── scss/                    # SCSS styling stylesheets
 │       ├── styles/
-│       │   ├── _tokens.scss     # Design tokens
-│       │   ├── _reset.scss      # Scoped CSS reset
-│       │   └── components/      # Component-level SCSS partials
-│       │       ├── chat/        # Chat component styles
-│       │       └── settings/    # Settings component styles
+│       │   ├── _chat-surface.scss # Scoped chat surface variables & layouts
+│       │   ├── _ds-tokens.scss    # WordPress design system token bridges
+│       │   ├── _fonts.scss        # Font face declarations
+│       │   ├── _markdown.scss     # Markdown block styles
+│       │   ├── _reset.scss        # Scoped CSS reset
+│       │   ├── _tokens.scss       # Local design tokens (colors, variables)
+│       │   └── components/        # Component-specific styles
+│       │       ├── chat/          # Chat layout and widgets
+│       │       └── settings/      # Settings panels
 │       └── main.scss            # SCSS entry point
 ├── assets/
 │   └── dist/                    # Transpiled and minified build targets (JS/CSS)
-├── vitrus.php                     # Global bootstrap file
+├── vitrus.php                   # Global bootstrap file
 ├── uninstall.php                # Option database purger
-└── composer.json                # Composer settings
+├── composer.json                # Composer settings
+├── package.json                 # Node package configuration
+├── phpcs.xml                    # PHP CodeSniffer settings
+├── tsconfig.json                # TypeScript configuration
+└── vite.config.ts               # Vite bundler configuration
 ```
 
 ---

@@ -30,28 +30,34 @@ vitrus/
 ├── app/                        # PHP classes — PSR-4 root (Vitrus\)
 │   ├── Admin/                  # Admin hooks, settings, asset enqueuing
 │   ├── Api/                    # REST controllers & route registration
-│   ├── Chat/                   # Chat/streaming logic, OpenRouter client
+│   ├── Chat/                   # Chat/streaming logic, OpenRouter client, debug logger
 │   ├── Models/                 # Model sync, caching, WP-Cron tasks
 │   └── Plugin.php              # Bootstrapper (always at root of app/)
 ├── resources/
+│   ├── fonts/                  # WOFF2 font assets
 │   ├── ts/                     # React + TypeScript source
 │   │   ├── components/
+│   │   │   ├── admin/          # Admin layout components
 │   │   │   ├── chat/           # Chat feature components
-│   │   │   ├── settings/       # Settings feature components
-│   │   │   └── shared/         # Reusable cross-feature components
-│   │   ├── contexts/           # React Context providers
+│   │   │   ├── icons/          # Custom SVG icon components
+│   │   │   └── settings/       # Settings feature components
 │   │   ├── hooks/              # Custom React hooks
+│   │   ├── lib/                # Shared utilities and helpers
 │   │   ├── types/              # Shared TypeScript type definitions
 │   │   └── main.tsx            # Vite entry point
 │   └── scss/
 │       ├── styles/
-│       │   ├── _tokens.scss    # Design tokens
+│       │   ├── _chat-surface.scss # Shared chat surface styles
+│       │   ├── _ds-tokens.scss # Design system token mappings
+│       │   ├── _fonts.scss     # Font face definitions
+│       │   ├── _markdown.scss  # Markdown rendering styles
+│       │   ├── _tokens.scss    # Local design tokens
 │       │   ├── _reset.scss     # Scoped CSS reset
 │       │   └── components/     # Component-level SCSS partials
 │       └── main.scss           # SCSS entry point
 ├── assets/dist/                # Build output (gitignored)
 ├── bin/                        # Utility scripts (release.py)
-├── vitrus.php                    # Plugin bootstrap file
+├── vitrus.php                  # Plugin bootstrap file
 ├── uninstall.php               # Cleanup on delete
 ├── composer.json
 ├── package.json
